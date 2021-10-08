@@ -32,7 +32,7 @@ myTheme <- theme_classic()+
 #read in data----
 #generate a list of file names
 fyle_list <- list()
-for(sample in sample_names) {
+for(sample in RPF_sample_names) {
   for(i in lengths){
     fyle_list[[paste(sample, i, "start", sep = "_")]] <- file.path(parent_dir, "Analysis/spliced_counts", paste0(sample, "_pc_best_L", i, "_Off0_start_site.csv"))
     fyle_list[[paste(sample, i, "stop", sep = "_")]] <- file.path(parent_dir, "Analysis/spliced_counts", paste0(sample, "_pc_best_L", i, "_Off0_stop_site.csv"))
@@ -63,7 +63,7 @@ all_data %>%
 summary(all_data)
 
 #plot heatmaps----
-for (sample in sample_names) {
+for (sample in RPF_sample_names) {
   
   fill_lims <- c(0, max(all_data$counts[all_data$sample == sample]))
   

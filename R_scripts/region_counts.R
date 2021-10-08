@@ -89,7 +89,7 @@ for (sample in RPF_sample_names) {
   dev.off()
 }
 
-#for each sample, plot summed counts within each region across the length distribution
+#for each sample, plot percentage counts within each region across the length distribution
 plot_list <- list()
 for (sample in RPF_sample_names) {
   all_data[all_data$sample == sample,] %>%

@@ -3,14 +3,11 @@
 #read in variables
 source common_variables.sh
 
-#set output directory
-periodicity_dir=$parent_dir/'Analysis/periodicity'
-
 #set offset
 offset=15
 
 #run periodicity.py script
-for filename in $filenames
+for filename in $RPF_filenames
 do
 for length in $(seq 25 35)
 do

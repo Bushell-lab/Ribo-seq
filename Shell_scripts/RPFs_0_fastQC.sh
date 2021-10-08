@@ -6,7 +6,7 @@
 source common_variables.sh
 
 #run fastQC
-for filename in $filenames
+for filename in $RPF_filenames
 do
 fastqc $fastq_dir/${filename}.fastq --outdir=$fastqc_dir &
 done

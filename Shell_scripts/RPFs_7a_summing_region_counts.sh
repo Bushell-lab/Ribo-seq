@@ -3,14 +3,11 @@
 #read in variables
 source common_variables.sh
 
-#set output directory
-region_counts_dir=$parent_dir/'Analysis/region_counts'
-
 #set offset
 offset=15
 
 #run summing_region_counts.py script
-for filename in $filenames
+for filename in $RPF_filenames
 do
 for length in $(seq 25 35)
 do

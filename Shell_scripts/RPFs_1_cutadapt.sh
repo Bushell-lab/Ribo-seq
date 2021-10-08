@@ -27,14 +27,14 @@
 source common_variables.sh
 
 #run cutadapt
-for filename in ${filenames}
+for filename in $RPF_filenames
 do
 cutadapt $fastq_dir/${filename}.fastq -a $adaptor --nextseq-trim=20 -m 30 -M 50 -o $fastq_dir/${filename}_cutadapt.fastq 1> $log_dir/${filename}_cutadapt_log.txt &
 done
 wait
 
 #run fastqc on cutadapt output
-for filename in $filenames
+for filename in $RPF_filenames
 do
 fastqc $fastq_dir/${filename}_cutadapt.fastq --outdir=$fastqc_dir &
 done

@@ -3,7 +3,8 @@
 #read in variables
 source common_variables.sh
 
-for filename in $filenames
+#run the counting_script.py with a range of read lengths (adjust below if required, currently set to 25-35)
+for filename in $RPF_filenames
 do
 for length in $(seq 25 35)
 do

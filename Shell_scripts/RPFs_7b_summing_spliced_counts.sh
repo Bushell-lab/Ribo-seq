@@ -3,14 +3,11 @@
 #read in variables
 source common_variables.sh
 
-#set output directory
-spliced_counts_dir=$parent_dir/'Analysis/spliced_counts'
-
 #set number of nt to splice
 n=50
 
 #run summing_spliced_counts.py script
-for filename in $filenames
+for filename in $RPF_filenames
 do
 for length in $(seq 25 35)
 do

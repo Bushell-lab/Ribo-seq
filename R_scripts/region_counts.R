@@ -26,7 +26,7 @@ myTheme <- theme_bw()+
 #read in data----
 #generate a list of file names
 fyle_list <- list()
-for(sample in sample_names) {
+for(sample in RPF_sample_names) {
   for(i in lengths){
     fyle_list[[paste(sample, i, sep = "_")]] <- file.path(parent_dir, "Analysis/region_counts", paste0(sample, "_pc_best_L", i, "_Off0_region_counts.csv"))
   }
@@ -58,7 +58,7 @@ all_data %>%
   summarise(total_counts = sum(counts, na.rm = T)) -> total_counts
 
 total_counts %>%
-  mutate(sample = factor(sample, levels = sample_names, labels = str_replace_all(sample_names, "_", " "))) %>%
+  mutate(sample = factor(sample, levels = RPF_sample_names, labels = str_replace_all(RPF_sample_names, "_", " "))) %>%
   ggplot(aes(x = read_length, y = total_counts, colour = sample))+
   geom_line(size = 1)+
   myTheme+
@@ -72,7 +72,7 @@ dev.off()
 
 #for each sample, plot summed counts within each region across the length distribution
 plot_list <- list()
-for (sample in sample_names) {
+for (sample in RPF_sample_names) {
   all_data[all_data$sample == sample,] %>%
     mutate(region = factor(region, levels = c("UTR3", "UTR5", "CDS"), labels = c("3\'UTR", "5\'UTR", "CDS"), ordered = T)) %>%
     group_by(sample, read_length, region) %>%
@@ -91,7 +91,7 @@ for (sample in sample_names) {
 
 #for each sample, plot summed counts within each region across the length distribution
 plot_list <- list()
-for (sample in sample_names) {
+for (sample in RPF_sample_names) {
   all_data[all_data$sample == sample,] %>%
     inner_join(total_counts, by = c("sample", "read_length")) %>%
     mutate(perc_counts = (counts / total_counts * 100),

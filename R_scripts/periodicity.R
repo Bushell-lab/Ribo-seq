@@ -27,7 +27,7 @@ myTheme <- theme_bw()+
 #read in data----
 #generate a list of file names
 fyle_list <- list()
-for(sample in sample_names) {
+for(sample in RPF_sample_names) {
   for(i in lengths){
     fyle_list[[paste(sample, i, sep = "_")]] <- file.path(parent_dir, "Analysis/periodicity", paste0(sample, "_pc_best_L", i, "_Off0_periodicity.csv"))
   }
@@ -53,7 +53,7 @@ all_data %>%
 summary(all_data)
 
 #plot data----
-for (sample in sample_names) {
+for (sample in RPF_sample_names) {
   df <- all_data[all_data$sample == sample,]
   
   df %>%

@@ -10,6 +10,8 @@ Totals_filenames='Totals_1 Totals_2 Totals_3'
 #This is the sequence of the 3' adaptor that was used in the library prep. Common sequences are below, unhash the correct one if present, or if not enter it as a variable
 
 #adaptor='TGGAATTCTCGGGTGCCAAGG' #this is the adaptor used in the nextflex small RNA library kit
+#adaptor='CTGTAGGCACCATCAAT' #this is the adaptor that seems to have been more commonly used in older ribosome-footprinting studies such as Wolfe 2014
+#adaptor='AGATCGGAAGAGCACACGTCTGAA' #this is used in Steinberger 2020
 #adaptor=''
 
 ###paths

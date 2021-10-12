@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+###This script downloads all the RPF and Total RNA-seq <.fastq> files from the Steinberger et al. 2020 paper. Paths will need to be changed for each user and SRA and filenames adapted for alternative datasets
+
 #make a list of all the SRA numbers that you want to download
 SRAs='SRR11915236 SRR11915237 SRR11915238 SRR11915239 SRR11915240 SRR11915241 SRR11915242 SRR11915243 SRR11915244 SRR11915245 SRR11915246 SRR11915247'
 

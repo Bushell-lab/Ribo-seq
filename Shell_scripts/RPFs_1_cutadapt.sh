@@ -6,6 +6,7 @@
 
 #The --nextseq-trim=20 option will trim bases from the 3' end if the quality score is below 20. This is only for sequencing data generated on the
 #Next-seq (which is what we have here at the Beatson). If using external data set that has been sequenced on a Hi-seq, replace this command with -q 20
+#It should state which sequencing platform was used on the GEO page
 #The following text from the cutadpat manual explains why this is
 
 #Some Illumina instruments use a two-color chemistry to encode the four bases. This includes the NextSeq and the NovaSeq.

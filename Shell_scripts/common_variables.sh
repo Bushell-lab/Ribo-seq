@@ -11,7 +11,7 @@ Totals_filenames='Totals_1 Totals_2 Totals_3'
 
 #adaptor='TGGAATTCTCGGGTGCCAAGG' #this is the adaptor used in the nextflex small RNA library kit
 #adaptor='CTGTAGGCACCATCAAT' #this is the adaptor that seems to have been more commonly used in older ribosome-footprinting studies such as Wolfe 2014
-#adaptor='AGATCGGAAGAGCACACGTCTGAA' #this is used in Steinberger 2020
+#adaptor='AGATCGGAAGAGCAC' #this is the one stated in the McGlincy and Ingolia 2017 methods paper
 #adaptor=''
 
 ###paths

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-#This script uses cutadpat to remove UMIs. For the nextflex library prep kit that we use for RPFs, these are 4nt at either end of the read. Edit the -u options if this is different for your specific library prep
+#This script uses cutadpat to remove UMIs. For the nextflex library prep kit that we use for RPFs, these are 4nt at either end of the read.
+#Edit the -u options if this is different for your specific library prep. Positive values remove bases from the 5' end of the read and negative values remove bases from the 3' end
+#The standard McGlincy and Ingolia 2017 method, you need to remove 2 bases from the 5' end and 5 bases from the 3' end (-u 2 -u -5)
 
 #read in variables
 source common_variables.sh

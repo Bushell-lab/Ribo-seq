@@ -50,5 +50,5 @@ pc_fasta=${fasta_dir}/GENCODE/v38/gencode.v38.pc_transcripts_filtered.fa
 #transcript_ID,5'UTR length,CDS length,3'UTR length
 #Running the Filter_GENCODE_FASTA.py script will generate this file as one of its outputs
 
-region_lengths=${fasta_dir}/GENCODE/vM27/gencode.v38.pc_transcripts_region_lengths.csv
+region_lengths=${fasta_dir}/GENCODE/v38/gencode.v38.pc_transcripts_region_lengths.csv
 

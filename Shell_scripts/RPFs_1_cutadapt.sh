@@ -27,12 +27,19 @@
 #read in variables
 source common_variables.sh
 
+#activate cutadapt conda environment
+conda activate cutadapt
+
 #run cutadapt
 for filename in $RPF_filenames
 do
-cutadapt $fastq_dir/${filename}.fastq -a $adaptor --nextseq-trim=20 -m 30 -M 50 -o $fastq_dir/${filename}_cutadapt.fastq 1> $log_dir/${filename}_cutadapt_log.txt &
+cutadapt $fastq_dir/${filename}.fastq -a $RPF_adaptor --nextseq-trim=20 -m 30 -M 50 -o $fastq_dir/${filename}_cutadapt.fastq 1> $log_dir/${filename}_cutadapt_log.txt &
 done
 wait
+
+#deactivate cutadapt conda environment and activate fastQC conda environment
+conda deactivate
+conda activate fastQC
 
 #run fastqc on cutadapt output
 for filename in $RPF_filenames
@@ -40,3 +47,6 @@ do
 fastqc $fastq_dir/${filename}_cutadapt.fastq --outdir=$fastqc_dir &
 done
 wait
+
+#deactivate fastQC conda environment
+conda deactivate

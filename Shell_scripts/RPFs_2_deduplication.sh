@@ -8,16 +8,22 @@
 #-e specifies the number of mismatches allowed. By setting to 0 means only unique reads will be kept
 
 #For more info on cd-hit-dup see https://github.com/weizhongli/cdhit/wiki/3.-User's-Guide#cdhitdup
-#For some reason you must include the path to the cd-hit-dup program when calling it (even if added to the path)
 
 #read in variables
 source common_variables.sh
 
+#activate cd-hit environment
+conda activate cdhit
+
 #read deduplication
 for filename in $RPF_filenames
 do
-/home/local/BICR/jwaldron/data/JWALDRON/Scripts/cdhit-master/cdhit-master/cd-hit-auxtools/cd-hit-dup -i $fastq_dir/${filename}_cutadapt.fastq -o $fastq_dir/${filename}_cdhitdup.fastq -e 0
+cd-hit-dup -i $fastq_dir/${filename}_cutadapt.fastq -o $fastq_dir/${filename}_cdhitdup.fastq -e 0
 done
+
+#deactivate cd-hit environment and activate fastQC environment
+conda deactivate
+conda activate fastQC
 
 #run fastqc on cd-hit-dup output
 for filename in $RPF_filenames
@@ -25,3 +31,6 @@ do
 fastqc $fastq_dir/${filename}_cdhitdup.fastq --outdir=$fastqc_dir &
 done
 wait
+
+#deactivate fastQC environment
+conda deactivate

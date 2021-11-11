@@ -1,5 +1,5 @@
 ## Dependencies
-Use conda to install dependencies in seperate environments
+Use conda to install the following dependencies in seperate environments
 
 Install conda by following the instuctions here:
 [conda installation instructions](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html)

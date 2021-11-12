@@ -17,3 +17,8 @@ mkdir $spliced_counts_dir
 mkdir $periodicity_dir
 mkdir $cds_counts_dir
 mkdir $codon_counts_dir
+mkdir $plots_dir
+mkdir $summed_counts_plot_dir
+mkdir $periodicity_plot_dir
+mkdir $offset_plot_dir
+mkdir $heatmaps_plot_dir

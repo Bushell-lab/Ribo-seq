@@ -40,9 +40,59 @@ The output will tell you the number of reads for each <.fastq> file as well as s
 A good indication of whether the <.fastq> files have already been processed or not is the sequence length distribution. If no processing has been done, then all reads should be the same length, which will be the number of cycles used when sequenced. For example, if 75 cycles were selected when setting up the sequencing run, then all reads would be 75 bases long, even if the library fragment length was much shorter or much longer than this. Therefore, if for example with a standrad RPF library with 4nt UMIs on either end of the RPF, the fragment length will be roughly 30nt (RPF length) plus 8nt (UMIs) plus the length of the 3' adaptor. If the adaptors had already been removed prior to uploading the <.fastq> files to GEO, then the sequence length distribution will be a range of values, peaking at roughly 38. If the peak was closer to 30nt then it could be presumed that the UMIs had also been removed. The adaptor content will also give a good indication of this, as in the above example, if adaptors hadn't been removed, you should expect to see adaptor contamination coming up in the reads from roughly 38nts into the reads.
 
 ### Remove adaptors
-The 3' adaptor used in the library prep will be sequenced immediately after the fragment (and UMI if used). These therefore need to be removed so that they do not affect alignment. We use cutadapt for this, which removes this sequence (user defined) and any sequence downstream of this. Before this it also trims low quality bases from the 3' end of the read below a certain quality score (user defined, we use q20). Cutadapt can also remove reads that are shorter or longer than user defined values. For RPFs (~30) with 4nt UMIs at each end, we filter reads so that they are 30-50nt. If UMIs have been used then you need to set the minimum read length to 30nt as otherwise cd-hit-dup has issues de-duplicating the reads. If UMIs haven't been used, you will need to change these settings to 20-40.
+The 3' adaptor used in the library prep will be sequenced immediately after the fragment (and UMI if used). These therefore need to be removed so that they do not affect alignment. The ***RPFs_1_adaptor_removal.sh*** script uses cutadapt for this, which removes this sequence (user defined) and any sequence downstream of this. Before this it also trims low quality bases from the 3' end of the read below a certain quality score (user defined, we use q20). Cutadapt can also remove reads that are shorter or longer than user defined values. For RPFs (~30) with 4nt UMIs at each end, we filter reads so that they are 30-50nt. If UMIs have been used then you need to set the minimum read length to 30nt as otherwise cd-hit-dup has issues de-duplicating the reads. If UMIs haven't been used, you will need to change these settings to 20-40.
 
 After cutadapt has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cutadapt has done what you think it has**
+
+### De-duplication and UMI removal
+If UMIs have been used in the library prep, reads that are PCR duplicates can be removed from the <.fastq> file, ensuring that all remaining reads originated from unique RPFs. The ***RPFs_2_deduplication.sh*** script uses cd-hit-dup to make a new <.fastq> file containing only unique reads
+
+After cd-hit-dup has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cd-hit-dup has done what you think it has**
+
+The UMIs can now be removed. The ***RPFs_3_UMI_removal.sh*** script uses cutadapt to remove a set number of bases from the 5' and 3' end of all reads. This needs to be set to match the structure of the UMIs used. For the nextflex library prep kit that we use for RPFs, these are 4nt at either end of the read.
+
+After cutadpat has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cutadapt has done what you think it has**
+
+**If the library prep did not include UMIs then this step should be skipped. If this is the case you need to edit the names of the input <.fastq> files in the** ***RPFs_4_align_reads.sh*** **script to the names of the output <.fastq> files from the** ***RPFs_2_deduplication.sh*** **script**
+
+### Read alignment
+The processing of the reads up to this point should have resulted in the removal of any sequences introduced during the library prep as well as removal of any PCR duplicates. This means the reads should reflect the exact sequences of the extracted RNA and so can now be aligned to a transcriptome. **It is very important to give some consideration to what transcriptome you use and how to handle multimapped reads.** It is strongly recommended that you use the gencode protein coding transcriptome that has been filtered to include only Havana protein coding transcripts that have both 5' and 3'UTRs and which the CDS is equally divisble by 3, starts with a strart codon and finishes with a stop codon.
+
+The ***RPFs_4_align_reads.sh*** script uses bbmap to first align reads first to the rRNAs, tRNAs and mitochondrial mRNAs (will be filtered from the above fasta due to lack of UTRs). Each alignment will create two new <.fastq> files containing the reads that did and did not align as well as a <.SAM> file of the alignments. The reads that didn't align to either of these transcriptomes are then aligned to the protein coding transcriptome, firstly keeping all alignments (including multi-mapped reads) and then keeping only the highest scoring alignment for any mulit-mapped reads.
+
+fastQC is then used to inspect the QC and read length distribution of these different alignments. You would expect to see a nice peak of read lengths 28-30nt for the protein coding aligned reads but a wider distribition of reads for the rRNA (this should reflect the size you cut you did on the RNA extraction gel).
+
+### SAM to BAM
+Sequence alignments are written to <.SAM> files. These can be compressed to <.BAM> files which take up less space and can also be sorted and indexed. The ***RPFs_5_SAM_to_BAM.sh*** script will do exactly this.
+
+### Count reads
+In order to do any downstream analysis, we need to know how many reads aligned to which mRNAs at which positions. Also for library QC it is important to be able to distinguish between different read lengths, as certain read lengths may be filtered to remove those reads that are less likely to be true RPFs
+
+The ***counting_script.py*** script was adpated from the [RiboPlot package](https://pythonhosted.org/riboplot/ribocount.html). This script creates <.counts> files, which are plain text files in the following structure;
+
+Transcript_1
+
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 150 20 34 85 34 58 75 22 27 85 53 24 85.....................................................
+
+Transcript_2
+
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 103 10 37 83 24 57 45 28 7 89 43 26 55.....................................................
+
+Transcript_3
+
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 87 20 34 85 34 48 79 12 19 75 51 14 95.....................................................
+
+
+where each two lines represents one transcript, with the first of each two lines containg the transcript ID and the second of each two lines containg tab seperated values of the read counts that start at that position within the transcript. The number of values should therefore reflect the length of that transcript.
+
+The ***RPFs_6_Extract_counts_all_lengths.sh*** uses the ***counting_script.py*** script to generate a <.counts> file for each sample for each read length defined in the for loop and stores all thes files in the Counts_files directory. These are the input files for the downstream analysis
+
+### library QC
+The ***RPFs_7a_summing_region_counts.sh; RPFs_7b_summing_spliced_counts.sh and RPFs_7c_periodicity.sh*** scripts utlise the custom python scripts, reading in the counts files generated above and creating <.csv> files that the ***region_counts.R; heatmaps.R; offset_plots.R and periodicity.R*** scripts use to generate the library QC plots. From these plots you should be able to determine whether the RPF libraries have the properties that would argue they are truelly RPFs. These are;
+- read length distribution peaking at 28-30nt
+- strong periodicity
+- strong enrichment of reads within the CDS and depletion of reads within the 3'UTR
+From these plots you can then determine what read lengths you want include in your downstream analysis for DE and codon level analyses. The offset plots should also allow you to offset the plots so that the start of the read is the first nt of the A-site with which that RPF was positioned at. It is likely that different read lengths will require slightly different offsets. This is typically 15-16nt as the first peak of reads usually aligns 12-13nt upstream of the start codon and these reads are aligned with the start codon in the P-site.
 
 # Common troubleshooting
 ### remove \r end lines

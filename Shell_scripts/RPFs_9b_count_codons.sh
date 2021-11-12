@@ -8,6 +8,6 @@ source common_variables.sh
 
 for filename in $RPF_filenames
 do
-count_codon_occupancy.py ${filename}_pc_best_final.counts $pc_fasta $region_lengths -in_dir $Count_dir -out_dir $codon_counts_dir &
+count_codon_occupancy.py ${filename}_pc_best_final.counts $pc_fasta $region_lengths -in_dir $counts_dir -out_dir $codon_counts_dir &
 done
 wait

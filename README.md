@@ -85,7 +85,7 @@ Transcript_3
 
 where each two lines represents one transcript, with the first of each two lines containg the transcript ID and the second of each two lines containg tab seperated values of the read counts that start at that position within the transcript. The number of values should therefore reflect the length of that transcript.
 
-The ***RPFs_6_Extract_counts_all_lengths.sh*** uses the ***counting_script.py*** script to generate a <.counts> file for each sample for each read length defined in the for loop and stores all thes files in the Counts_files directory. These are the input files for the downstream analysis
+The ***RPFs_6_Extract_counts_all_lengths.sh*** uses the ***counting_script.py*** script to generate a <.counts> file for each sample for each read length defined in the for loop and stores all thes files in the Counts_files directory. This uses the sorted <.BAM> file as input and also needs the associated index <.BAI> file to be in the same directory. **The script uses the best alignments so every read only counts once but that all transcripts can be considered.** These are the input files for the downstream analysis.
 
 ### library QC
 The ***RPFs_7a_summing_region_counts.sh; RPFs_7b_summing_spliced_counts.sh and RPFs_7c_periodicity.sh*** scripts utlise the custom python scripts, reading in the counts files generated above and creating <.csv> files that the ***region_counts.R; heatmaps.R; offset_plots.R and periodicity.R*** scripts use to generate the library QC plots. From these plots you should be able to determine whether the RPF libraries have the properties that would argue they are truelly RPFs. These are;
@@ -93,6 +93,9 @@ The ***RPFs_7a_summing_region_counts.sh; RPFs_7b_summing_spliced_counts.sh and R
 - strong periodicity
 - strong enrichment of reads within the CDS and depletion of reads within the 3'UTR
 From these plots you can then determine what read lengths you want include in your downstream analysis for DE and codon level analyses. The offset plots should also allow you to offset the plots so that the start of the read is the first nt of the A-site with which that RPF was positioned at. It is likely that different read lengths will require slightly different offsets. This is typically 15-16nt as the first peak of reads usually aligns 12-13nt upstream of the start codon and these reads are aligned with the start codon in the P-site.
+
+### Summing CDS counts
+Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_8_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied. The script makes a <.counts> file for the best and all alignments seperately. **For DE expression it is then best to use the all alignments but select the most abundant transcript per gene based on the total RNA-seq data. For codon level analyses which is done transcriptome wide it is best to use the best mappings.**
 
 # Common troubleshooting
 ### remove \r end lines

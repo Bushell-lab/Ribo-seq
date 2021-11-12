@@ -35,11 +35,12 @@ rsem_dir=${parent_dir}/rsem
 
 #The below directories are where all the csv files that are used as input into R will be saved
 
-region_counts_dir=$parent_dir/'Analysis/region_counts'
-spliced_counts_dir=$parent_dir/'Analysis/spliced_counts'
-periodicity_dir=$parent_dir/'Analysis/periodicity'
-cds_counts_dir=$parent_dir/'Analysis/CDS_counts'
-codon_counts_dir=$parent_dir/'Analysis/codon_counts'
+analysis_dir=$parent_dir/Analysis
+region_counts_dir=$analysis_dir/region_counts
+spliced_counts_dir=$analysis_dir/spliced_counts
+periodicity_dir=$analysis_dir/periodicity
+cds_counts_dir=$analysis_dir/CDS_counts
+codon_counts_dir=$analysis_dir/codon_counts
 
 #Fastas
 fasta_dir='/Path/to/FASTAs'

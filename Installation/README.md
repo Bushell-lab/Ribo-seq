@@ -35,7 +35,7 @@ conda deactivate
 ```
 
 ## RNAseq environment
-The RiboSeq environment is for processing totals and requires the following programs to be installed. This environment can also be used to process standard RNA-seq data
+The RNAseq environment is for processing totals and requires the following programs to be installed. This environment can also be used to process standard RNA-seq data
 #### RSEM [manual](https://deweylab.github.io/RSEM/README.html)
 RSEM also requires either bowtie, bowtie2 or STAR to align the reads. We use [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml).
 

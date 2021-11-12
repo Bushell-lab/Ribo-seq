@@ -97,6 +97,12 @@ From these plots you can then determine what read lengths you want include in yo
 ### Summing CDS counts
 Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_8_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied. The script makes a <.counts> file for the best and all alignments seperately. **For DE expression it is then best to use the all alignments but select the most abundant transcript per gene based on the total RNA-seq data. For codon level analyses which is done transcriptome wide it is best to use the best mappings.**
 
+The ***RPFs_9a_CDS_counts.sh*** uses the ***summing_CDS_counts.py*** to sum all the read counts that are within the CDS.
+
+The ***summing_CDS_counts.py*** has an option to remove the first 20 and last 10 codons, which is recommended (and set as default in *RPFs_9a_CDS_counts.sh* script) to avoid biases at the start and stop codons, essentially meaning that only activly elongating ribosomes are counted.
+
+There is also the option to only include reads that are in frame. However, although periodicty indicates that the majority of the reads are truely RPFs, it doesn't neccessarily mean that reads that are not in frame are not RPFs and the majority of the reads in the CDS will most likely be RPFs. **It is therefore recommended to include reads in all frames for DE analysis. For codon level analyses, only reads in frame should be used as it is not possible to determine the A-site codon with high confidence for reads not in frame.**
+
 # Common troubleshooting
 ### remove \r end lines
 The end of line character for windows is \r but for linux and mac it is \n. Sometimes, when you open a script on your PC in a text editor it will automatically add both \n and \r to the end of any new lines created. However, as the shell scripts are intended to be run on a linux/mac platform, this will cause issues and will return the following error message.

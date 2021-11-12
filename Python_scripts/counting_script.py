@@ -99,7 +99,7 @@ def main(args):
         log.info('directory created')
 
         log.info('Getting RPF counts for all transcripts in FASTA')
-        with open(outfile,'aw') as outputfile:
+        with open(outfile,'w') as outputfile:
             for transcript in f.references:
                 transcript_sequence=f.fetch(transcript)
                 ribo_counts, ribo_reads = get_RPF_counts(pysamobj=b,transcript_name=transcript,transcript_length=len(transcript_sequence),read_lengths=read_lengths,read_offsets=read_offsets)

@@ -12,9 +12,6 @@
 #read in variables
 source common_variables.sh
 
-#activate bbmap environment
-conda activate bbmap 
-
 #Align to rRNA
 for filename in $RPF_filenames
 do
@@ -40,10 +37,6 @@ bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA_mito.fastq out=$SAM_dir/${filen
 bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA_mito.fastq out=$SAM_dir/${filename}_pc_best.sam ref=$pc_fasta ambiguous=best nodisk 2> $log_dir/${filename}_pc_best_log.txt
 done
 
-#deactivate bbmap environment and activate fastQC environment
-conda deactivate
-conda activate fastQC
-
 #run fastqc on mapped reads
 for filename in $RPF_filenames
 do
@@ -54,6 +47,3 @@ fastqc $fastq_dir/${filename}_pc.fastq --outdir=$fastqc_dir &
 fastqc $fastq_dir/${filename}_unaligned.fastq --outdir=$fastqc_dir &
 done
 wait
-
-#deactivate fastQC environment
-conda deactivate

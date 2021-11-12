@@ -12,18 +12,11 @@
 #read in variables
 source common_variables.sh
 
-#activate cd-hit environment
-conda activate cdhit
-
 #read deduplication
 for filename in $RPF_filenames
 do
 cd-hit-dup -i $fastq_dir/${filename}_cutadapt.fastq -o $fastq_dir/${filename}_cdhitdup.fastq -e 0
 done
-
-#deactivate cd-hit environment and activate fastQC environment
-conda deactivate
-conda activate fastQC
 
 #run fastqc on cd-hit-dup output
 for filename in $RPF_filenames
@@ -31,6 +24,3 @@ do
 fastqc $fastq_dir/${filename}_cdhitdup.fastq --outdir=$fastqc_dir &
 done
 wait
-
-#deactivate fastQC environment
-conda deactivate

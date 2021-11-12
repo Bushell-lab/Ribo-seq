@@ -44,10 +44,10 @@ codon_counts_dir=$analysis_dir/codon_counts
 
 #The following directories are where all the plots generated in R will be saved
 plots_dir=$parent_dir/plots
-summed_counts_dir=$plots_dir/summed_counts
-periodicity_dir=$plots_dir/periodicity
-offset_dir=$plots_dir/offset
-heatmaps_dir=$plots_dir/heatmaps
+summed_counts_plots_dir=$plots_dir/summed_counts
+periodicity_plots_dir=$plots_dir/periodicity
+offset_plots_dir=$plots_dir/offset
+heatmaps_plots_dir=$plots_dir/heatmaps
 
 
 

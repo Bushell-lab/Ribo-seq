@@ -23,7 +23,7 @@ Totals_adaptor='AGATCGGAAGAG' #this is the adaptor used in the LEXOGEN CORALL To
 
 parent_dir='/Path/to/data'
 
-#The below directories are where all the processed data will be saved. These all need to be created prior to starting the analysis
+#The following directories are where all the processed data will be saved. These all need to be created prior to starting the analysis
 
 fastq_dir=${parent_dir}/fastq_files
 fastqc_dir=${parent_dir}/fastQC_files
@@ -33,7 +33,7 @@ log_dir=${parent_dir}/logs
 counts_dir=${parent_dir}/Counts_files
 rsem_dir=${parent_dir}/rsem
 
-#The below directories are where all the csv files that are used as input into R will be saved
+#The following directories are where all the csv files that are used as input into R will be saved
 
 analysis_dir=$parent_dir/Analysis
 region_counts_dir=$analysis_dir/region_counts
@@ -41,6 +41,15 @@ spliced_counts_dir=$analysis_dir/spliced_counts
 periodicity_dir=$analysis_dir/periodicity
 cds_counts_dir=$analysis_dir/CDS_counts
 codon_counts_dir=$analysis_dir/codon_counts
+
+#The following directories are where all the plots generated in R will be saved
+plots_dir=$parent_dir/plots
+summed_counts_dir=$plots_dir/summed_counts
+periodicity_dir=$plots_dir/periodicity
+offset_dir=$plots_dir/offset
+heatmaps_dir=$plots_dir/heatmaps
+
+
 
 #Fastas
 fasta_dir='/Path/to/FASTAs'

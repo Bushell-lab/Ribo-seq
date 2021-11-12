@@ -23,6 +23,7 @@ The python scripts <.py> should not need to be edited. These can be used for mul
 - A region lengths <.csv> file that contains ***transcript_ID, 5'UTR length, CDS length, 3'UTR length*** in that stated order without a header line, for all transcripts within the protein coding FASTA, also needs to be created and the path to this file should also be stated in the common_variables.sh script.
 - Once the common_variables.sh script has been completed, run the makeDirs.sh to set up the file structure to store all raw and processed data within the parent directory. Alternativly you can create these directories manually without the command line.
 - **It is highly recommended that this data structure is followed as the scripts are designed to output the data in these locations and this makes it much easier for other people to understand what has been done and improves traceability. The filenames are also automatically generated within each script and should contain all important information. Again it is highly recommended that this is not altered for the same reasoning.**
+- Once the directories have been set up, place all the raw <.fastq> files in the fastq_files directory. These will be the input into the *RPFs_0_fastQC.sh* and *RPFs_1_cutadapt.sh* scripts so check that that extensiones match. It is fine if these files a <.gz> compressed as both fastQC and cutadapt can use compressed files as input, but again make sure that the shell scripts have the .gz extension included 
 
 ## Processing RPFs
 ### Sequencing Quality Checks

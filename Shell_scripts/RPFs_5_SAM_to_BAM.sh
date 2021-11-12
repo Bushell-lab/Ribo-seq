@@ -6,9 +6,6 @@
 #read in variables
 source common_variables.sh
 
-#activate SAMtools environment
-conda activate SAMtools
-
 #convert sam to sam 
 for filename in $RPF_filenames
 do
@@ -31,6 +28,3 @@ samtools index $BAM_dir/${filename}_pc_all_sorted.bam $BAM_dir/${filename}_pc_al
 samtools index $BAM_dir/${filename}_pc_best_sorted.bam $BAM_dir/${filename}_pc_best_sorted.bai &
 done
 wait
-
-#deactivate SAMtools environment
-conda deactivate

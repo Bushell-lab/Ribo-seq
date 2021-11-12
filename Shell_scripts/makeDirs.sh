@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+#make directories
+mkdir fastq_dir
+mkdir fastqc_dir
+mkdir SAM_dir
+mkdir BAM_dir
+mkdir log_dir
+mkdir counts_dir
+mkdir rsem_dir
+
+mkdir region_counts_dir
+mkdir spliced_counts_dir
+mkdir periodicity_dir
+mkdir cds_counts_dir
+mkdir codon_counts_dir

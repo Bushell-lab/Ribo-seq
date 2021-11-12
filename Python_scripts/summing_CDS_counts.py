@@ -14,8 +14,7 @@ def sum_CDS_counts(in_dict, frame, region_lengths_dict, remove_end_codons, outfy
         UTR5_len = region_lengths_dict[k][0]
         cds_len = region_lengths_dict[k][1]
         cds_end = UTR5_len + cds_len
-        UTR3_len = region_lengths_dict[k][2]
-        
+                
         cds_counts = v[UTR5_len:cds_end]
         if remove_end_codons == True:
             cds_counts = cds_counts[60:-30] #removes 20 codons from the 5' end and 10 codons from the 3' end

@@ -5,15 +5,9 @@
 #read in variables
 source common_variables.sh
 
-#activate fastQC conda environment
-conda activate fastQC
-
 #run fastQC
 for filename in $RPF_filenames
 do
 fastqc $fastq_dir/${filename}.fastq --outdir=$fastqc_dir &
 done
 wait
-
-#deactivate fastQC conda environment
-conda deactivate

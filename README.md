@@ -8,13 +8,13 @@ Make sure you have all dependencies installed by following the instructrions [he
 This pipeline uses custom shell scripts to call several external programs as well as custom python scripts to process the data. The processed data can then be used as input into the custom R scripts to either generate library QC plots, perform differential expression (DE) analysis with DEseq2 or to determine codon elongation rates or ribosome pause sites
 
 ### Shell scripts
-The shell scripts <.sh> are designed to serve as a template for processing the data but require the user to modify them so that they are specific to each experiment. This is because different library prep techniques are often used, such as the use of different **adaptor sequences** or the use of **UMIs**. It is therefore essential that the user knows how the libraries were prepared before starting the analysis. If this is there own data then this should already be known, but for external data sets this is often not as straight forward as expected. Also, it can be unclear whether the data uploaded to GEO is the raw unprocessed <.fastq> files or whether initial steps such as adaptor removal or de-duplication and UMI removal have already been carried out. This is why each processing step is carried out seperately and why the output from these steps is checked with fastQC so it is essential that the user checks these files by viusal inspection after each step, so that the user can be certain that the step has processed the data as expected. Each shell script has annotation at the top describing what the script does and which parts might need editing. **It is therefore strongly recommended that the user opens up each shell script and reads and understands them fully before running them**
+The shell scripts <.sh> are designed to serve as a template for processing the data but require the user to modify them so that they are specific to each experiment. This is because different library prep techniques are often used, such as the use of different **adaptor sequences** or the use of **UMIs**. It is therefore essential that the user knows how the libraries were prepared before starting the analysis. If this is their own data then this should already be known, but for external data sets this is often not as straight forward as expected. Also, it can be unclear whether the data uploaded to GEO is the raw unprocessed <.fastq> files or whether initial steps such as adaptor removal or de-duplication and UMI removal have already been carried out. This is why each processing step is carried out seperately and why the output from these steps is checked with fastQC, so it is essential that the user checks these files by viusal inspection after each step, so that the user can be certain that the step has processed the data as expected. Each shell script has annotation at the top describing what the script does and which parts might need editing. **It is therefore strongly recommended that the user opens up each shell script and reads and understands them fully before running them**
 
 ### R scripts
-The R scripts will read in the processed data generated from the custom python scripts and generate plots and perform DE analysis. These shouldn't need to be edited as the final processed data should be in a standard format, although the user is free to do what they wish with these and change the styles of the plots or add further analyses/plots should they wish. The common_variables.R (see below) script will need to be edited to add the filenames and path to the parent directory as well as the read lengths that they wish to inspect with the library QC plots.
+The R scripts will read in the processed data generated from the custom python scripts and generate plots and perform DE analysis. These shouldn't need to be edited as the final processed data should be in a standard format, although the user is free to do what they wish with these and change the styles of the plots or add further analyses/plots should they wish. The common_variables.R (see below) script will need to be edited to add the filenames and path to the parent directory, as well as the read lengths that they wish to inspect with the library QC plots. The common_variables.R script needs to be in the current working directory when running the other <.R> scripts.
 
 ### Python scripts
-The python scripts <.py> should not need to be edited. These can be used for multiple projects and so it is recommended that these are placed in a seperate directory. If you set the $PATH to this directory, they can be called from any directory and therefore be used for all Ribo-seq analyses. 
+The <.py> python scripts should not need to be edited. These can be used for multiple projects and so it is recommended that these are placed in a seperate directory. If you set the $PATH to this directory, they can be called from any directory and therefore be used for all Ribo-seq analyses. 
 
 ## Setting up the project
 - Before running any scripts, create a new directory for the experiment. This will be the parent directory which will contain all raw and processed data for the experiment as well as any plots generated.
@@ -53,14 +53,14 @@ The UMIs can now be removed. The ***RPFs_3_UMI_removal.sh*** script uses cutadap
 
 After cutadpat has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cutadapt has done what you think it has**
 
-**If the library prep did not include UMIs then this step should be skipped. If this is the case you need to edit the names of the input <.fastq> files in the** ***RPFs_4_align_reads.sh*** **script to the names of the output <.fastq> files from the** ***RPFs_2_deduplication.sh*** **script**
+**If the library prep did not include UMIs then *RPFs_2_deduplication.sh* and *RPFs_3_UMI_removal.sh* should be skipped. If this is the case you need to edit the names of the input <.fastq> files in the** ***RPFs_4_align_reads.sh*** **script to the names of the output <.fastq> files from the** ***RPFs_2_deduplication.sh*** **script**
 
 ### Read alignment
 The processing of the reads up to this point should have resulted in the removal of any sequences introduced during the library prep as well as removal of any PCR duplicates. This means the reads should reflect the exact sequences of the extracted RNA and so can now be aligned to a transcriptome. **It is very important to give some consideration to what transcriptome you use and how to handle multimapped reads.** It is strongly recommended that you use the gencode protein coding transcriptome that has been filtered to include only Havana protein coding transcripts that have both 5' and 3'UTRs and which the CDS is equally divisble by 3, starts with a strart codon and finishes with a stop codon.
 
 The ***RPFs_4_align_reads.sh*** script uses bbmap to first align reads first to the rRNAs, tRNAs and mitochondrial mRNAs (will be filtered from the above fasta due to lack of UTRs). Each alignment will create two new <.fastq> files containing the reads that did and did not align as well as a <.SAM> file of the alignments. The reads that didn't align to either of these transcriptomes are then aligned to the protein coding transcriptome, firstly keeping all alignments (including multi-mapped reads) and then keeping only the highest scoring alignment for any mulit-mapped reads.
 
-fastQC is then used to inspect the QC and read length distribution of these different alignments. You would expect to see a nice peak of read lengths 28-30nt for the protein coding aligned reads but a wider distribition of reads for the rRNA (this should reflect the size you cut you did on the RNA extraction gel).
+fastQC is then used to inspect the QC and read length distribution of these different alignments. You would expect to see a nice peak of read lengths 28-30nt for the protein coding aligned reads but a wider distribition of reads for the rRNA (this should reflect the size you cut on the RNA extraction gel).
 
 ### SAM to BAM
 Sequence alignments are written to <.SAM> files. These can be compressed to <.BAM> files which take up less space and can also be sorted and indexed. The ***RPFs_5_SAM_to_BAM.sh*** script will do exactly this.
@@ -92,22 +92,29 @@ The ***RPFs_7a_summing_region_counts.sh; RPFs_7b_summing_spliced_counts.sh and R
 - read length distribution peaking at 28-30nt
 - strong periodicity
 - strong enrichment of reads within the CDS and depletion of reads within the 3'UTR
-From these plots you can then determine what read lengths you want include in your downstream analysis for DE and codon level analyses. The offset plots should also allow you to offset the plots so that the start of the read is the first nt of the P-site with which that RPF was positioned at. It is likely that different read lengths will require slightly different offsets. This is typically 12-13nt, as the first peak of reads usually aligns 12-13nt upstream of the start codon and these reads are aligned with the start codon in the P-site.
+
+From these plots you can then determine what read lengths you want include in your downstream analysis for DE and codon level analyses. The offset plots should also allow you to offset the start position of the reads, so that the start of the read is the first nt of the codon positioned within the P-site of the ribosome which was protecting that RPF. This can be determined from the position at which the first peak of reads is observed just upstream of the start codon, as these reads correspond to RPFs which were protected by ribosomes with the P-site situated at the start codon. This is typically 12-13nt, but it is likely that different read lengths will require slightly different offsets.
 
 **Once you are happy that the data has been processed properly you should delete the following intermediary files that are no longer required**
 - <cutadapt.fastq> files generated from *RPFs_1_adaptor_removal.sh*
 - <cdhitdup.fastq> files generated from *RPFs_2_deduplication.sh*
 - <UMI_removed.fastq> files generated from *RPFs_3_UMI_removal.sh*
+
 **Do not delete the raw <.fastq> files**
 
+### Extract final counts
+Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_8_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied. The script makes a <.counts> file for the best and all alignments seperately. **For DE expression it is then best to use all alignments, and then select the most abundant transcript per gene (based on the total RNA-seq data) during the DEseq2 analysis. For codon level analyses which is done transcriptome wide, it is best to use the best mappings.**
+
 ### Summing CDS counts
-Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_8_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied. The script makes a <.counts> file for the best and all alignments seperately. **For DE expression it is then best to use the all alignments but select the most abundant transcript per gene based on the total RNA-seq data. For codon level analyses which is done transcriptome wide it is best to use the best mappings.**
+The ***RPFs_9a_CDS_counts.sh*** uses the ***summing_CDS_counts.py*** to sum all the read counts that are within the CDS. **This will be the input into DESeq2.**
 
-The ***RPFs_9a_CDS_counts.sh*** uses the ***summing_CDS_counts.py*** to sum all the read counts that are within the CDS.
+The *summing_CDS_counts.py* has an option to remove the first 20 and last 10 codons, which is recommended (and set as default in *RPFs_9a_CDS_counts.sh* script) to avoid biases at the start and stop codons, essentially meaning that only activly elongating ribosomes are counted.
 
-The ***summing_CDS_counts.py*** has an option to remove the first 20 and last 10 codons, which is recommended (and set as default in *RPFs_9a_CDS_counts.sh* script) to avoid biases at the start and stop codons, essentially meaning that only activly elongating ribosomes are counted.
+There is also the option to only include reads that are in frame. However, although periodicty indicates that the majority of the reads are truely RPFs, it doesn't neccessarily mean that reads that are not in frame are not RPFs and the majority of the reads in the CDS will most likely be RPFs. **It is therefore recommended to include reads in all frames for DE analysis. For codon level analyses, only reads in frame should be used as it is not possible to determine codon level resolution with high confidence for reads not in frame.**
 
-There is also the option to only include reads that are in frame. However, although periodicty indicates that the majority of the reads are truely RPFs, it doesn't neccessarily mean that reads that are not in frame are not RPFs and the majority of the reads in the CDS will most likely be RPFs. **It is therefore recommended to include reads in all frames for DE analysis. For codon level analyses, only reads in frame should be used as it is not possible to determine the A-site codon with high confidence for reads not in frame.**
+### Counting codon occupancy
+The ***RPFs_9b_count_codons.sh*** uses the ***count_codon_occupancy.py*** to determine which codon was positioned at the A,P and E-site plus two codons either side, for every RPF read and sum them all together. The ***codon_occupancy.R*** script then takes this data and uses it to measure relative elongation rates for each codon based on the number of RPFs where that codon was at the A-site compared to the number of RPFs where that codon was at either of the 7 sites described above. This therefore accounts for differing mRNA abundances and initiation rates transcriptome-wide.
+
 
 # Common troubleshooting
 ### remove \r end lines
@@ -116,7 +123,7 @@ The end of line character for windows is \r but for linux and mac it is \n. Some
 ***/usr/bin/env: ‘bash\r’: No such file or directory***
 
 To check if this is the case, in notepad++ select View->Show symbol->Show all characters to see hidden characters. If \r characters have been added to the end of lines, use find and replace (with regular expressions ticked) to remove them all, leaving just \n characters in their place
-### check the path to directories is right.
+### check the path to directories is right
 The path to the parent directory needs to be set in both the common_variables.sh and the common_variables.R scripts. Although these should point to the same directort, the path will be slightly different as the path in the shell script needs to be the linux path and the path for the R script needs to be the PC path
 
 - To find the linux path, go to that directory in the terminal and use pwd to see what the full path is and then copy this into the shell script

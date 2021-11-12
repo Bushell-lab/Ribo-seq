@@ -92,7 +92,13 @@ The ***RPFs_7a_summing_region_counts.sh; RPFs_7b_summing_spliced_counts.sh and R
 - read length distribution peaking at 28-30nt
 - strong periodicity
 - strong enrichment of reads within the CDS and depletion of reads within the 3'UTR
-From these plots you can then determine what read lengths you want include in your downstream analysis for DE and codon level analyses. The offset plots should also allow you to offset the plots so that the start of the read is the first nt of the A-site with which that RPF was positioned at. It is likely that different read lengths will require slightly different offsets. This is typically 15-16nt as the first peak of reads usually aligns 12-13nt upstream of the start codon and these reads are aligned with the start codon in the P-site.
+From these plots you can then determine what read lengths you want include in your downstream analysis for DE and codon level analyses. The offset plots should also allow you to offset the plots so that the start of the read is the first nt of the P-site with which that RPF was positioned at. It is likely that different read lengths will require slightly different offsets. This is typically 12-13nt, as the first peak of reads usually aligns 12-13nt upstream of the start codon and these reads are aligned with the start codon in the P-site.
+
+**Once you are happy that the data has been processed properly you should delete the following intermediary files that are no longer required**
+- <cutadapt.fastq> files generated from *RPFs_1_adaptor_removal.sh*
+- <cdhitdup.fastq> files generated from *RPFs_2_deduplication.sh*
+- <UMI_removed.fastq> files generated from *RPFs_3_UMI_removal.sh*
+**Do not delete the raw <.fastq> files**
 
 ### Summing CDS counts
 Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_8_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied. The script makes a <.counts> file for the best and all alignments seperately. **For DE expression it is then best to use the all alignments but select the most abundant transcript per gene based on the total RNA-seq data. For codon level analyses which is done transcriptome wide it is best to use the best mappings.**

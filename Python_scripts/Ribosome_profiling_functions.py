@@ -3,7 +3,6 @@
 from itertools import islice
 from Bio import SeqIO
 from Bio.Seq import Seq
-from Bio.Alphabet import IUPAC
 
 #functions
 def read_counts(counts_fyle):

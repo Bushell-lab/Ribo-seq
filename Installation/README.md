@@ -14,7 +14,7 @@ The RiboSeq environment is for processing RPFs and requires the following progra
 #### cutadapt [manual](https://cutadapt.readthedocs.io/en/stable/guide.html)
 #### cd-hit-dup [manual](https://github.com/weizhongli/cdhit/wiki/3.-User's-Guide#cdhitdup)
 #### bbmap [manual](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbmap-guide/)
-#### SAMtools [manual](http://www.htslib.org/doc/samtools.html)
+#### SAMtools (this has to be v1.9) [manual](http://www.htslib.org/doc/samtools.html)
 
 It also requires the python packaes [pysam](https://github.com/pysam-developers/pysam) and [biopython](https://biopython.org/)
 
@@ -28,7 +28,7 @@ conda install -c bioconda fastqc
 conda install -c bioconda cutadapt
 conda install -c bioconda cd-hit-auxtools
 conda install -c bioconda bbmap
-conda install -c bioconda samtools
+conda install -c bioconda samtools=1.9
 conda install -c bioconda pysam
 conda install -c anaconda biopython
 conda deactivate

@@ -43,6 +43,9 @@ There was an issue when installing bowtie2 with conda that required downgrading 
 ```console
 conda create --name RNAseq
 conda activate RNAseq
+conda install -c bioconda fastqc
+conda install -c bioconda cutadapt
+conda install -c bioconda cd-hit-auxtools
 conda install -c bioconda rsem
 conda install -c bioconda bowtie2
 conda install tbb=2020.2

@@ -39,7 +39,10 @@ The RNAseq environment is for processing totals and requires the following progr
 #### RSEM [manual](https://deweylab.github.io/RSEM/README.html)
 RSEM also requires either bowtie, bowtie2 or STAR to align the reads. We use [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml).
 
+Installing RSEM with conda will also install samtools, however you need to force it to install version 1.9 to avoid getting an error while loading shared libraries: libcrypto.so.1.0.0
+
 There was an issue when installing bowtie2 with conda that required downgrading the tbb package [see here](https://www.biostars.org/p/494922/)
+
 ```console
 conda create --name RNAseq
 conda activate RNAseq
@@ -47,8 +50,10 @@ conda install -c bioconda fastqc
 conda install -c bioconda cutadapt
 conda install -c bioconda cd-hit-auxtools
 conda install -c bioconda rsem
+conda install -c bioconda samtools=1.9 --force-reinstall
 conda install -c bioconda bowtie2
 conda install tbb=2020.2
+conda install -c bioconda bbmap
 conda deactivate
 ```
 

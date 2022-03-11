@@ -19,9 +19,10 @@ RPF_adaptor='TGGAATTCTCGGGTGCCAAGG' #this is the adaptor used in the nextflex sm
 Totals_adaptor='AGATCGGAAGAG' #this is the adaptor used in the LEXOGEN CORALL Total RNA-Seq Library Prep Kit
 
 ###paths
-#This is the path to the parent directory that contains all the data and where all the processed data will be saved
 
-parent_dir='/Path/to/data'
+#
+bcl_dir='Path/to/raw_seq_data' #This is the path to the directory that contains the raw sequencing data in bcl format (this is what you get from a sequencing run and needs to be demulitplexed to write the <.fastq> files)
+parent_dir='/Path/to/data' #This is the path to the parent directory that contains all the data and where all the processed data will be saved
 
 #The following directories are where all the processed data will be saved. These all need to be created prior to starting the analysis
 

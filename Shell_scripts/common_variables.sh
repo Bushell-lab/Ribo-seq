@@ -36,19 +36,19 @@ rsem_dir=${parent_dir}/rsem
 
 #The following directories are where all the csv files that are used as input into R will be saved
 
-analysis_dir=$parent_dir/Analysis
-region_counts_dir=$analysis_dir/region_counts
-spliced_counts_dir=$analysis_dir/spliced_counts
-periodicity_dir=$analysis_dir/periodicity
-cds_counts_dir=$analysis_dir/CDS_counts
-codon_counts_dir=$analysis_dir/codon_counts
+analysis_dir=${parent_dir}/Analysis
+region_counts_dir=${analysis_dir}/region_counts
+spliced_counts_dir=${analysis_dir}/spliced_counts
+periodicity_dir=${analysis_dir}/periodicity
+cds_counts_dir=${analysis_dir}/CDS_counts
+codon_counts_dir=${analysis_dir}/codon_counts
 
 #The following directories are where all the plots generated in R will be saved
-plots_dir=$parent_dir/plots
-summed_counts_plots_dir=$plots_dir/summed_counts
-periodicity_plots_dir=$plots_dir/periodicity
-offset_plots_dir=$plots_dir/offset
-heatmaps_plots_dir=$plots_dir/heatmaps
+plots_dir=${parent_dir}/plots
+summed_counts_plots_dir=${plots_dir}/summed_counts
+periodicity_plots_dir=${plots_dir}/periodicity
+offset_plots_dir=${plots_dir}/offset
+heatmaps_plots_dir=${plots_dir}/heatmaps
 
 
 
@@ -56,14 +56,17 @@ heatmaps_plots_dir=$plots_dir/heatmaps
 fasta_dir='/Path/to/FASTAs'
 
 rRNA_fasta=${fasta_dir}/rRNA/human_rRNA.fa
-tRNA_fasta=${fasta_dir}/tRNA/human_tRNA.fa
-mito_fasta=${fasta_dir}/GENCODE/v38/gencode.v38.mito_transcripts.fa
-pc_fasta=${fasta_dir}/GENCODE/v38/gencode.v38.pc_transcripts_filtered.fa
+tRNA_fasta=${fasta_dir}/tRNA/human_mature_tRNA.fa
+mito_fasta=${fasta_dir}/GENCODE/v38/filtered/gencode.v38.mito_transcripts.fa
+pc_fasta=${fasta_dir}/GENCODE/v38/filtered/gencode.v38.pc_transcripts_filtered.fa
+rsem_index=${fasta_dir}/GENCODE/v38/filtered/rsem_bowtie2_index/gencode.v38.pc_transcripts_filtered
+STAR_index=${fasta_dir}/GENCODE/v38/original/STAR_index
+STAR_GTF=${fasta_dir}/GENCODE/v38/original/gencode.v38.annotation.gtf
 
 ###fasta info
 #The below needs to point to a <.csv> file that contains the following information for all transcripts within the protein coding FASTA
 #transcript_ID,5'UTR length,CDS length,3'UTR length
 #Running the Filter_GENCODE_FASTA.py script will generate this file as one of its outputs
 
-region_lengths=${fasta_dir}/GENCODE/v38/gencode.v38.pc_transcripts_region_lengths.csv
+region_lengths=${fasta_dir}/GENCODE/v38/transcript_info/gencode.v38.pc_transcripts_region_lengths.csv
 

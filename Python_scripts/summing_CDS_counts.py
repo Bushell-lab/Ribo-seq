@@ -52,14 +52,14 @@ def main():
     #generate output filename
     if args.out_dir == None:
         if args.frame == None:
-            fylename = args.infyle.replace('.counts', '_CDS_counts_all_frames.csv')
+            fylename = args.infyle.replace('.counts', '_counts_all_frames.csv')
         else:
-            fylename = args.infyle.replace('.counts', '_CDS_counts_frame_') + str(args.frame) + '.csv'
+            fylename = args.infyle.replace('.counts', '_counts_frame_') + str(args.frame) + '.csv'
     else:
         if args.frame == None:
-            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_CDS_counts_all_frames.csv')
+            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_counts_all_frames.csv')
         else:
-            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_CDS_counts_frame_') + str(args.frame) + '.csv'
+            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_counts_frame_') + str(args.frame) + '.csv'
     
     #write summed counts for each region to file
     sum_CDS_counts(input_counts, args.frame, region_lengths, args.remove_end_codons, fylename)

@@ -119,14 +119,14 @@ def main():
     #count codons and write to file
     if args.out_dir == None:
         if args.transcripts == None:
-            fylename = args.infyle.replace('.counts', '_codon_counts.csv')
+            fylename = args.infyle.replace('.counts', '_counts.csv')
         else:
-            fylename = args.infyle.replace('.counts', '_codon_counts_') + args.transcripts.replace('txt', 'csv')
+            fylename = args.infyle.replace('.counts', '_counts_') + args.transcripts.replace('txt', 'csv')
     else:
         if args.transcripts == None:
-            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_codon_counts.csv')
+            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_counts.csv')
         else:
-            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_codon_counts_') + args.transcripts.split('/')[-1].replace('txt', 'csv')
+            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_counts_') + args.transcripts.split('/')[-1].replace('txt', 'csv')
         
     count_codons(cds_counts, cds_seq, fylename)
     

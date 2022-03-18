@@ -19,22 +19,10 @@ do
 bbmap.sh in=$fastq_dir/${filename}_UMIremoved.fastq out=$SAM_dir/${filename}_rRNA.sam ref=$rRNA_fasta outm=$fastq_dir/${filename}_rRNA.fastq outu=$fastq_dir/${filename}_non_rRNA.fastq ambiguous=best nodisk 2> $log_dir/${filename}_rRNA_log.txt
 done
 
-#Align to tRNA fasta
-for filename in $Totals_filenames
-do
-bbmap.sh in=$fastq_dir/${filename}_non_rRNA.fastq out=$SAM_dir/${filename}_tRNA.sam ref=$tRNA_fasta outm=$fastq_dir/${filename}_tRNA.fastq outu=$fastq_dir/${filename}_non_rRNA_tRNA.fastq ambiguous=best nodisk 2> $log_dir/${filename}_tRNA_log.txt
-done
-
-#Align to mito fasta
-for filename in $Totals_filenames
-do
-bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA.fastq out=$SAM_dir/${filename}_mito.sam ref=$mito_fasta outm=$fastq_dir/${filename}_mito.fastq outu=$fastq_dir/${filename}_non_rRNA_tRNA_mito.fastq ambiguous=best nodisk 2> $log_dir/${filename}_mito_log.txt
-done
-
 #Align to protein coding transcriptomes
 for filename in $Totals_filenames
 do
-rsem-calculate-expression --strandedness forward --bowtie2 -p 4 --fragment-length-mean 300 --fragment-length-sd 100 $fastq_dir/${filename}_non_rRNA_tRNA_mito.fastq $rsem_index $rsem_dir/${filename} &
+rsem-calculate-expression --strandedness forward --bowtie2 --fragment-length-mean 300 --fragment-length-sd 100 $fastq_dir/${filename}_non_rRNA.fastq $rsem_index $rsem_dir/${filename} &
 done
 wait
 

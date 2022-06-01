@@ -16,7 +16,7 @@ myTheme <- theme_bw()+
 #read in data----
 data_list <- list()
 for (sample in RPF_sample_names) {
-  df <- read_csv(file = file.path(parent_dir, paste0("Analysis/codon_counts/", sample, "_pc_best_final_codon_counts.csv")))
+  df <- read_csv(file = file.path(parent_dir, paste0("Analysis/codon_counts/", sample, "_pc_final_codon_counts.csv")))
   
   #filter out stop codons and normalise data
   df %>%

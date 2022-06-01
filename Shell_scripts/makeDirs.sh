@@ -16,6 +16,8 @@ mkdir $region_counts_dir
 mkdir $spliced_counts_dir
 mkdir $periodicity_dir
 mkdir $cds_counts_dir
+mkdir $UTR5_counts_dir
+mkdir $csv_counts_dir
 mkdir $codon_counts_dir
 mkdir $plots_dir
 mkdir $summed_counts_plots_dir

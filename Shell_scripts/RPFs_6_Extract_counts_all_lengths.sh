@@ -8,7 +8,7 @@ for filename in $RPF_filenames
 do
 for length in $(seq 25 35)
 do
-counting_script.py -bam $BAM_dir/${filename}_pc_best_sorted.bam -fasta $pc_fasta -len $length -out_file ${filename}_pc_best_L${length}_Off0.counts -out_dir $counts_dir &
+counting_script.py -bam $BAM_dir/${filename}_pc_sorted.bam -fasta $most_abundant_fasta -len $length -out_file ${filename}_pc_L${length}_Off0.counts -out_dir $counts_dir &
 done
 done
 wait

@@ -10,7 +10,7 @@ lengths='28,29,30'
 offsets='12,12,12'
 
 #run counting script to generate <.counts> files
-#use the best alignments so that all transcripts can be used, without any reads counting twice
+#this could differ from the one used for DE as it needs to be more stringent
 for filename in $RPF_filenames
 do
 counting_script.py -bam $BAM_dir/${filename}_pc_sorted.bam -fasta $most_abundant_fasta -len $lengths -offset $offsets -out_file ${filename}_pc_final_codon.counts -out_dir $counts_dir &

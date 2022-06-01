@@ -44,7 +44,8 @@ periodicity_dir=${analysis_dir}/periodicity
 cds_counts_dir=${analysis_dir}/CDS_counts
 UTR5_counts_dir=$analysis_dir/UTR5_counts
 codon_counts_dir=${analysis_dir}/codon_counts
-most_abundant_transcripts_dir=${analysis_dir}transcript_IDs/most_abundant_transcripts
+most_abundant_transcripts_dir=${analysis_dir}/most_abundant_transcripts
+DESeq2_dir=${analysis_dir}/DESeq2_output
 
 #The following directories are where all the plots generated in R will be saved
 plots_dir=${parent_dir}/plots
@@ -52,6 +53,9 @@ summed_counts_plots_dir=${plots_dir}/summed_counts
 periodicity_plots_dir=${plots_dir}/periodicity
 offset_plots_dir=${plots_dir}/offset
 heatmaps_plots_dir=${plots_dir}/heatmaps
+DE_analysis_dir=${plots_dir}/DE_analysis
+PCA_dir=${plots_dir}/PCAs
+Interactive_scatters_dir=${plots_dir}/Interactive_scatters
 
 
 

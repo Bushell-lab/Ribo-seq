@@ -60,6 +60,7 @@ pc_fasta=${fasta_dir}/GENCODE/v38/filtered/gencode.v38.pc_transcripts_filtered.f
 rsem_index=${fasta_dir}/GENCODE/v38/filtered/rsem_bowtie2_index/gencode.v38.pc_transcripts_filtered
 STAR_index=${fasta_dir}/GENCODE/v38/original/STAR_index
 STAR_GTF=${fasta_dir}/GENCODE/v38/original/gencode.v38.annotation.gtf
+most_abundant_fasta==$parent_dir/Analysis/index/most_abundant_transcripts.fa
 
 ###fasta info
 #The below needs to point to a <.csv> file that contains the following information for all transcripts within the protein coding FASTA

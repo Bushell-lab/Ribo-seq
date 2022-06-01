@@ -43,10 +43,10 @@ all_data <- do.call("rbind", data_list)
 
 #extract sample and read length from fylenames
 all_data %>%
-  mutate(read_length = str_remove(fyle, ".+pc_best_L"),
+  mutate(read_length = str_remove(fyle, ".+pc_L"),
          read_length = as.numeric(str_remove(read_length, "_Off0_region_counts.csv")),
          sample = str_remove(fyle, ".+region_counts/"),
-         sample = str_remove(sample, "_pc_best.+")) %>%
+         sample = str_remove(sample, "_pc.+")) %>%
   select(-fyle) -> all_data
 
 summary(all_data)

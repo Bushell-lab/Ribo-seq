@@ -28,7 +28,7 @@ myTheme <- theme_bw()+
 fyle_list <- list()
 for(sample in RPF_sample_names) {
   for(i in lengths){
-    fyle_list[[paste(sample, i, sep = "_")]] <- file.path(parent_dir, "Analysis/region_counts", paste0(sample, "_pc_best_L", i, "_Off0_region_counts.csv"))
+    fyle_list[[paste(sample, i, sep = "_")]] <- file.path(parent_dir, "Analysis/region_counts", paste0(sample, "_pc_L", i, "_Off0_region_counts.csv"))
   }
 }
 

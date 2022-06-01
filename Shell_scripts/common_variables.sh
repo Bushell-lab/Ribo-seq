@@ -30,6 +30,8 @@ SAM_dir=${parent_dir}/SAM_files
 BAM_dir=${parent_dir}/BAM_files
 log_dir=${parent_dir}/logs
 counts_dir=${parent_dir}/Counts_files
+csv_counts_dir=${parent_dir}/Counts_files/csv_files
+
 rsem_dir=${parent_dir}/rsem
 
 #The following directories are where all the csv files that are used as input into R will be saved
@@ -39,6 +41,7 @@ region_counts_dir=${analysis_dir}/region_counts
 spliced_counts_dir=${analysis_dir}/spliced_counts
 periodicity_dir=${analysis_dir}/periodicity
 cds_counts_dir=${analysis_dir}/CDS_counts
+UTR5_counts_dir=$analysis_dir/UTR5_counts
 codon_counts_dir=${analysis_dir}/codon_counts
 
 #The following directories are where all the plots generated in R will be saved

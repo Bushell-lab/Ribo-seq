@@ -33,8 +33,7 @@ done
 #Align to protein coding transcriptomes
 for filename in $RPF_filenames
 do
-bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA_mito.fastq out=$SAM_dir/${filename}_pc_all.sam ref=$pc_fasta outm=$fastq_dir/${filename}_pc.fastq outu=$fastq_dir/${filename}_unaligned.fastq ambiguous=all nodisk 2> $log_dir/${filename}_pc_all_log.txt
-bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA_mito.fastq out=$SAM_dir/${filename}_pc_best.sam ref=$pc_fasta ambiguous=best nodisk 2> $log_dir/${filename}_pc_best_log.txt
+bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA_mito.fastq out=$SAM_dir/${filename}_pc.sam ref=$most_abundant_fasta outm=$fastq_dir/${filename}_pc.fastq outu=$fastq_dir/${filename}_unaligned.fastq ambiguous=best nodisk 2> $log_dir/${filename}_pc_log.txt
 done
 
 #run fastqc on mapped reads

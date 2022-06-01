@@ -37,12 +37,14 @@ rsem_dir=${parent_dir}/rsem
 #The following directories are where all the csv files that are used as input into R will be saved
 
 analysis_dir=${parent_dir}/Analysis
+
 region_counts_dir=${analysis_dir}/region_counts
 spliced_counts_dir=${analysis_dir}/spliced_counts
 periodicity_dir=${analysis_dir}/periodicity
 cds_counts_dir=${analysis_dir}/CDS_counts
 UTR5_counts_dir=$analysis_dir/UTR5_counts
 codon_counts_dir=${analysis_dir}/codon_counts
+most_abundant_transcripts_dir=${analysis_dir}transcript_IDs/most_abundant_transcripts
 
 #The following directories are where all the plots generated in R will be saved
 plots_dir=${parent_dir}/plots

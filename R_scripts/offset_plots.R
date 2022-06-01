@@ -26,8 +26,8 @@ myTheme <- theme_classic()+
 fyle_list <- list()
 for(sample in RPF_sample_names) {
   for(i in lengths){
-    fyle_list[[paste(sample, i, "start", sep = "_")]] <- file.path(parent_dir, "Analysis/spliced_counts", paste0(sample, "_pc_best_L", i, "_Off0_start_site.csv"))
-    fyle_list[[paste(sample, i, "stop", sep = "_")]] <- file.path(parent_dir, "Analysis/spliced_counts", paste0(sample, "_pc_best_L", i, "_Off0_stop_site.csv"))
+    fyle_list[[paste(sample, i, "start", sep = "_")]] <- file.path(parent_dir, "Analysis/spliced_counts", paste0(sample, "_pc_L", i, "_Off0_start_site.csv"))
+    fyle_list[[paste(sample, i, "stop", sep = "_")]] <- file.path(parent_dir, "Analysis/spliced_counts", paste0(sample, "_pc_L", i, "_Off0_stop_site.csv"))
   }
 }
 
@@ -42,10 +42,10 @@ all_data <- do.call("rbind", data_list)
 
 #extract sample, read length and splice position from fylenames
 all_data %>%
-  mutate(read_length = str_remove(fyle, ".+pc_best_L"),
+  mutate(read_length = str_remove(fyle, ".+pc_L"),
          read_length = as.numeric(str_remove(read_length, "_Off0_.+")),
          sample = str_remove(fyle, ".+spliced_counts/"),
-         sample = str_remove(sample, "_pc_best.+"),
+         sample = str_remove(sample, "_pc.+"),
          splice = str_remove(fyle, ".+Off0_"),
          splice = str_remove(splice, ".csv")) %>%
   select(-fyle) -> all_data

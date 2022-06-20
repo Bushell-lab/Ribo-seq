@@ -5,7 +5,7 @@
 #out specificies the output <.SAM> file.
 #ref specifies the <.fasta> file to use as a reference. bbmap will use this to make an index. As this is much quicker than other alignment programs, we use the nodisk option so that this isn't written to file
 #outm and outu specificies filenames to write <.fastq> files for all reads that either align or do not align respectively
-#ambigous specifies how to treat multimapped reads. For the contaminating RNA species we use best (keeps the highest scored alignment). For protein coding (pc) we run with both best and all (keeps all possible aligments)
+#ambigous specifies how to treat multimapped reads. We use best (keeps the highest scored alignment).
 #2> stores the text that is printed to the screen as a log
 #We first align to rRNA, then use everything that did not align to rRNA as input to align to tRNAs, then mitochondrial mRNAs and finally protein coding mRNAs. We then use fastQC on all the output <.fastq> files
 

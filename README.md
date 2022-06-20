@@ -103,12 +103,12 @@ After cutadpat has finished, fastQC is run on the output <.fastq> files. **Visua
 ### Read alignment
 The processing of the reads up to this point should have removed any sequences introduced during the library prep, and any PCR duplicates. This means the reads should reflect the exact sequences of the extracted RNA and so can now be aligned to a transcriptome.
 
-**It is very important to give some consideration to what transcriptome you use and how to handle multimapped reads. It is strongly recommended that you use the gencode protein coding transcriptome that has been filtered to include**
+**It is very important to give some consideration to what transcriptome you use and how to handle multimapped reads. It is strongly recommended that you use the gencode protein coding transcriptome that has been filtered to include as well as using a transcriptome that includes only the most abundant transcript per gene, as determined from the total RNA-seq data (see above)**
 - only Havana protein coding transcripts
 - that have both 5' and 3'UTRs
 - which the CDS is equally divisble by 3, starts with a start codon and finishes with a stop codon
 
-The ***RPFs_4_align_reads.sh*** script uses bbmap to align reads first to the rRNAs, tRNAs and mitochondrial mRNAs (will be filtered from the above fasta due to lack of UTRs). Each alignment will create two new <.fastq> files containing the reads that did and did not align, as well as a <.SAM> file containing the alignments. The reads that didn't align to either of these transcriptomes are then aligned to the protein coding transcriptome, firstly keeping all alignments (including multi-mapped reads) and then keeping only the highest scoring alignment for any mulit-mapped reads.
+The ***RPFs_4_align_reads.sh*** script uses bbmap to align reads first to the rRNAs, tRNAs and mitochondrial mRNAs (will be filtered from the above fasta due to lack of UTRs). Each alignment will create two new <.fastq> files containing the reads that did and did not align, as well as a <.SAM> file containing the alignments. The reads that didn't align to either of these transcriptomes are then aligned to the protein coding transcriptome.
 
 fastQC is then used to inspect the QC and read length distribution of these different alignments. You would expect to see a nice peak of read lengths 28-30nt for the protein coding aligned reads but a wider distribition of reads for the rRNA (this should reflect the size you cut on the RNA extraction gel).
 
@@ -135,7 +135,7 @@ Transcript_3
 
 where each two lines represents one transcript, with the first of each two lines containg the transcript ID and the second of each two lines containing tab seperated values of the read counts that start at that position within the transcript. The number of values for each transcript should therefore match the length of that transcript.
 
-The ***RPFs_6_Extract_counts_all_lengths.sh*** uses the ***counting_script.py*** script to generate a <.counts> file for each sample for each read length defined in the for loop and stores all thes files in the Counts_files directory. This uses the sorted <.BAM> file as input and also needs the associated index <.BAI> file to be in the same directory. **The script uses the best alignments so every read only counts once but that all transcripts can be considered.** These are the input files for the downstream analysis.
+The ***RPFs_6_Extract_counts_all_lengths.sh*** uses the ***counting_script.py*** script to generate a <.counts> file for each sample for each read length defined in the for loop and stores all thes files in the Counts_files directory. This uses the sorted <.BAM> file as input and also needs the associated index <.BAI> file to be in the same directory. These are the input files for the downstream analysis.
 
 ### Library QC
 The ***RPFs_7a_summing_region_counts.sh; RPFs_7b_summing_spliced_counts.sh and RPFs_7c_periodicity.sh*** scripts utlise the custom python scripts, reading in the counts files generated above and creating <.csv> files that the ***region_counts.R; heatmaps.R; offset_plots.R and periodicity.R*** scripts use to generate the library QC plots. From these plots you should be able to determine whether the RPF libraries have the properties that would argue they are truelly RPFs. These are;
@@ -156,7 +156,7 @@ The offset plots should also allow you to determine what to use for the offset. 
 **Do not delete the raw <.fastq> files**
 
 ### Extract final counts
-Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_8_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied. The script makes a <.counts> file for the best and all alignments seperately. **For DE expression it is then best to use all alignments, and then select the most abundant transcript per gene (based on the total RNA-seq data) during the DEseq2 analysis. For codon level analyses which is done transcriptome wide, it is best to use the best mappings.**
+Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_8_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied.
 
 ### Summing CDS counts
 The ***RPFs_9a_CDS_counts.sh*** uses the ***summing_CDS_counts.py*** to sum all the read counts that are within the CDS. **This will be the input into DESeq2.**
@@ -165,8 +165,14 @@ The *summing_CDS_counts.py* has an option to remove the first 20 and last 10 cod
 
 There is also the option to only include reads that are in frame. However, although periodicty indicates that the majority of the reads are truely RPFs, it doesn't neccessarily mean that reads that are not in frame are not RPFs and the majority of the reads in the CDS will most likely be RPFs. **It is therefore recommended to include reads in all frames for DE analysis. For codon level analyses, only reads in frame should be used as it is not possible to determine codon level resolution with high confidence for reads not in frame.**
 
+### Summing 5'UTR counts
+You may also want to count the reads within the 5'UTR to look at translation within upstream Open Reading Frames (uORFs). The ***RPFs_9b_UTR5_counts.sh*** uses the ***summing_UTR5_counts.py*** to sum all the read counts that are within the 5'UTR. Note that this counts all reads within the whole 5'UTR, not specific for individual uORFs.
+
+### Counts to csv
+In order to read in counts files into R, it is easier to have them written as csv files. ***RPFs_9c_counts_to_csv.sh*** will write a csv file for every transcript in for each sample (writing all csv files to a new directory for each sample)
+
 ### Counting codon occupancy
-The ***RPFs_9b_count_codons.sh*** uses the ***count_codon_occupancy.py*** to determine which codon was positioned at the A,P and E-site plus two codons either side, for every RPF read and sum them all together. The ***codon_occupancy.R*** script then takes this data and uses it to measure relative elongation rates for each codon based on the number of RPFs where that codon was at the A-site compared to the number of RPFs where that codon was at either of the 7 sites described above. This therefore accounts for differing mRNA abundances and initiation rates transcriptome-wide.
+The ***RPFs_9d_count_codon_occupancy.sh*** uses the ***count_codon_occupancy.py*** to determine which codon was positioned at the A,P and E-site plus two codons either side, for every RPF read and sum them all together. The ***codon_occupancy.R*** script then takes this data and uses it to measure relative elongation rates for each codon based on the number of RPFs where that codon was at the A-site compared to the number of RPFs where that codon was at either of the 7 sites described above. This therefore accounts for differing mRNA abundances and initiation rates transcriptome-wide.
 
 
 # Common troubleshooting

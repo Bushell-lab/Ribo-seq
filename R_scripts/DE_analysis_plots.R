@@ -4,6 +4,9 @@ library(tidyverse)
 #read in common variables
 source("common_variables.R")
 
+#create a variable for what the treatment is----
+treatment <- "EFT226"
+
 #themes----
 mytheme <- theme_classic()+
   theme(plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
@@ -13,8 +16,8 @@ mytheme <- theme_classic()+
         legend.text = element_text(size = 16))
 
 #read in DESeq2 output----
-totals <- read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output/Totals_DEseq2_apeglm_LFC_shrinkage.csv"))
-RPFs <- read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output/RPFs_DEseq2_apeglm_LFC_shrinkage.csv"))
+totals <- read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("Totals_", treatment, "_DEseq2_apeglm_LFC_shrinkage.csv")))
+RPFs <- read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("RPFs_", treatment, "_DEseq2_apeglm_LFC_shrinkage.csv")))
 
 #plot volcanos----
 RPFs %>%

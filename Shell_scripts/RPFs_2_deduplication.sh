@@ -15,8 +15,9 @@ source common_variables.sh
 #read deduplication
 for filename in $RPF_filenames
 do
-cd-hit-dup -i $fastq_dir/${filename}_cutadapt.fastq -o $fastq_dir/${filename}_cdhitdup.fastq -e 0
+cd-hit-dup -i $fastq_dir/${filename}_cutadapt.fastq -o $fastq_dir/${filename}_cdhitdup.fastq -e 0 &
 done
+wait
 
 #run fastqc on cd-hit-dup output
 for filename in $RPF_filenames

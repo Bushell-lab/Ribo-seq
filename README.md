@@ -29,6 +29,25 @@ The <.py> python scripts should not need to be edited. These can be used for mul
 - **It is highly recommended that this data structure is followed as the scripts are designed to output the data in these locations and this makes it much easier for other people to understand what has been done and improves traceability. The filenames are also automatically generated within each script and should contain all important information. Again it is highly recommended that this is not altered for the same reasoning.**
 - Once the directories have been set up, the raw <.fastq> files need to be written to the fastq_files directory. If these already exist, then simply copy them across. If these need to be downloaded from GEO, then use the download_fastq_files.sh script to download these, ensuring they get written to the fastq_files directory. If this is your own data and you have the raw bcl sequencing folder, you will need to de-mulitplex and write the <.fastq> files. Use the demultiplex.sh script for this, which uses bcl2fastq (needs to be downloaded with conda), again writing the <.fastq> files to the fastq_files directory. These <.fastq> files will be the input into the *RPFs_0_QC.sh* and *RPFs_1_adaptor_removal.sh* scripts, so check that that extensiones match. It is fine if these files a <.gz> compressed as both fastQC and cutadapt can use compressed files as input, but again make sure that the shell scripts have the .gz extension included. 
 
+## Processing totals (standard RNA-seq)
+The RPFs will need to be aligned to a transcriptome that contains just one transcript per gene. The best way to deal with this issue is to select the most abundant transcript per gene. RSEM estimates relative expression of each isoform within each gene, which can therefore be used to select the most abundant transcript per gene. It can take a long time for RSEM to run (normally more than 24h), depending on the number of reads and the size of the transcriptome, so it is recommended that you start by processing the totals first.
+
+**Ensure you activate the RNAseq conda environment before running the RPF shell scripts, with the following command**
+```console
+conda activate RNAseq
+```
+### Sequencing QC
+Before processing any data it is important to use fastQC to see what the structure of the sequencing reads is.
+
+**Totals_0_QC.sh** will run fastQC on all totals <.fastq> files and output the fastQC files into the fastQC directory.
+
+The output will tell you the number of reads for each <.fastq> file as well as some basic QC on the reads.
+
+### Remove adaptors
+The 3' adaptor used in the library prep will be sequenced immediately after the fragment (and UMIs if used). These therefore needs to be removed so that they do not affect alignment. The ***Totals_1_adaptor_removal.sh*** script uses cutadapt for this, which removes this sequence (specified in the common_variables.sh script) and any sequence downstream of this. It also trims low quality bases from the 3' end of the read below a certain quality score (user defined, we use q20) and removes reads that are shorter or longer than user defined values (we use 30nt).
+
+After cutadapt has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cutadapt has done what you think it has**
+
 ## Processing RPFs
 **Ensure you activate the RiboSeq conda environment before running the RPF shell scripts, with the following command**
 ```console

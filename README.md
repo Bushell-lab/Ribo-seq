@@ -48,6 +48,28 @@ The 3' adaptor used in the library prep will be sequenced immediately after the 
 
 After cutadapt has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cutadapt has done what you think it has**
 
+### De-duplication and UMI removal
+If UMIs have been used in the library prep, reads that are PCR duplicates can be removed from the <.fastq> file, ensuring that all remaining reads originated from unique mRNAs. The ***Totals_2_deduplication.sh*** script uses cd-hit-dup to make a new <.fastq> file containing only unique reads.
+
+After cd-hit-dup has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cd-hit-dup has done what you think it has.**
+
+The UMIs can now be removed. The ***Totals_3_UMI_removal.sh*** script uses cutadapt to remove a set number of bases from the 5' and 3' end of all reads. This needs to be set to match the structure of the UMIs used. For the CORALL Total RNA-Seq Library Prep Kit that we use for totals, these are 12nt at the 5' end of the read.
+
+After cutadpat has finished, fastQC is run on the output <.fastq> files. **Visual inspection of these fastQC files is essential to check that cutadapt has done what you think it has.**
+
+**If the library prep did not include UMIs then *Totals_2_deduplication.sh* and *Totals_3_UMI_removal.sh* should be skipped. If this is the case you need to edit the names of the input <.fastq> files in the** ***Totals_4a_align_reads_rsem.sh*** and ***Totals_4b_align_reads_genome.sh*** **scripts to the names of the output <.fastq> files from the** ***Totals_1_adaptor_removal.sh*** **script.**
+
+### Align reads to transcriptome using RSEM
+RSEM aligns reads to a transcriptome using eith bowtie(2) or STAR (we use it with bowtie2). It then uses it's own model to calculate predicted counts and tpms for every gene (.genes output) and every transcript within every gene (.isoforms output). This can be used as input into DESeq2 to do differential expression analysis. It can also be used to caluculate the most abundant transcript per gene.
+
+***Totals_4a_align_reads_rsem.sh*** first uses bbmap to remove rRNA reads (and to create a log of % rRNA reads). It then uses the non-rRNA reads as input into rsem.
+
+### Align reads to genome using STAR
+Aligning to the genome is also essential if you want to visualise the data with a genome browser such as IGV. We therefor also align the total RNA reads to a genome using STAR using the ***Totals_4b_align_reads_genome.sh*** script
+
+### Calculating the most abundant transcript per gene
+Using the RSEM as input, the ***calculate_most_abundant_transcript.R*** will create a csv file containing the most abundant transcripts (with a column for gene ID and sym) and also a flat text file with just the transcript IDs. This flat text file needs to then be used as input to filter the protein coding fasta so that it only contains the most abundant transcripts. The ***Totals_5_write_most_abundant_transcript_fasta.sh*** will do this using the ***filter_FASTA.py*** script
+
 ## Processing RPFs
 **Ensure you activate the RiboSeq conda environment before running the RPF shell scripts, with the following command**
 ```console

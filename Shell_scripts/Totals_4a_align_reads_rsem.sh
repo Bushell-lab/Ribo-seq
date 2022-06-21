@@ -16,7 +16,7 @@ source common_variables.sh
 #Align to rRNA
 for filename in $Totals_filenames
 do
-bbmap.sh in=$fastq_dir/${filename}_UMIremoved.fastq out=$SAM_dir/${filename}_rRNA.sam ref=$rRNA_fasta outm=$fastq_dir/${filename}_rRNA.fastq outu=$fastq_dir/${filename}_non_rRNA.fastq ambiguous=best nodisk 2> $log_dir/${filename}_rRNA_log.txt
+bbmap.sh in=$fastq_dir/${filename}_UMIremoved.fastq out=$SAM_dir/${filename}_rRNA.sam ref=$rRNA_fasta outm=$fastq_dir/${filename}_rRNA.fastq outu=$fastq_dir/${filename}_non_rRNA.fastq ambiguous=best nodisk threads=16 2> $log_dir/${filename}_rRNA_log.txt
 done
 
 #Align to protein coding transcriptomes

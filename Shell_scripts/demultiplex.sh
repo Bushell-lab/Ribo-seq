@@ -8,8 +8,13 @@
 #use the --no-lane-splitting option so that you get one fastq file per sample and not four (there are four seperate lanes in the NextSeq, but unless you suspect there have been any sequencing issues these can be combined
 #use --barcode-mismatches 0 so that only the extact barcodes are used.
 
+#read in variables
+source common_variables.sh
+
+#set the directory where the raw bcl data is.
+#If you have more than one bcl directory (you will get one for each sequencing run), then hash one out and write a new one below, each time you re-run this script, so that this acts as a log for all the bcl directories associated with this project
+
 bcl_dir='Path/to/raw_seq_data' #This is the path to the directory that contains the raw sequencing data in bcl format (this is what you get from a sequencing run and needs to be demulitplexed to write the <.fastq> files)
-fastq_files='parent_dir/fastq_files' #This is where the <.fastq> files will be saved. This needs to be the same as the the common_variables.sh script.
 
 #run blc2fastq
 bcl2fastq -p 12 --no-lane-splitting --runfolder-dir $bcl_dir --output-dir $fastq_dir --barcode-mismatches 0

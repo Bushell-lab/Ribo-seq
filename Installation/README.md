@@ -54,6 +54,7 @@ conda install -c bioconda samtools=1.9 --force-reinstall
 conda install -c bioconda bowtie2
 conda install tbb=2020.2
 conda install -c bioconda bbmap
+conda install -c anaconda biopython
 conda deactivate
 ```
 

@@ -46,7 +46,7 @@ all_data %>%
   mutate(read_length = str_remove(fyle, ".+pc_L"),
          read_length = as.numeric(str_remove(read_length, "_Off0_region_counts.csv")),
          sample = str_remove(fyle, ".+region_counts/"),
-         sample = str_remove(sample, "_pc.+")) %>%
+         sample = factor(str_remove(sample, "_pc.+"))) %>%
   select(-fyle) -> all_data
 
 summary(all_data)

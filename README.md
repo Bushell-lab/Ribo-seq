@@ -67,6 +67,8 @@ RSEM aligns reads to a transcriptome using eith bowtie(2) or STAR (we use it wit
 ### Align reads to genome using STAR (optional)
 Aligning to the genome is also essential if you want to visualise the data with a genome browser such as IGV. We therefor also align the total RNA reads to a genome using STAR using the ***Totals_4b_align_reads_genome.sh*** script
 
+It is recommended that you create a new conda environment, specifically for STAR, to install it within and run this script from within that environment
+
 ### Calculating the most abundant transcript per gene
 Using the RSEM as input, the ***calculate_most_abundant_transcript.R*** will create a csv file containing the most abundant transcripts (with a column for gene ID and sym) and also a flat text file with just the transcript IDs. This flat text file needs to then be used as input to filter the protein coding fasta so that it only contains the most abundant transcripts. The ***Totals_5_write_most_abundant_transcript_fasta.sh*** will do this using the ***filter_FASTA.py*** script
 

@@ -56,8 +56,9 @@ heatmaps_plots_dir=${plots_dir}/heatmaps
 DE_analysis_dir=${plots_dir}/DE_analysis
 PCA_dir=${plots_dir}/PCAs
 Interactive_scatters_dir=${plots_dir}/Interactive_scatters
-
-
+fgsea_dir=${plots_dir}/fgsea
+fgsea_scatters_dir=${plots_dir}/fgsea/scatters
+fgsea_interactive_scatters_dir=${plots_dir}/fgsea/Interactive_scatters
 
 #Fastas
 fasta_dir='/Path/to/FASTAs'

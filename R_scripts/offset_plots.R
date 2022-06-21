@@ -45,9 +45,9 @@ all_data %>%
   mutate(read_length = str_remove(fyle, ".+pc_L"),
          read_length = as.numeric(str_remove(read_length, "_Off0_.+")),
          sample = str_remove(fyle, ".+spliced_counts/"),
-         sample = str_remove(sample, "_pc.+"),
+         sample = factor(str_remove(sample, "_pc.+")),
          splice = str_remove(fyle, ".+Off0_"),
-         splice = str_remove(splice, ".csv")) %>%
+         splice = factor(str_remove(splice, ".csv"))) %>%
   select(-fyle) -> all_data
 
 summary(all_data)

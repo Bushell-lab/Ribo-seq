@@ -18,7 +18,17 @@ The shell scripts <.sh> are designed to serve as a template for processing the d
 The R scripts will read in the processed data generated from the custom python scripts and generate plots and perform DE analysis. These shouldn't need to be edited as the final processed data should be in a standard format, although the user is free to do what they wish with these and change the styles of the plots or add further analyses/plots should they wish. The common_variables.R (see below) script will need to be edited to add the filenames and path to the parent directory, as well as the read lengths that they wish to inspect with the library QC plots. The common_variables.R script needs to be in the current working directory when running the other <.R> scripts.
 
 ### Python scripts
-The <.py> python scripts should not need to be edited. These can be used for multiple projects and so it is recommended that these are placed in a seperate directory. If you set the $PATH to this directory, they can be called from any directory and therefore be used for all Ribo-seq analyses.
+The <.py> python scripts should not need to be edited. These can be used for multiple projects and so it is recommended that these are placed in a seperate directory. If you set the $PATH to this directory, they can be called from any directory and therefore be used for all Ribo-seq analyses. To do this you need to open the .bashrc file from your home directory with the following lines of code;
+```console
+cd
+nano .bashrc
+```
+Then within the file add the following line
+export PATH=$PATH:path/to/python_scripts/folder
+This will add the folder to the path but only upon opening up a new terminal window. To check it's worked, open up a new terminal and run
+```console
+echo $PATH
+```
 
 ## Setting up the project
 - Before running any scripts, create a new directory for the experiment. This will be the parent directory which will contain all raw and processed data for the experiment as well as any plots generated.

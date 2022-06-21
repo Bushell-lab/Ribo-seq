@@ -10,13 +10,13 @@ source("common_variables.R")
 treatment <- "EFT226"
 
 #read in the most abundant transcripts per gene csv file----
-most_abundant_transcripts <- read_csv(file = file.path(parent_dir, "Analysis/transcript_IDs/most_abundant_transcripts/AK_most_abundant_transcripts_IDs.csv"))
+most_abundant_transcripts <- read_csv(file = file.path(parent_dir, "Analysis/most_abundant_transcripts/most_abundant_transcripts_IDs.csv"))
 
 #read in data----
 #the following for loop reads in each final CDS counts file and renames the counts column by the sample name and saves each data frame to a list
 data_list <- list()
 for (sample in RPF_sample_names) {
-  df <- read_csv(file = file.path(parent_dir, "Analysis/CDS_counts", paste0(sample, "_pc_most_abundant_final_counts_all_frames.csv")), col_names = T)
+  df <- read_csv(file = file.path(parent_dir, "Analysis/CDS_counts", paste0(sample, "_pc_final_counts_all_frames.csv")), col_names = T)
   colnames(df) <- c("transcript", sample)
   data_list[[sample]] <- df
 }
@@ -31,7 +31,7 @@ data_list %>%
 
 #create a data frame with the condition/batch information----
 #you need to make sure this data frame is correct for your samples, the below creates one for a n=3 with EFT226 treatment.
-sample_info <- data.frame(row_names = RPF_sample_names,
+sample_info <- data.frame(row_names = c('Ctrl_RPFs_1', 'Ctrl_RPFs_2', 'Ctrl_RPFs_3', 'EFT226_RPFs_1', 'EFT226_RPFs_2', 'EFT226_RPFs_3'),
                           condition = factor(c(rep("Ctrl", 3), rep(treatment, 3))),
                           batch = factor(c(rep(1:3, 2))))
 
@@ -39,7 +39,9 @@ sample_info <- data.frame(row_names = RPF_sample_names,
 sample_info
 
 #make a DESeq data set from imported data----
-DESeq2data <- DESeqDataSetFromMatrix(countData = RPF_counts, colData = sample_info, design = ~ batch + condition)
+DESeq2data <- DESeqDataSetFromMatrix(countData = RPF_counts,
+                                     colData = sample_info,
+                                     design = ~ batch + condition)
 
 #pre-filter to remove genes with less than an average of 10 counts across all samples----
 keep <- rowMeans(counts(DESeq2data)) >= 10
@@ -63,8 +65,8 @@ lfc_shrink <- lfcShrink(dds, coef=paste0("condition_", treatment, "_vs_Ctrl"), t
 
 #write reslts to csv----
 as.data.frame(lfc_shrink[order(lfc_shrink$padj),]) %>%
-  rownames_to_column("gene") %>%
-  inner_join(most_abundant_transcripts, by = "gene") -> DEseq2_output
+  rownames_to_column("transcript") %>%
+  inner_join(most_abundant_transcripts, by = "transcript") -> DEseq2_output
 write_csv(DEseq2_output, file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("RPFs_", treatment, "_DEseq2_apeglm_LFC_shrinkage.csv")))
 
 #extract normalised counts and plot SD vs mean----
@@ -79,8 +81,8 @@ meanSdPlot(assay(rld))
 #Regularized log transformation looks preferable for this data. Check for your own data and select the appropriate one
 #write out normalised counts data----
 as.data.frame(assay(rld)) %>%
-  rownames_to_column("gene") %>%
-  inner_join(most_abundant_transcripts, by = "gene") -> normalised_counts
+  rownames_to_column("transcript") %>%
+  inner_join(most_abundant_transcripts, by = "transcript") -> normalised_counts
 write_csv(normalised_counts, file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("RPFs_", treatment, "_normalised_counts.csv")))
 
 #plot PCA----

@@ -34,7 +34,7 @@ txi <- tximport(files, type="rsem", tx2gene=tx2gene)
 
 #create a data frame with the condition/batch information----
 #you need to make sure this data frame is correct for your samples, the below creates one for a n=3 with EFT226 treatment.
-sample_info <- data.frame(row_names = Total_sample_names,
+sample_info <- data.frame(row_names = c('Ctrl_Totals_1', 'Ctrl_Totals_2', 'Ctrl_Totals_3', 'EFT226_Totals_1', 'EFT226_Totals_2', 'EFT226_Totals_3'),
                           condition = factor(c(rep("Ctrl", 3), rep(treatment, 3))),
                           batch = factor(c(rep(1:3, 2))))
 

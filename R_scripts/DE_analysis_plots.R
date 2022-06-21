@@ -29,9 +29,9 @@ RPFs %>%
   mytheme+
   xlab("log2FC")+
   ylab("-log10(padj)")+
-  ggtitle("RPFs") -> RPFs_volcano
+  ggtitle(paste(treatment, "RPFs")) -> RPFs_volcano
 
-png(filename = file.path(parent_dir, "plots/DE_analysis/RPF_volcano.png"), width = 300, height = 400)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste0("RPFs_", treatment, "_volcano.png")), width = 300, height = 400)
 print(RPFs_volcano)
 dev.off()
 
@@ -44,9 +44,9 @@ totals %>%
   mytheme+
   xlab("log2FC")+
   ylab("-log10(padj)")+
-  ggtitle("Totals") -> totals_volcano
+  ggtitle(paste(treatment, "Totals")) -> totals_volcano
 
-png(filename = file.path(parent_dir, "plots/DE_analysis/totals_volcano.png"), width = 300, height = 400)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste0("Totals_", treatment, "_volcano.png")), width = 300, height = 400)
 print(totals_volcano)
 dev.off()
 
@@ -60,9 +60,9 @@ RPFs %>%
   mytheme+
   xlab("log10(mean expression)")+
   ylab("log2FC")+
-  ggtitle("RPFs") -> RPFs_MA
+  ggtitle(paste(treatment, "RPFs")) -> RPFs_MA
 
-png(filename = file.path(parent_dir, "plots/DE_analysis/RPFs_MA.png"), width = 400, height = 300)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste0("RPFs_", treatment, "_MA.png")), width = 400, height = 300)
 print(RPFs_MA)
 dev.off()
 
@@ -75,9 +75,9 @@ totals %>%
   mytheme+
   xlab("log10(mean expression)")+
   ylab("log2FC")+
-  ggtitle("Totals") -> totals_MA
+  ggtitle(paste(treatment, "Totals")) -> totals_MA
 
-png(filename = file.path(parent_dir, "plots/DE_analysis/Totals_MA.png"), width = 400, height = 300)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste0("Totals_", treatment, "_MA.png")), width = 400, height = 300)
 print(totals_MA)
 dev.off()
 
@@ -102,8 +102,8 @@ summary(merged_data)
 
 #plot TE scatter----
 #caluclate axis limits
-RPF_lims <- max(abs(df$RPFs_log2FC))
-totals_lims <- max(abs(df$totals_log2FC))
+RPF_lims <- max(abs(merged_data$RPFs_log2FC))
+totals_lims <- max(abs(merged_data$totals_log2FC))
 lim <- max(c(RPF_lims, totals_lims))
 lims <- c(-lim, lim)
 
@@ -114,7 +114,7 @@ merged_data %>%
   mytheme+
   xlab("Total RNA log2FC")+
   ylab("RPFs log2FC")+
-  ggtitle("TE scatter")+
+  ggtitle(paste(treatment, "TE scatter"))+
   xlim(lims)+
   ylim(lims)+
   geom_abline(lty=1)+
@@ -125,10 +125,10 @@ merged_data %>%
   geom_vline(xintercept = 1, lty=2)+
   geom_vline(xintercept = -1, lty=2) -> TE_scatter_plot
 
-png(filename = file.path(parent_dir, "plots/DE_analysis/TE_scatter.png"), width = 500, height = 400)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_TE_scatter.png")), width = 500, height = 400)
 print(TE_scatter_plot)
 dev.off()
 
 #write out group sizes
-write.table(file = file.path(parent_dir, "plots/DE_analysis/TE_scatter_groups.txt"), summary(merged_data$group))
+write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups.txt")), summary(merged_data$group), col.names = F, quote = F)
 

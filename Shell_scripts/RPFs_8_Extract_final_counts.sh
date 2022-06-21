@@ -13,6 +13,6 @@ offsets='12,12,12,12,13,13'
 
 for filename in $RPF_filenames
 do
-counting_script.py -bam $BAM_dir/${filename}_pc_sorted.bam -fasta $most_abundant_fasta -len $lengths -offset $offsets -out_file ${filename}_pc_final_CDS.counts -out_dir $counts_dir &
+counting_script.py -bam $BAM_dir/${filename}_pc_sorted.bam -fasta $most_abundant_fasta -len $lengths -offset $offsets -out_file ${filename}_pc_final.counts -out_dir $counts_dir &
 done
 wait

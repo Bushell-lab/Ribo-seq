@@ -35,4 +35,6 @@ mkdir $Interactive_scatters_dir
 mkdir $fgsea_dir
 mkdir $fgsea_scatters_dir
 mkdir $fgsea_interactive_scatters_dir
+mkdir $read_counts_summary_dir
+mkdir $binned_plots_dir
 

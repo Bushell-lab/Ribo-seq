@@ -60,6 +60,9 @@ Interactive_scatters_dir=${plots_dir}/Interactive_scatters
 fgsea_dir=${plots_dir}/fgsea
 fgsea_scatters_dir=${plots_dir}/fgsea/scatters
 fgsea_interactive_scatters_dir=${plots_dir}/fgsea/Interactive_scatters
+read_counts_summary_dir=${plots_dir}/read_counts_summary
+binned_plots_dir=${plots_dir}/binned_plots
+
 
 #Fastas
 fasta_dir='/Path/to/FASTAs'

@@ -31,7 +31,7 @@ data_list %>%
 
 #create a data frame with the condition/batch information----
 #you need to make sure this data frame is correct for your samples, the below creates one for a n=3 with EFT226 treatment.
-sample_info <- data.frame(row_names = c('Ctrl_RPFs_1', 'Ctrl_RPFs_2', 'Ctrl_RPFs_3', 'EFT226_RPFs_1', 'EFT226_RPFs_2', 'EFT226_RPFs_3'),
+sample_info <- data.frame(row.names = RPF_sample_names,
                           condition = factor(c(rep("Ctrl", 3), rep(treatment, 3))),
                           batch = factor(c(rep(1:3, 2))))
 

@@ -115,10 +115,12 @@ After cutadpat has finished, fastQC is run on the output <.fastq> files. **Visua
 ### Read alignment
 The processing of the reads up to this point should have removed any sequences introduced during the library prep, and any PCR duplicates. This means the reads should reflect the exact sequences of the extracted RNA and so can now be aligned to a transcriptome.
 
-**It is very important to give some consideration to what transcriptome you use and how to handle multimapped reads. It is strongly recommended that you use the gencode protein coding transcriptome that has been filtered to include as well as using a transcriptome that includes only the most abundant transcript per gene, as determined from the total RNA-seq data (see above)**
+**It is very important to give some consideration to what transcriptome you use and how to handle multimapped reads. It is strongly recommended that you use the gencode protein coding transcriptome that has been filtered to include as well as using a transcriptome that includes only the most abundant transcript per gene, as determined from the total RNA-seq data (see above).**
 - only Havana protein coding transcripts
 - that have both 5' and 3'UTRs
 - which the CDS is equally divisble by 3, starts with a start codon and finishes with a stop codon
+
+**The fasta file with the most abundant transcripts only needs to be made first by running ***calculate_most_abundant_transcript.R*** and then ***Totals_5_write_most_abundant_transcript_fasta.sh*****
 
 The ***RPFs_4_align_reads.sh*** script uses bbmap to align reads first to the rRNAs, tRNAs and mitochondrial mRNAs (will be filtered from the above fasta due to lack of UTRs). Each alignment will create two new <.fastq> files containing the reads that did and did not align, as well as a <.SAM> file containing the alignments. The reads that didn't align to either of these transcriptomes are then aligned to the protein coding transcriptome.
 

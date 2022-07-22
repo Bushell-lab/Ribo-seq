@@ -17,8 +17,17 @@ names(files) <- Total_sample_names
 #read in rsem isoform files
 isoform_expression <- tximport(files, type = "rsem", txOut = TRUE)
 
-#calculate mean tpm
+#extract tpms
 isoform_tpm <- as.data.frame(isoform_expression$abundance)
+isoform_tpm %>%
+  rownames_to_column("transcript") -> isoform_tpm
+
+#write out tpm values
+write_csv(file = file.path(parent_dir, "Analysis/DESeq2_output/tpms.csv"), isoform_tpm)
+
+#calculate mean tpm
+isoform_tpm %>%
+  column_to_rownames("transcript") -> isoform_tpm
 isoform_tpm$mean_tpm <- rowMeans(isoform_tpm)
 
 #calculate most abundant transcript across all samples

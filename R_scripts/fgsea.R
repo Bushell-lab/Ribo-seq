@@ -143,8 +143,7 @@ make_interactive_scatter <- function(gsea_set, pathway, df, dir) {
 
 #make a mouse to human gene conversion table----
 #this is only applicable for mouse data as the gsea gene names are all human
-Mouse2HumanTable <- read_tsv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/useful_tables/mouse_to_human_gene_IDs.tsv")
-Mouse2HumanTable %>%
+read_tsv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/useful_tables/mouse_to_human_gene_IDs.tsv") %>%
   dplyr::select(Gene_stable_ID_version, Human_gene_name) %>%
   filter(!(is.na(Human_gene_name))) %>%
   group_by(Gene_stable_ID_version) %>%

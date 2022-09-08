@@ -5,6 +5,6 @@ source common_variables.sh
 
 for filename in $RPF_filenames
 do
-counts_to_csv.py ${filename}_pc_final.counts $most_abundant_fasta -all_transcripts -in_dir $counts_dir -out_dir $csv_counts_dir &
+counts_to_csv.py ${filename}_pc_final.counts $most_abundant_fasta -one_csv -in_dir $counts_dir -out_dir $csv_counts_dir &
 done
 wait

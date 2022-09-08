@@ -74,7 +74,6 @@ for (sample in RPF_sample_names) {
     filter(transcript %in% filtered_transcripts) %>%
     mutate(condition = rep(condition),
            replicate = rep(replicate)) %>%
-    select(-sample) %>%
     normalise_data(tpms = tpms) -> counts_list[[sample]]
 }
 

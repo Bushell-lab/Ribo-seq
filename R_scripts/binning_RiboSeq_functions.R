@@ -670,7 +670,7 @@ filter_transcripts <- function(df, transcript_IDs) {
 }
 
 #plot subsets of data----
-plot_subset <- function(IDs, binned_value, single_nt_value) {
+plot_subset <- function(IDs, binned_value, single_nt_value, control = control, treatment = treatment, paired_data = T) {
   
   #binned
   #subset
@@ -688,7 +688,7 @@ plot_subset <- function(IDs, binned_value, single_nt_value) {
   subset_binned_line_plots <- plot_binned_lines(summarised_subset_binned, SD = T, control = control, treatment = treatment)
   
   #calculate and plot delta
-  subset_binned_delta_data <- calculate_binned_delta(subset_binned_list, value = binned_value, control = control, treatment = treatment)
+  subset_binned_delta_data <- calculate_binned_delta(subset_binned_list, value = binned_value, control = control, treatment = treatment, paired_data = paired_data)
   subset_binned_delta_plots <- plot_binned_delta(subset_binned_delta_data)
   
   #single nt

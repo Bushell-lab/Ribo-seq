@@ -148,6 +148,7 @@ calculate_positional_counts <- function(df, region = "CDS") {
   
   df[df$region == region,] %>%
     inner_join(summed_counts, by = c("transcript", "region")) %>%
+    filter(total_counts > 0) %>%
     mutate(positional_counts = binned_cpm / total_counts) -> positional_counts_df
   
   return(positional_counts_df)

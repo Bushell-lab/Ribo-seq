@@ -4,6 +4,6 @@
 source common_variables.sh
 
 #rename the totals files
-mv ${fastq_files}/SRR00001.fastq ${fastq_files}/RPFs_1.fastq
-mv ${fastq_files}/SRR00002.fastq ${fastq_files}/RPFs_2.fastq
+mv ${fastq_dir}/SRR00001.fastq ${fastq_dir}/RPFs_1.fastq
+mv ${fastq_dir}/SRR00002.fastq ${fastq_dir}/RPFs_2.fastq
 

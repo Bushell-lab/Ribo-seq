@@ -70,6 +70,7 @@ for (sample in RPF_sample_names) {
     geom_col()+
     ylab("% counts")+
     xlab("read length")+
+    ggtitle(sample)+
     myTheme -> periodicity_col_plot
   
   png(filename = file.path(parent_dir, paste0("plots/periodicity/", sample, "_periodicity.png")), width = 500, height = 300)

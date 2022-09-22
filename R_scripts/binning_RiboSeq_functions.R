@@ -813,20 +813,26 @@ plot_single_transcripts <- function(gene, dir,
     
     summarised_binned_list <- lapply(binned_list, summarise_data, value = "binned_normalised_cpm", grouping = "bin")
     
-    do.call("rbind", summarised_binned_list) %>%
-      group_by(grouping, condition, region) %>%
-      summarise(average_counts = mean(mean_counts),
-                sd_counts = sd(mean_counts)) %>%
-      ungroup() -> summarised_binned
-    
-    binned_line_plots <- plot_binned_lines(df = summarised_binned, SD = SD, control = control, treatment = treatment)
-    
-    png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines.png")), width = 1000, height = 200)
-    grid.arrange(binned_line_plots[[1]], binned_line_plots[[2]], binned_line_plots[[3]], nrow = 1, widths = c(1,2,1.5))
-    dev.off()
-    
-    #plot individual replicates
-    if (plot_replicates == T) {
+    if (plot_replicates == F) {
+      
+      #plot average across replicates
+      
+      do.call("rbind", summarised_binned_list) %>%
+        group_by(grouping, condition, region) %>%
+        summarise(average_counts = mean(mean_counts),
+                  sd_counts = sd(mean_counts)) %>%
+        ungroup() -> summarised_binned
+      
+      binned_line_plots <- plot_binned_lines(df = summarised_binned, SD = SD, control = control, treatment = treatment)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines.png")), width = 1000, height = 200)
+      grid.arrange(binned_line_plots[[1]], binned_line_plots[[2]], binned_line_plots[[3]], nrow = 1, widths = c(1,2,1.5))
+      dev.off()
+      
+    } else {
+      
+      #plot individual replicates
+      
       binned_line_plots_all_replicates <- plot_binned_all_replicates(summarised_binned_list, control = control, treatment = treatment)
       
       png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines all replicates.png")), width = 1000, height = 200)

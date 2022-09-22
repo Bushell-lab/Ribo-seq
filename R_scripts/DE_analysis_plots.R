@@ -160,5 +160,5 @@ dev.off()
 write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups2.txt")), summary(merged_data$TE_group), col.names = F, quote = F)
 
 #write out csv
-write_csv(merged_data, file.path(parent_dir, "Analysis/DESeq2_output/merged_A1_DESeq2.csv"))
+write_csv(merged_data, file.path(parent_dir, "Analysis/DESeq2_output/merged_DESeq2.csv"))
 

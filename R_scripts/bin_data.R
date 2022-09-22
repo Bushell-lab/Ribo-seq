@@ -2,8 +2,8 @@
 library(tidyverse)
 
 #read in common variables----
-source("/home/local/BICR/jwaldron/data/JWALDRON/Ribosome_profiling/Organoids/4AIn/Scripts/R_scripts/common_variables_VM.R")
-#source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Ribosome_profiling/Organoids/4AIn/Scripts/R_scripts/common_variables.R")
+source("common_variables_VM.R")
+#source("common_variables.R")
 
 #set the threshold for the average CDS counts a transcript has to have across all samples for it to be included
 min_counts <- 50
@@ -14,8 +14,7 @@ CDS_min_len <- 300
 UTR3_min_len <- 50
 
 #read in functions----
-source("/home/local/BICR/jwaldron/data/JWALDRON/Scripts/R/Functions/binning_RiboSeq_functions.R")
-#source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Scripts/R/Functions/binning_RiboSeq_functions.R")
+source("binning_RiboSeq_functions.R")
 
 #read in data----
 region_lengths <- read_csv(file = "/home/local/BICR/jwaldron/data/R11/bioinformatics_resources/FASTAs/mouse/GENCODE/vM27/transcript_info/gencode.vM27.pc_transcripts_region_lengths.csv", col_names = c("transcript", "UTR5_len", "CDS_len", "UTR3_len"))
@@ -39,7 +38,7 @@ tpms %>%
 #the following for loop reads in each final CDS counts file and renames the counts column by the sample name and saves each data frame to a list
 data_list <- list()
 for (sample in RPF_sample_names) {
-  df <- read_csv(file = file.path(parent_dir, "Analysis/CDS_counts", paste0(sample, "_pc_final_CDS_counts_all_frames.csv")), col_names = T)
+  df <- read_csv(file = file.path(parent_dir, "Analysis/CDS_counts", paste0(sample, "_pc_final_counts_all_frames.csv")), col_names = T)
   colnames(df) <- c("transcript", sample)
   data_list[[sample]] <- df
 }

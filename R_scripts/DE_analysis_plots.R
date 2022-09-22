@@ -89,46 +89,76 @@ RPFs %>%
   inner_join(totals[,c("gene", "log2FoldChange", "padj")], by = "gene") %>%
   rename(totals_log2FC = log2FoldChange,
          totals_padj = padj) %>%
-  mutate(group = factor(case_when(RPFs_padj < 0.1 & RPFs_log2FC < 0 & totals_padj >= 0.1 ~ "RPFs down",
+  mutate(TE = RPFs_log2FC - totals_log2FC,
+         TE_group = factor(case_when(TE < -0.5 ~ "TE down",
+                                     TE > 0.5 ~ "TE up",
+                                     TE < 0.1 & TE > -0.1 ~ "TE no change")),
+         RPFs_group = factor(case_when(RPFs_padj < 0.1 & RPFs_log2FC < 0 & totals_padj >= 0.1 ~ "RPFs down",
                                   RPFs_padj < 0.1 & RPFs_log2FC > 0 & totals_padj >= 0.1 ~ "RPFs up",
                                   RPFs_padj >= 0.1 & totals_padj < 0.1 & totals_log2FC < 0 ~"Totals down",
                                   RPFs_padj >= 0.1 & totals_padj < 0.1 & totals_log2FC > 0 ~"Totals up",
                                   RPFs_padj < 0.1 & totals_padj < 0.1 & RPFs_log2FC < 0 & totals_log2FC < 0 ~ "both down",
-                                  RPFs_padj < 0.1 & totals_padj < 0.1 & RPFs_log2FC > 0 & totals_log2FC > 0 ~ "both up")),
-         alpha_score = case_when(is.na(group) ~ 0.1,
-                                 !(is.na(group)) ~ 1)) -> merged_data
+                                  RPFs_padj < 0.1 & totals_padj < 0.1 & RPFs_log2FC > 0 & totals_log2FC > 0 ~ "both up"))) -> merged_data
 summary(merged_data)
 
 
-#plot TE scatter----
-#caluclate axis limits
-RPF_lims <- max(abs(merged_data$RPFs_log2FC))
-totals_lims <- max(abs(merged_data$totals_log2FC))
-lim <- max(c(RPF_lims, totals_lims))
-lims <- c(-lim, lim)
-
+#plot TE scatters----
+#based on RPFs/totals logFC
 merged_data %>%
-  ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = group, alpha = alpha_score))+
+  mutate(alpha_score = case_when(is.na(RPFs_group) ~ 0.1,
+                                 !(is.na(RPFs_group)) ~ 1)) %>%
+  ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = RPFs_group, alpha = alpha_score))+
   geom_point()+
   scale_alpha(guide = "none")+
   mytheme+
   xlab("Total RNA log2FC")+
   ylab("RPFs log2FC")+
   ggtitle(paste(treatment, "TE scatter"))+
-  xlim(lims)+
-  ylim(lims)+
+  xlim(c(-5,5))+
+  ylim(c(-5,5))+
   geom_abline(lty=1)+
   geom_hline(yintercept = 0, lty=1)+
   geom_hline(yintercept = 1, lty=2)+
   geom_hline(yintercept = -1, lty=2)+
   geom_vline(xintercept = 0, lty=1)+
   geom_vline(xintercept = 1, lty=2)+
-  geom_vline(xintercept = -1, lty=2) -> TE_scatter_plot
+  geom_vline(xintercept = -1, lty=2) -> TE_scatter_plot1
 
-png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_TE_scatter.png")), width = 500, height = 400)
-print(TE_scatter_plot)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_TE_scatter1.png")), width = 500, height = 400)
+print(TE_scatter_plot1)
 dev.off()
 
 #write out group sizes
-write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups.txt")), summary(merged_data$group), col.names = F, quote = F)
+write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups1.txt")), summary(merged_data$RPFs_group), col.names = F, quote = F)
+
+#based on TE
+merged_data %>%
+  mutate(alpha_score = case_when(is.na(TE_group) ~ 0.1,
+                                 !(is.na(TE_group)) ~ 1)) %>%
+  ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = TE_group, alpha = alpha_score))+
+  geom_point()+
+  scale_alpha(guide = "none")+
+  mytheme+
+  xlab("Total RNA log2FC")+
+  ylab("RPFs log2FC")+
+  ggtitle(paste(treatment, "TE scatter"))+
+  xlim(c(-5,5))+
+  ylim(c(-5,5))+
+  geom_abline(lty=1)+
+  geom_hline(yintercept = 0, lty=1)+
+  geom_hline(yintercept = 1, lty=2)+
+  geom_hline(yintercept = -1, lty=2)+
+  geom_vline(xintercept = 0, lty=1)+
+  geom_vline(xintercept = 1, lty=2)+
+  geom_vline(xintercept = -1, lty=2) -> TE_scatter_plot2
+
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_TE_scatter2.png")), width = 500, height = 400)
+print(TE_scatter_plot2)
+dev.off()
+
+#write out group sizes
+write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups2.txt")), summary(merged_data$TE_group), col.names = F, quote = F)
+
+#write out csv
+write_csv(merged_data, file.path(parent_dir, "Analysis/DESeq2_output/merged_A1_DESeq2.csv"))
 

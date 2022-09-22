@@ -19,6 +19,7 @@ mkdir $periodicity_dir
 mkdir $cds_counts_dir
 mkdir $UTR5_counts_dir
 mkdir $csv_counts_dir
+mkdir $csv_R_objects
 mkdir $codon_counts_dir
 mkdir $DESeq2_dir
 mkdir $most_abundant_transcripts_dir

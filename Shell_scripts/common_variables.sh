@@ -31,6 +31,8 @@ BAM_dir=${parent_dir}/BAM_files
 log_dir=${parent_dir}/logs
 counts_dir=${parent_dir}/Counts_files
 csv_counts_dir=${parent_dir}/Counts_files/csv_files
+csv_R_objects=${parent_dir}/Counts_files/R_objects
+
 
 rsem_dir=${parent_dir}/rsem
 

@@ -736,7 +736,7 @@ plot_subset <- function(IDs, binned_value, single_nt_value, control = control, t
 plot_GSEA_binned <- function(GSEA_set, pathway, human = T, conversion_table = NULL,
                              binned_value = binned_value, single_nt_value = single_nt_value,
                              plot_binned = T, plot_single_nt = F, plot_positional = F,
-                             dir) {
+                             dir, control = control, treatment = treatment, paired_data = T) {
   
   if (!(dir.exists(file.path(parent_dir, "plots/binned_plots/GSEA", dir)))) {
     dir.create(file.path(parent_dir, "plots/binned_plots/GSEA", dir))
@@ -755,7 +755,7 @@ plot_GSEA_binned <- function(GSEA_set, pathway, human = T, conversion_table = NU
       pull(transcript) -> GSEA_transcript_IDs
   }
   
-  GSEA_plots <- plot_subset(IDs = GSEA_transcript_IDs, binned_value = binned_value, single_nt_value = single_nt_value)
+  GSEA_plots <- plot_subset(IDs = GSEA_transcript_IDs, binned_value = binned_value, single_nt_value = single_nt_value, control = control, treatment = treatment, paired_data = paired_data)
   
   if (plot_binned == T) {
     #binned lines
@@ -792,7 +792,12 @@ plot_GSEA_binned <- function(GSEA_set, pathway, human = T, conversion_table = NU
   }
 }
 
-plot_single_transcripts_binned <- function(gene, dir) {
+plot_single_transcripts <- function(gene, dir,
+                                    plot_binned = T, plot_single_nt = F, plot_positional = F,
+                                    SD = T, plot_replicates = T, plot_delta = T,
+                                    control = control, treatment = treatment, paired_data = T,
+                                    region_cutoffs = c(0,0,0)) {
+  
   if (!(dir.exists(file.path(parent_dir, "plots/binned_plots/single_transcripts", dir)))) {
     dir.create(file.path(parent_dir, "plots/binned_plots/single_transcripts", dir))
   }
@@ -803,186 +808,72 @@ plot_single_transcripts_binned <- function(gene, dir) {
   filtered_counts_list <- lapply(counts_list, filter_transcripts, transcript_IDs = transcript)
   
   #bin data
-  single_transcript_binned_data_list <- lapply(filtered_counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = c(50,300,0))
-  single_transcript_binned_data <- do.call("rbind", single_transcript_binned_data_list)
-  
-  if (nrow(single_transcript_binned_data) != 0) {
-    #plot with all replicates
-    #calculate axis limits
-    #ylims <- c(0,max(single_transcript_binned_data$binned_counts))
+  if (plot_binned == T) {
+    binned_list <- lapply(filtered_counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = region_cutoffs)
     
-    #5'UTR
-    #single_transcript_binned_data[single_transcript_binned_data$region == "UTR5",] %>%
-    #  ggplot(aes(x = bin, y = binned_counts, colour = condition, lty = replicate))+
-    #  geom_line(size = 1)+
-    #  ylim(ylims)+
-    #  CDS_theme -> UTR5_plot
+    summarised_binned_list <- lapply(binned_list, summarise_data, value = "binned_normalised_cpm", grouping = "bin")
     
-    #CDS
-    #single_transcript_binned_data[single_transcript_binned_data$region == "CDS",] %>%
-    #  ggplot(aes(x = bin, y = binned_counts, colour = condition, lty = replicate))+
-    #  geom_line(size = 1)+
-    #  ylim(ylims)+
-    #  CDS_theme -> CDS_plot
+    do.call("rbind", summarised_binned_list) %>%
+      group_by(grouping, condition, region) %>%
+      summarise(average_counts = mean(mean_counts),
+                sd_counts = sd(mean_counts)) %>%
+      ungroup() -> summarised_binned
     
-    #3'UTR
-    #single_transcript_binned_data[single_transcript_binned_data$region == "UTR3",] %>%
-    #  ggplot(aes(x = bin, y = binned_counts, colour = condition, lty = replicate))+
-    #  geom_line(size = 1)+
-    #  ylim(ylims)+
-    #  CDS_theme -> UTR3_plot
+    binned_line_plots <- plot_binned_lines(df = summarised_binned, SD = SD, control = control, treatment = treatment)
     
-    #png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, gene, paste(genotype, treatment, gene, "binned all replicates.png")), width = 1000, height = 200)
-    #grid.arrange(UTR5_plot, CDS_plot, UTR3_plot, nrow = 1, widths = c(1,2,1.5))
-    #dev.off()
+    png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines.png")), width = 1000, height = 200)
+    grid.arrange(binned_line_plots[[1]], binned_line_plots[[2]], binned_line_plots[[3]], nrow = 1, widths = c(1,2,1.5))
+    dev.off()
     
-    #plot average across replicates
-    single_transcript_binned_data %>%
-      group_by(bin, condition, region) %>%
-      summarise(average_counts = mean(binned_counts),
-                sd = sd(binned_counts)) %>%
-      ungroup() -> single_transcript_summarised_data
-    
-    #calculate axis limits
-    ylims <- c(min(single_transcript_summarised_data$average_counts - single_transcript_summarised_data$sd),
-               max(single_transcript_summarised_data$average_counts + single_transcript_summarised_data$sd))
-    
-    #5'UTR
-    single_transcript_summarised_data[single_transcript_summarised_data$region == "UTR5",] %>%
-      ggplot(aes(x = bin, y = average_counts, colour = condition))+
-      geom_line(size = 1)+
-      ylim(ylims)+
-      UTR5_theme+
-      geom_ribbon(aes(ymin = average_counts-sd, ymax = average_counts+sd, fill = condition), alpha = 0.3, colour = NA) -> UTR5_plot
-    
-    #CDS
-    single_transcript_summarised_data[single_transcript_summarised_data$region == "CDS",] %>%
-      ggplot(aes(x = bin, y = average_counts, colour = condition))+
-      geom_line(size = 1)+
-      ylim(ylims)+
-      CDS_theme+
-      geom_ribbon(aes(ymin = average_counts-sd, ymax = average_counts+sd, fill = condition), alpha = 0.3, colour = NA) -> CDS_plot
-    
-    #3'UTR
-    single_transcript_summarised_data[single_transcript_summarised_data$region == "UTR3",] %>%
-      ggplot(aes(x = bin, y = average_counts, colour = condition))+
-      geom_line(size = 1)+
-      ylim(ylims)+
-      CDS_theme+
-      geom_ribbon(aes(ymin = average_counts-sd, ymax = average_counts+sd, fill = condition), alpha = 0.3, colour = NA) -> UTR3_plot
-    
-    #plot delta
-    single_transcript_binned_data %>%
-      spread(key = condition, value = binned_counts) -> spread_data
-    
-    #calculate 95% confidence intervals
-    delta_list <- list()
-    for (region in c("UTR5", "CDS", "UTR3")) {
-      df <- spread_data[spread_data$region == region,]
-      bins <- max(df$bin)
-      for (n in 1:bins) {
-        bin_n <- as.data.frame(df[df$bin == n,])
-        
-        t <- t.test(bin_n[,treatment], bin_n[,"Ctrl"], paired = T, conf.int = T)
-        
-        delta_list[[paste(region, n, sep = "_")]] <- data.frame(region = region,
-                                                                bin = n,
-                                                                upper = t$conf.int[[1]],
-                                                                lower = t$conf.int[[2]],
-                                                                delta = t$estimate)
-      }
+    #plot individual replicates
+    if (plot_replicates == T) {
+      binned_line_plots_all_replicates <- plot_binned_all_replicates(summarised_binned_list, control = control, treatment = treatment)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines all replicates.png")), width = 1000, height = 200)
+      grid.arrange(binned_line_plots_all_replicates[[1]], binned_line_plots_all_replicates[[2]], binned_line_plots_all_replicates[[3]], nrow = 1, widths = c(1,2,1.5))
+      dev.off()
     }
-    delta_data <- do.call("rbind", delta_list)
-    delta_data$upper[delta_data$delta == 0] <- 0
-    delta_data$lower[delta_data$delta == 0] <- 0
-    
-    #calculate axis limits
-    lower_delta_ylim <- min(c(delta_data$delta, delta_data$upper))
-    upper_delta_ylim <- max(c(delta_data$delta,delta_data$lower))
-    ylims <- c(lower_delta_ylim, upper_delta_ylim)
-    
-    #5'UTR
-    delta_data[delta_data$region == "UTR5",] %>%
-      ggplot(aes(x = bin, y = delta))+
-      geom_col(fill = "grey")+
-      ylim(ylims)+
-      UTR5_theme+
-      geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, colour = NA) -> UTR5_delta_plot
-    
-    #CDS
-    delta_data[delta_data$region == "CDS",] %>%
-      ggplot(aes(x = bin, y = delta))+
-      geom_col(fill = "grey")+
-      ylim(ylims)+
-      CDS_theme+
-      geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, colour = NA) -> CDS_delta_plot
-    
-    #3'UTR
-    delta_data[delta_data$region == "UTR3",] %>%
-      ggplot(aes(x = bin, y = delta))+
-      geom_col(fill = "grey")+
-      ylim(ylims)+
-      CDS_theme+
-      geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, colour = NA) -> UTR3_delta_plot
-    
-    png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(gene, "binned.png")), width = 1000, height = 200)
-    grid.arrange(UTR5_plot, CDS_plot, UTR3_plot,
-                 UTR5_delta_plot, CDS_delta_plot, UTR3_delta_plot,
-                 nrow = 2, widths = c(1,2,1))
-    dev.off()
-  }
-}
-
-plot_single_transcripts_single_nt <- function(gene, dir) {
-  if (!(dir.exists(file.path(parent_dir, "plots/binned_plots/single_transcripts", dir)))) {
-    dir.create(file.path(parent_dir, "plots/binned_plots/single_transcripts", dir))
-  }
-  
-  transcript <- most_abundant_transcripts$transcript[most_abundant_transcripts$gene_sym == gene]
-  
-  UTR5_len <- region_lengths$UTR5_len[region_lengths$transcript == transcript]
-  
-  #extract data from counts list
-  single_transcript_counts_data_list <- lapply(counts_list, filter_transcripts, transcript_IDs = transcript)
-  single_transcript_counts_data <- do.call("rbind", single_transcript_counts_data_list)
-  
-  if (nrow(single_transcript_counts_data) > 0) {
-    #plot Ctrl vs treatment
-    single_transcript_counts_data %>%
-      filter(Position <= (UTR5_len + 200)) %>%
-      mutate(Position = Position - (UTR5_len + 1)) %>%
-      group_by(Position, condition) %>%
-      summarise(average_counts = mean(normalised_CPM)) %>%
-      ungroup() %>%
-      ggplot(aes(x = Position, y = average_counts, fill = condition, colour = condition))+
-      geom_col(position = position_dodge())+
-      geom_vline(xintercept = 0, lty = 2)+
-      CDS_theme+
-      theme(axis.text.x = element_text(size = 16),
-            axis.title.x = element_text(size = 18))+
-      xlab("Position relative to start codon (nts)") -> single_nt_plot
     
     #plot delta
-    single_transcript_counts_data %>%
-      as_tibble() %>%
-      filter(Position <= (UTR5_len + 200)) %>%
-      mutate(Position = Position - (UTR5_len + 1)) %>%
-      select(transcript, condition, replicate, Position, normalised_CPM) %>%
-      spread(key = condition, value = normalised_CPM) %>%
-      mutate(delta = EFT226 - Ctrl) %>%
-      group_by(Position) %>%
-      summarise(mean_delta = mean(delta)) %>%
-      ggplot(aes(x = Position, y = mean_delta))+
-      geom_col()+
-      geom_vline(xintercept = 0, lty = 2)+
-      CDS_theme+
-      theme(axis.text.x = element_text(size = 16),
-            axis.title.x = element_text(size = 18))+
-      xlab("Position relative to start codon (nts)") -> single_nt_delta_plot
+    if (plot_delta == T) {
+      binned_delta_data <- calculate_binned_delta(binned_list, value = "binned_normalised_cpm", control = control, treatment = treatment, paired_data = paired_data)
+      binned_delta_plots <- plot_binned_delta(binned_delta_data)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned delta.png")), width = 1000, height = 200)
+      grid.arrange(binned_delta_plots[[1]], binned_delta_plots[[2]], binned_delta_plots[[3]],
+                   nrow = 1, widths = c(1,2,1))
+      dev.off()
+    }
+  }
+  
+  #single_nt
+  if (plot_single_nt == T) {
+    single_nt_list <- lapply(filtered_counts_list, splice_single_nt, region_lengths = region_lengths, region_cutoffs = region_cutoffs)
     
-    png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(gene, "single nt.png")), width = ((UTR5_len + 200) * 2), height = 400)
-    grid.arrange(single_nt_plot, single_nt_delta_plot, nrow = 2)
+    summarised_single_nt_list <- lapply(single_nt_list, summarise_data, value = "single_nt_normalised_cpm", grouping = "window")
+    
+    do.call("rbind", summarised_single_nt_list) %>%
+      group_by(grouping, condition, region) %>%
+      summarise(average_counts = mean(mean_counts),
+                sd_counts = sd(mean_counts)) %>%
+      ungroup() -> summarised_single_nt
+    
+    #plot
+    single_nt_line_plots <- plot_single_nt_lines(summarised_single_nt, SD=SD, control = control, treatment = treatment)
+    
+    png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single nt lines.png")), width = 1000, height = 200)
+    grid.arrange(single_nt_line_plots[[1]], single_nt_line_plots[[2]], single_nt_line_plots[[3]], single_nt_line_plots[[4]], nrow = 1, widths = c(rep(1,3),1.2))
     dev.off()
+    
+    if (plot_delta == T) {
+      #calculate and plot delta
+      single_nt_delta_data <- calculate_single_nt_delta(single_nt_list, value = "single_nt_normalised_cpm", control = control, treatment = treatment, paired_data = paired_data)
+      single_nt_delta_plots <- plot_single_nt_delta(single_nt_delta_data, SD = SD)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single nt delta.png")), width = 1000, height = 200)
+      grid.arrange(single_nt_delta_plots[[1]], single_nt_delta_plots[[2]], single_nt_delta_plots[[3]], single_nt_delta_plots[[4]], nrow = 1)
+      dev.off()
+    }
   }
 }
 

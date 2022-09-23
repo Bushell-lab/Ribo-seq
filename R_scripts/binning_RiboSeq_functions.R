@@ -670,77 +670,114 @@ filter_transcripts <- function(df, transcript_IDs) {
 }
 
 #plot subsets of data----
-plot_subset <- function(IDs, binned_value, single_nt_value, control = control, treatment = treatment, paired_data = T) {
+plot_subset <- function(IDs, subset, sub_dir,
+                        binned_value, single_nt_value, control = control, treatment = treatment,
+                        plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
+                        SD = T, paired_data = T) {
   
-  #binned
-  #subset
-  subset_binned_list <- lapply(binned_list, filter_transcripts, transcript_IDs = IDs)
+  if (!(dir.exists(file.path(parent_dir, "plots/binned_plots", sub_dir)))) {
+    dir.create(file.path(parent_dir, "plots/binned_plots", sub_dir))
+  }
   
-  #summarise
-  summarised_subset_binned_list <- lapply(subset_binned_list, summarise_data, value = binned_value, grouping = "bin")
-  do.call("rbind", summarised_subset_binned_list) %>%
-    group_by(grouping, condition, region) %>%
-    summarise(average_counts = mean(mean_counts),
-              sd_counts = sd(mean_counts)) %>%
-    ungroup() -> summarised_subset_binned
+  if (plot_binned == T) {
+    #binned
+    
+    #subset
+    subset_binned_list <- lapply(binned_list, filter_transcripts, transcript_IDs = IDs)
+    
+    #summarise
+    summarised_subset_binned_list <- lapply(subset_binned_list, summarise_data, value = binned_value, grouping = "bin")
+    do.call("rbind", summarised_subset_binned_list) %>%
+      group_by(grouping, condition, region) %>%
+      summarise(average_counts = mean(mean_counts),
+                sd_counts = sd(mean_counts)) %>%
+      ungroup() -> summarised_subset_binned
+    
+    #plot lines
+    subset_binned_line_plots <- plot_binned_lines(summarised_subset_binned, SD = SD, control = control, treatment = treatment)
+    
+    png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, binned_value, "lines.png")), width = 1000, height = 200)
+    grid.arrange(subset_binned_line_plots[[1]], subset_binned_line_plots[[2]], subset_binned_line_plots[[3]], nrow = 1, widths = c(1,2,1.5))
+    dev.off()
+    
+    if (plot_delta == T) {
+      #calculate and plot delta
+      subset_binned_delta_data <- calculate_binned_delta(subset_binned_list, value = binned_value, control = control, treatment = treatment, paired_data = paired_data)
+      subset_binned_delta_plots <- plot_binned_delta(subset_binned_delta_data)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, binned_value, "delta.png")), width = 1000, height = 200)
+      grid.arrange(subset_binned_delta_plots[[1]], subset_binned_delta_plots[[2]], subset_binned_delta_plots[[3]], nrow = 1, widths = c(1,2,1))
+      dev.off()
+    }
+  }
   
-  #plot lines
-  subset_binned_line_plots <- plot_binned_lines(summarised_subset_binned, SD = T, control = control, treatment = treatment)
+  if (plot_single_nt == T) {
+    
+    #single nt
+    
+    #subset
+    subset_single_nt_list <- lapply(single_nt_list, filter_transcripts, transcript_IDs = IDs)
+    
+    #summarise
+    summarised_subset_single_nt_list <- lapply(subset_single_nt_list, summarise_data, value = single_nt_value, grouping = "window")
+    do.call("rbind", summarised_subset_single_nt_list) %>%
+      group_by(grouping, condition, region) %>%
+      summarise(average_counts = mean(mean_counts),
+                sd_counts = sd(mean_counts)) %>%
+      ungroup() -> summarised_subset_single_nt
+    
+    #plot lines
+    subset_single_nt_line_plots <- plot_single_nt_lines(summarised_subset_single_nt, SD = SD, control = control, treatment = treatment)
+    
+    png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, single_nt_value, "lines.png")), width = 1300, height = 300)
+    grid.arrange(subset_single_nt_line_plots[[1]], subset_single_nt_line_plots[[2]], subset_single_nt_line_plots[[3]], subset_single_nt_line_plots[[4]], nrow = 1, widths = c(1,2,2,1.5))
+    dev.off()
+    
+    if (plot_delta == T) {
+      #calculate and plot delta
+      subset_single_nt_delta_data <- calculate_single_nt_delta(subset_single_nt_list, value = single_nt_value, control = control, treatment = treatment, paired_data = paired_data)
+      subset_single_nt_delta_plots <- plot_single_nt_delta(subset_single_nt_delta_data)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, single_nt_value, "delta.png")), width = 1300, height = 200)
+      grid.arrange(subset_single_nt_delta_plots[[1]], subset_single_nt_delta_plots[[2]], subset_single_nt_delta_plots[[3]], subset_single_nt_delta_plots[[4]], nrow = 1, widths = c(1,2,2,1))
+      dev.off()
+    }
+  }
   
-  #calculate and plot delta
-  subset_binned_delta_data <- calculate_binned_delta(subset_binned_list, value = binned_value, control = control, treatment = treatment, paired_data = paired_data)
-  subset_binned_delta_plots <- plot_binned_delta(subset_binned_delta_data)
-  
-  #single nt
-  #subset
-  subset_single_nt_list <- lapply(single_nt_list, filter_transcripts, transcript_IDs = IDs)
-  
-  #summarise
-  summarised_subset_single_nt_list <- lapply(subset_single_nt_list, summarise_data, value = single_nt_value, grouping = "window")
-  do.call("rbind", summarised_subset_single_nt_list) %>%
-    group_by(grouping, condition, region) %>%
-    summarise(average_counts = mean(mean_counts),
-              sd_counts = sd(mean_counts)) %>%
-    ungroup() -> summarised_subset_single_nt
-  
-  #plot lines
-  subset_single_nt_line_plots <- plot_single_nt_lines(summarised_subset_single_nt, SD = T, control = control, treatment = treatment)
-  
-  #calculate and plot delta
-  subset_single_nt_delta_data <- calculate_single_nt_delta(subset_single_nt_list, value = single_nt_value, control = control, treatment = treatment)
-  subset_single_nt_delta_plots <- plot_single_nt_delta(subset_single_nt_delta_data)
-  
-  #positional
-  subset_positional_binned_list <- lapply(positional_list, filter_transcripts, transcript_IDs = IDs)
-  
-  summarised_positional_subset_binned_list <- lapply(subset_positional_binned_list, summarise_data, value = binned_value, grouping = "bin")
-  do.call("rbind", summarised_positional_subset_binned_list) %>%
-    group_by(grouping, condition) %>%
-    summarise(average_counts = mean(mean_counts),
-              sd_counts = sd(mean_counts)) %>%
-    ungroup() -> summarised_positional_subset_binned
-  
-  subset_positional_line_plots <- plot_positional_lines(df = summarised_positional_subset_binned, SD = T, control = control, treatment = treatment)
-  
-  subset_binned_positional_delta <- calculate_positional_delta(subset_positional_binned_list, control = control, treatment = treatment)
-  subset_positional_delta_plots <- plot_positional_delta(subset_binned_positional_delta)
-  
-  return(list(subset_binned_line_plots, subset_binned_delta_plots,
-              subset_single_nt_line_plots, subset_single_nt_delta_plots,
-              subset_positional_line_plots, subset_positional_delta_plots))
-  
-  
+  if (plot_positional == T) {
+    #positional
+    subset_positional_binned_list <- lapply(positional_list, filter_transcripts, transcript_IDs = IDs)
+    
+    summarised_positional_subset_binned_list <- lapply(subset_positional_binned_list, summarise_data, value = binned_value, grouping = "bin")
+    do.call("rbind", summarised_positional_subset_binned_list) %>%
+      group_by(grouping, condition) %>%
+      summarise(average_counts = mean(mean_counts),
+                sd_counts = sd(mean_counts)) %>%
+      ungroup() -> summarised_positional_subset_binned
+    
+    subset_positional_line_plots <- plot_positional_lines(df = summarised_positional_subset_binned, SD = SD, control = control, treatment = treatment)
+    
+    png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, "binned positional lines.png")), width = 500, height = 200)
+    print(subset_positional_line_plots)
+    dev.off()
+    
+    if (plot_delta == T) {
+      subset_binned_positional_delta <- calculate_positional_delta(subset_positional_binned_list, control = control, treatment = treatment, paired_data = paired_data)
+      subset_positional_delta_plots <- plot_positional_delta(subset_binned_positional_delta)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, "binned positional delta.png")), width = 500, height = 200)
+      print(subset_positional_delta_plots)
+      dev.off()
+    }
+  }
 }
 
 
-plot_GSEA_binned <- function(GSEA_set, pathway, human = T, conversion_table = NULL,
+plot_GSEA_binned <- function(GSEA_set, pathway, subdir,
+                             human = T, conversion_table = NULL,
                              binned_value = binned_value, single_nt_value = single_nt_value,
                              plot_binned = T, plot_single_nt = F, plot_positional = F,
-                             dir, control = control, treatment = treatment, paired_data = T) {
-  
-  if (!(dir.exists(file.path(parent_dir, "plots/binned_plots/GSEA", dir)))) {
-    dir.create(file.path(parent_dir, "plots/binned_plots/GSEA", dir))
-  }
+                             sub_dir, control = control, treatment = treatment, paired_data = T, SD = T, plot_delta = T) {
   
   gene_list <- GSEA_set[[pathway]]
   
@@ -755,41 +792,11 @@ plot_GSEA_binned <- function(GSEA_set, pathway, human = T, conversion_table = NU
       pull(transcript) -> GSEA_transcript_IDs
   }
   
-  GSEA_plots <- plot_subset(IDs = GSEA_transcript_IDs, binned_value = binned_value, single_nt_value = single_nt_value, control = control, treatment = treatment, paired_data = paired_data)
+  plot_subset(IDs = GSEA_transcript_IDs, subset = pathway, sub_dir= sub_dir,
+                            binned_value = binned_value, single_nt_value = single_nt_value, control = control, treatment = treatment,
+                            plot_binned = plot_binned, plot_single_nt = plot_single_nt, plot_positional = plot_positional, plot_delta = plot_delta,
+                            SD = SD, paired_data = paired_data)
   
-  if (plot_binned == T) {
-    #binned lines
-    png(filename = file.path(parent_dir, "plots/binned_plots/GSEA", dir, paste(treatment, pathway, binned_value, "lines.png", sep = "_")), width = 1000, height = 200)
-    grid.arrange(GSEA_plots[[1]][[1]], GSEA_plots[[1]][[2]], GSEA_plots[[1]][[3]], nrow = 1, widths = c(1,2,1.5))
-    dev.off()
-    
-    #binned delta
-    png(filename = file.path(parent_dir, "plots/binned_plots/GSEA", dir, paste(treatment, pathway, binned_value, "delta.png", sep = "_")), width = 1000, height = 200)
-    grid.arrange(GSEA_plots[[2]][[1]], GSEA_plots[[2]][[2]], GSEA_plots[[2]][[3]], nrow = 1, widths = c(1,2,1))
-    dev.off()
-  } 
-  if (plot_single_nt == T) {
-    #single_nt lines
-    png(filename = file.path(parent_dir, "plots/binned_plots/GSEA", dir, paste(treatment, pathway, single_nt_value, "lines.png", sep = "_")), width = 1000, height = 200)
-    grid.arrange(GSEA_plots[[3]][[1]], GSEA_plots[[3]][[2]], GSEA_plots[[3]][[3]], GSEA_plots[[3]][[4]], nrow = 1, widths = c(rep(1,3),1.2))
-    dev.off()
-    
-    #single_nt delta
-    png(filename = file.path(parent_dir, "plots/binned_plots/GSEA", dir, paste(treatment, pathway, single_nt_value, "delta.png", sep = "_")), width = 1000, height = 200)
-    grid.arrange(GSEA_plots[[4]][[1]], GSEA_plots[[4]][[2]], GSEA_plots[[4]][[3]], GSEA_plots[[4]][[4]], nrow = 1)
-    dev.off()
-  }
-  if (plot_positional == T) {
-    #positional lines
-    png(filename = file.path(parent_dir, "plots/binned_plots/GSEA", dir, paste(treatment, pathway, "binned_positional_lines.png", sep = "_")), width = 500, height = 200)
-    print(GSEA_plots[[5]])
-    dev.off()
-    
-    #positional delta
-    png(filename = file.path(parent_dir, "plots/binned_plots/GSEA", dir, paste(treatment, pathway, "binned_positional_delta.png", sep = "_")), width = 500, height = 200)
-    print(GSEA_plots[[6]])
-    dev.off()
-  }
 }
 
 plot_single_transcripts <- function(gene, dir,

@@ -395,21 +395,21 @@ plot_binned_all_replicates <- function(alist, control = control, treatment = tre
   
   #5'UTR
   df[df$region == "UTR5",] %>%
-    ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = replicate))+
+    ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = factor(replicate)))+
     geom_line(size = 1)+
     ylim(ylims)+
     UTR5_theme -> UTR5_plot
   
   #CDS
   df[df$region == "CDS",] %>%
-    ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = replicate))+
+    ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = factor(replicate)))+
     geom_line(size = 1)+
     ylim(ylims)+
     CDS_theme -> CDS_plot
   
   #3'UTR
   df[df$region == "UTR3",] %>%
-    ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = replicate))+
+    ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = factor(replicate)))+
     geom_line(size = 1)+
     ylim(ylims)+
     UTR3_theme -> UTR3_plot

@@ -204,6 +204,9 @@ pathways.hallmark <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinforma
 #carry out fgsea
 hallmark_results <- lapply(named_vectors, run_fgsea, pathway = pathways.hallmark)
 
+#save results
+save(file = file.path(parent_dir, "Analysis/fgsea/hallmark_results.Rdata"), hallmark_results)
+
 #set adjusted p-value
 padj <- 0.05
 
@@ -236,6 +239,9 @@ pathways.bio_processes <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioin
 
 #carry out fgsea
 bio_processes_results <- lapply(named_vectors, run_fgsea, pathway = pathways.bio_processes)
+
+#save results
+save(file = file.path(parent_dir, "Analysis/fgsea/bio_processes_results.Rdata"), bio_processes_results)
 
 #set adjusted p-value
 padj <- 0.001
@@ -270,6 +276,9 @@ pathways.mol_funs <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinforma
 #carry out fgsea
 mol_funs_results <- lapply(named_vectors, run_fgsea, pathway = pathways.mol_funs)
 
+#save results
+save(file = file.path(parent_dir, "Analysis/fgsea/mol_funs_results.Rdata"), mol_funs_results)
+
 #set adjusted p-value
 padj <- 0.001
 
@@ -302,6 +311,9 @@ pathways.cell_comp <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinform
 
 #carry out fgsea
 cell_comp_results <- lapply(named_vectors, run_fgsea, pathway = pathways.cell_comp)
+
+#save results
+save(file = file.path(parent_dir, "Analysis/fgsea/cell_comp_results.Rdata"), cell_comp_results)
 
 #set adjusted p-value
 padj <- 0.001
@@ -336,6 +348,9 @@ pathways.onco <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics
 #carry out fgsea
 onco_results <- lapply(named_vectors, run_fgsea, pathway = pathways.onco)
 
+#save results
+save(file = file.path(parent_dir, "Analysis/fgsea/onco_results.Rdata"), onco_results)
+
 #set adjusted p-value
 padj <- 0.05
 
@@ -369,6 +384,8 @@ pathways.immune <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformati
 #carry out fgsea
 immune_results <- lapply(named_vectors, run_fgsea, pathway = pathways.immune)
 
+#save results
+save(file = file.path(parent_dir, "Analysis/fgsea/immune_results.Rdata"), immune_results)
 
 #set adjusted p-value
 padj <- 0.05
@@ -402,6 +419,9 @@ pathways.kegg <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics
 
 #carry out fgsea
 kegg_results <- lapply(named_vectors, run_fgsea, pathway = pathways.kegg)
+
+#save results
+save(file = file.path(parent_dir, "Analysis/fgsea/kegg_results.Rdata"), kegg_results)
 
 #set adjusted p-value
 padj <- 0.05

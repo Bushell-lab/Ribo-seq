@@ -6,7 +6,7 @@
 #read in variables
 source common_variables.sh
 
-#convert sam to sam 
+#convert sam to bam 
 for filename in $RPF_filenames
 do
 samtools view -bS $SAM_dir/${filename}_pc.sam > $BAM_dir/${filename}_pc.bam &

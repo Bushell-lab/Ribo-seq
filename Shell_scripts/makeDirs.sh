@@ -24,6 +24,7 @@ mkdir $codon_counts_dir
 mkdir $DESeq2_dir
 mkdir $most_abundant_transcripts_dir
 mkdir $reads_summary_dir
+mkdir $fgsea_dir
 
 mkdir $plots_dir
 mkdir $summed_counts_plots_dir
@@ -38,4 +39,7 @@ mkdir $fgsea_scatters_dir
 mkdir $fgsea_interactive_scatters_dir
 mkdir $read_counts_summary_dir
 mkdir $binned_plots_dir
+mkdir $single_transcript_binned_plots_dir
+mkdir $normalisation_binned_plots_dir
+
 

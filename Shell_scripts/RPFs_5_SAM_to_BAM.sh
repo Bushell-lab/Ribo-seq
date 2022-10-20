@@ -9,7 +9,7 @@ source common_variables.sh
 #convert sam to bam 
 for filename in $RPF_filenames
 do
-samtools view -bS $SAM_dir/${filename}_pc.sam > $BAM_dir/${filename}_pc.bam &
+samtools view -b $SAM_dir/${filename}_pc.sam > $BAM_dir/${filename}_pc.bam &
 done
 wait
 

@@ -17,7 +17,7 @@ wait
 #sort bam
 for filename in $RPF_filenames
 do
-samtools sort $BAM_dir/${filename}_pc_deduplicated.bam -o $BAM_dir/${filename}_pc_deduplicated_sorted.bam -@ threadN -m 1G
+samtools sort $BAM_dir/${filename}_pc_deduplicated.bam -o $BAM_dir/${filename}_pc_deduplicated_sorted.bam -@ $threadN -m 1G
 done
 
 #index bam

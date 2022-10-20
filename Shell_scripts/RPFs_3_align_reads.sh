@@ -15,19 +15,19 @@ source common_variables.sh
 #Align to rRNA
 for filename in $RPF_filenames
 do
-bbmap.sh in=$fastq_dir/${filename}_UMI_clipped.fastq out=$SAM_dir/${filename}_rRNA.sam ref=$rRNA_fasta outm=$fastq_dir/${filename}_rRNA.fastq outu=$fastq_dir/${filename}_non_rRNA.fastq ambiguous=best nodisk threads=threadN 2> $log_dir/${filename}_rRNA_log.txt
+bbmap.sh in=$fastq_dir/${filename}_UMI_clipped.fastq out=$SAM_dir/${filename}_rRNA.sam ref=$rRNA_fasta outm=$fastq_dir/${filename}_rRNA.fastq outu=$fastq_dir/${filename}_non_rRNA.fastq ambiguous=best nodisk threads=$threadN 2> $log_dir/${filename}_rRNA_log.txt
 done
 
 #Align to tRNA fasta
 for filename in $RPF_filenames
 do
-bbmap.sh in=$fastq_dir/${filename}_non_rRNA.fastq out=$SAM_dir/${filename}_tRNA.sam ref=$tRNA_fasta outm=$fastq_dir/${filename}_tRNA.fastq outu=$fastq_dir/${filename}_non_rRNA_tRNA.fastq ambiguous=best nodisk threads=threadN 2> $log_dir/${filename}_tRNA_log.txt
+bbmap.sh in=$fastq_dir/${filename}_non_rRNA.fastq out=$SAM_dir/${filename}_tRNA.sam ref=$tRNA_fasta outm=$fastq_dir/${filename}_tRNA.fastq outu=$fastq_dir/${filename}_non_rRNA_tRNA.fastq ambiguous=best nodisk threads=$threadN 2> $log_dir/${filename}_tRNA_log.txt
 done
 
 #Align to protein coding transcriptome
 for filename in $RPF_filenames
 do
-bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA.fastq out=$SAM_dir/${filename}_pc.sam ref=$most_abundant_fasta outm=$fastq_dir/${filename}_pc.fastq outu=$fastq_dir/${filename}_unaligned.fastq ambiguous=best nodisk threads=threadN 2> $log_dir/${filename}_pc_log.txt
+bbmap.sh in=$fastq_dir/${filename}_non_rRNA_tRNA.fastq out=$SAM_dir/${filename}_pc.sam ref=$most_abundant_fasta outm=$fastq_dir/${filename}_pc.fastq outu=$fastq_dir/${filename}_unaligned.fastq ambiguous=best nodisk threads=$threadN 2> $log_dir/${filename}_pc_log.txt
 done
 
 #run fastqc on mapped reads

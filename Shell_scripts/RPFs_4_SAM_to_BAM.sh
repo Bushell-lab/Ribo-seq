@@ -16,7 +16,7 @@ wait
 #sort bam
 for filename in $RPF_filenames
 do
-samtools sort $BAM_dir/${filename}_pc.bam -o $BAM_dir/${filename}_pc_sorted.bam -@ 6 -m 1G
+samtools sort $BAM_dir/${filename}_pc.bam -o $BAM_dir/${filename}_pc_sorted.bam -@ $threadN -m 1G
 done
 
 #index bam

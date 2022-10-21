@@ -34,7 +34,7 @@ mkdir $heatmaps_plots_dir
 mkdir $DE_analysis_dir
 mkdir $PCA_dir
 mkdir $Interactive_scatters_dir
-mkdir $fgsea_dir
+mkdir $fgsea_plots_dir
 mkdir $fgsea_scatters_dir
 mkdir $fgsea_interactive_scatters_dir
 mkdir $read_counts_summary_dir

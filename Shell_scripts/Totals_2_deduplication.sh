@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
-#This script uses cd-hit-dup to remove PCR duplicates based on the UMIs
-#It will output a fastq file with only unique reads
-#It then runs fastQC on output to check it is as expected
-#-i specifies the fastq input file
-#-o specifies the fastq output file
-#-e specifies the number of mismatches allowed. By setting to 0 means only unique reads will be kept
+#This script uses UMItools to extract the UMIs from the reads and add them to the read name
+#The script is written for libraries which contain 12nt UMIs at the 5'end of the read. If this is not the case for your libraries you will need to change the following part of the command
+#"--bc-pattern=NNNNNNNNNNNN"
+#For more info on UMItools see https://github.com/CGATOxford/UMI-tools and https://umi-tools.readthedocs.io/en/latest/
 
-#For more info on cd-hit-dup see https://github.com/weizhongli/cdhit/wiki/3.-User's-Guide#cdhitdup
+#It will output a new fastq file with the suffix _UMI_clipped
+#It then runs fastQC on output to check it is as expected
 
 #read in variables
 source common_variables.sh
@@ -15,13 +14,13 @@ source common_variables.sh
 #read deduplication
 for filename in $Totals_filenames
 do
-cd-hit-dup -i $fastq_dir/${filename}_cutadapt.fastq -o $fastq_dir/${filename}_cdhitdup.fastq -e 0 &
+umi_tools extract -I $fastq_dir/${filename}_cutadapt.fastq -S $fastq_dir/${filename}_UMI_clipped.fastq --bc-pattern=NNNNNNNNNNNN --log=$log_dir/${filename}_extracted_UMIs.log &
 done
 wait
 
-#run fastqc on cd-hit-dup output
+#run fastqc on output
 for filename in $Totals_filenames
 do
-fastqc $fastq_dir/${filename}_cdhitdup.fastq --outdir=$fastqc_dir &
+fastqc $fastq_dir/${filename}_UMI_clipped.fastq --outdir=$fastqc_dir &
 done
 wait

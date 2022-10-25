@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-#This script uses bbmap to align reads.
-#in specificies the input <.fastq> file.
-#bamscript=bs.sh; sh bs.sh uses samtools to output a sorted and indexed <.bam> file rather than <.sam>
-#ref specifies the <.fasta> file to use as a reference. bbmap will use this to make an index. As this is much quicker than other alignment programs, we use the nodisk option so that this isn't written to file
-#ambigous specifies how to treat multimapped reads. We use all so that RSEM can calculated relative isoform expression downstream
-#2> stores the text that is printed to the screen as a log
+#This script uses bowtie2 to align reads.
+#-S specifies the <.sam> output file name
+#-U specificies the input <.fastq> file.
+#-x specifies the index to use as a reference. This is the same one as used for rsem to calculate isoform expression
+#--threads specifies the number of threads
+#"--sensitive --dpad 0 --gbar 99999999 --mp 1,1 --np 1 --score-min L,0,-0.1" are the arguments recommended if using rsem downstream
+
+#it then uses samtools to sort and index the <.bam> file
 
 #read in variables
 source common_variables.sh
@@ -13,5 +15,25 @@ source common_variables.sh
 #Align to protein coding transcriptome
 for filename in $Totals_filenames
 do
-bbmap.sh in=$fastq_dir/${filename}_UMI_clipped.fastq out=$SAM_dir/${filename}_pc.sam bamscript=bs.sh; sh bs.sh ref=$pc_fasta ambiguous=all nodisk threads=$threadN 2> $log_dir/${filename}_pc_log.txt
+bowtie2 -S $SAM_dir/${filename}_pc.sam -U $fastq_dir/${filename}_UMI_clipped.fastq -x $rsem_index --threads $threadN --sensitive --dpad 0 --gbar 99999999 --mp 1,1 --np 1 --score-min L,0,-0.1 2> $log_dir/${filename}_pc_log.txt
 done
+
+#convert sam to bam 
+for filename in $Totals_filenames
+do
+samtools view -b $SAM_dir/${filename}_pc.sam > $BAM_dir/${filename}_pc.bam &
+done
+wait
+
+#sort bam
+for filename in $Totals_filenames
+do
+samtools sort $BAM_dir/${filename}_pc.bam -o $BAM_dir/${filename}_pc_sorted.bam -@ $threadN -m 1G
+done
+
+#index bam
+for filename in $Totals_filenames
+do
+samtools index $BAM_dir/${filename}_pc_sorted.bam $BAM_dir/${filename}_pc_sorted.bai &
+done
+wait

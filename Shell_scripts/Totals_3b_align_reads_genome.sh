@@ -17,5 +17,5 @@ source common_variables.sh
 #Align to genome
 for filename in $Totals_filenames
 do
-STAR --readFilesIn $fastq_dir/${filename}.fastq --runThreadN $threadN --genomeDir $STAR_index --outFilterMultimapNmax 5 --outFilterMismatchNmax 5 --outSAMprimaryFlag AllBestScore --alignEndsType EndToEnd --outSAMtype BAM SortedByCoordinate --outSAMunmapped None --sjdbGTFfile $STAR_GTF --outFileNamePrefix $STAR_dir/${filename}
+STAR --readFilesIn $fastq_dir/${filename}_UMI_clipped.fastq --runThreadN $threadN --genomeDir $STAR_index --outFilterMultimapNmax 5 --outFilterMismatchNmax 5 --outSAMprimaryFlag AllBestScore --alignEndsType EndToEnd --outSAMtype BAM SortedByCoordinate --outSAMunmapped None --sjdbGTFfile $STAR_GTF --outFileNamePrefix $STAR_dir/${filename}
 done

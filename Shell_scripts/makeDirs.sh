@@ -11,6 +11,7 @@ mkdir $BAM_dir
 mkdir $log_dir
 mkdir $counts_dir
 mkdir $rsem_dir
+mkdir $STAR_dir
 
 mkdir $analysis_dir
 mkdir $region_counts_dir

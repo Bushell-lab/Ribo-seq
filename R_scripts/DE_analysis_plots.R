@@ -83,10 +83,10 @@ dev.off()
 
 #merge RPF with totals data----
 RPFs %>%
-  select(gene, log2FoldChange, padj) %>%
+  select(gene, gene_sym, log2FoldChange, padj) %>%
   rename(RPFs_log2FC = log2FoldChange,
          RPFs_padj = padj) %>%
-  inner_join(totals[,c("gene", "log2FoldChange", "padj")], by = "gene") %>%
+  inner_join(totals[,c("gene", "log2FoldChange", "padj", "gene_sym")], by = c("gene", "gene_sym")) %>%
   rename(totals_log2FC = log2FoldChange,
          totals_padj = padj) %>%
   mutate(TE = RPFs_log2FC - totals_log2FC,

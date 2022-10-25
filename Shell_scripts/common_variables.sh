@@ -37,7 +37,7 @@ counts_dir=${parent_dir}/Counts_files
 csv_counts_dir=${parent_dir}/Counts_files/csv_files
 csv_R_objects=${parent_dir}/Counts_files/R_objects
 
-
+STAR_dir=${parent_dir}/STAR
 rsem_dir=${parent_dir}/rsem
 
 #The following directories are where all the csv files that are used as input into R will be saved

@@ -71,7 +71,7 @@ def main():
         print("warning: UMI clipped out does not equal rRNA in for sample: " + args.infyle)
     if (int(rRNA_in) - int(rRNA_out)) != int(tRNA_in):
         print("warning: non-rRNA reads does not equal tRNA in for sample: " + args.infyle)
-    if (int(tRNA_in) - int(tRNA_out)) != pc_in:
+    if (int(tRNA_in) - int(tRNA_out)) != int(pc_in):
         print("warning: non-rRNA_tRNA reads does not equal pc in for sample: " + args.infyle)
     if int(pc_out) != int(deduplication_in):
         print("warning: pc reads does not input to depulication for sample: " + args.infyle)

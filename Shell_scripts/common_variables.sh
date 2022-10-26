@@ -28,6 +28,10 @@ parent_dir='/Path/to/data' #This is the path to the parent directory that contai
 
 #The following directories are where all the processed data will be saved. These all need to be created prior to starting the analysis
 
+#set the directory where the raw bcl data is. the directory that contains the raw sequencing data in bcl format. This is what you get from a sequencing run and needs to be demulitplexed to write the <.fastq> files.
+#If you have more than one bcl directory (you will get one for each sequencing run), then hash one out and write a new one below, each time you re-run the demultiplex.sh script script, so that this acts as a log for all the bcl directories associated with this project
+bcl_dir='Path/to/bcl/data'
+
 fastq_dir=${parent_dir}/fastq_files
 fastqc_dir=${parent_dir}/fastQC_files
 SAM_dir=${parent_dir}/SAM_files

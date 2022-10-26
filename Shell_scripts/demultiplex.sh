@@ -11,10 +11,5 @@
 #read in variables
 source common_variables.sh
 
-#set the directory where the raw bcl data is.
-#If you have more than one bcl directory (you will get one for each sequencing run), then hash one out and write a new one below, each time you re-run this script, so that this acts as a log for all the bcl directories associated with this project
-
-bcl_dir='Path/to/raw_seq_data' #This is the path to the directory that contains the raw sequencing data in bcl format (this is what you get from a sequencing run and needs to be demulitplexed to write the <.fastq> files)
-
 #run blc2fastq
-bcl2fastq -p 12 --no-lane-splitting --runfolder-dir $bcl_dir --output-dir $fastq_dir --barcode-mismatches 0
+bcl2fastq -p $threadN --no-lane-splitting --runfolder-dir $bcl_dir --output-dir $fastq_dir --barcode-mismatches 0

@@ -7,11 +7,11 @@ Total_sample_names <- c('Ctrl_Totals_1', 'Ctrl_Totals_2', 'Ctrl_Totals_3', 'Trea
 
 RPF_sample_info <- data.frame(sample = RPF_sample_names,
                              condition = c(rep("Ctrl", 3), rep("Treatment", 3)),
-                             replicate = rep(c("1", "2", "3"), 2))
+                             replicate = factor(rep(c("1", "2", "3"), 2)))
 
 Total_sample_info <- data.frame(sample = Total_sample_names,
                              condition = c(rep("Ctrl", 3), rep("Treatment", 3)),
-                             replicate = rep(c("1", "2", "3"), 2))
+                             replicate = factor(rep(c("1", "2", "3"), 2)))
 
 #set read lengths used for library QC
 lengths <- 25:35

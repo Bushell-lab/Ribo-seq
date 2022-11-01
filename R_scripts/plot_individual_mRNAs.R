@@ -3,11 +3,11 @@ library(tidyverse)
 library(grid)
 library(gridExtra)
 
-#read in functions----
-source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Scripts/R/Functions/binning_RiboSeq_functions.R")
-
 #read in common variables
-source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Ribosome_profiling/Organoids/4AIn/Scripts/R_scripts/common_variables.R")
+source("common_variables.R")
+
+#read in functions----
+source("binning_RiboSeq_functions.R")
 
 #create themes----
 my_theme <- theme_bw()+
@@ -49,7 +49,7 @@ region_lengths <- read_csv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinform
 #region_cutoffs = c(0,0,0) will mean any transcript length can be plotted. For meta plots, this is normally set to region_cutoffs = c(50,300,50)
 
 plot_single_transcripts(gene = "Ctnnb1", dir = "candidate",
-                        plot_binned = T, plot_single_nt = T,
+                        plot_binned = T, plot_single_nt = T, plot_codons = T,
                         SD = T, plot_replicates = T, plot_delta = T,
                         control = "Ctrl", treatment = "EFT226", paired_data = T,
                         region_cutoffs = c(0,0,0))
@@ -76,13 +76,13 @@ DESeq2_df %>%
 
 #run on gene lists
 lapply(RPFs_down_IDs, plot_single_transcripts, dir = "RPFs_down",
-       plot_binned = T, plot_single_nt = F,
+       plot_binned = T, plot_single_nt = F, plot_codons = F,
        SD = T, plot_replicates = F, plot_delta = F,
        control = "Ctrl", treatment = "EFT226", paired_data = T,
        region_cutoffs = c(0,0,0))
 
 lapply(RPFs_up_IDs, plot_single_transcripts, dir = "RPFs_up",
-       plot_binned = T, plot_single_nt = F,
+       plot_binned = T, plot_single_nt = F, plot_codons = F,
        SD = T, plot_replicates = F, plot_delta = F,
        control = "Ctrl", treatment = "EFT226", paired_data = T,
        region_cutoffs = c(0,0,0))

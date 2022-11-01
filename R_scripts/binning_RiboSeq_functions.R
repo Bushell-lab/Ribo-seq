@@ -197,6 +197,49 @@ calculate_positional_delta <- function(alist, control = control, treatment = tre
   return(delta_data)
 }
 
+calculate_single_codon_delta <- function(alist, control = control, treatment = treatment, paired_data = T) {
+  do.call("rbind", alist) %>%
+    spread(key = condition, value = single_codon_normalised_cpm) %>%
+    group_by(codon, replicate) %>%
+    rename(control = control,
+           treatment = treatment) %>%
+    summarise(mean_ctrl = mean(control, na.rm = T),
+              mean_treatment = mean(treatment, na.rm = T)) %>%
+    ungroup() -> spread_data
+  
+  #calculate delta with 95% confidence intervals
+  delta_list <- list()
+  
+  codons <- max(spread_data$codon)
+  for (n in 1:codons) {
+    codon_n <- as.data.frame(spread_data[spread_data$codon == n,])
+    
+    if (paired_data == T) {
+      t <- t.test(codon_n[,"mean_treatment"], codon_n[,"mean_ctrl"], paired = T, conf.int = T)
+      
+      delta_list[[n]] <- data.frame(codon = n,
+                                    upper = t$conf.int[[1]],
+                                    lower = t$conf.int[[2]],
+                                    delta = t$estimate)
+    } else {
+      t <- t.test(codon_n[,"mean_treatment"], codon_n[,"mean_ctrl"], paired = F, conf.int = T)
+      
+      delta_list[[n]] <- data.frame(codon = n,
+                                    upper = t$conf.int[[1]],
+                                    lower = t$conf.int[[2]],
+                                    delta = (t$estimate[1] - t$estimate[2]))
+    }
+    
+  }
+  delta_data <- do.call("rbind", delta_list)
+  
+  #convert 95% confidence intervals to 0 if delta is exactly 0 (will be NaN)
+  delta_data$upper[delta_data$delta == 0] <- 0
+  delta_data$lower[delta_data$delta == 0] <- 0
+  
+  return(delta_data)
+}
+
 splice_single_nt <- function(df, region_lengths, codons = 50, UTR_nts = 48, region_cutoffs = c(50,300,50)) {
   nt <- codons * 3
   
@@ -322,6 +365,21 @@ calculate_single_nt_delta <- function(alist, value, control = control, treatment
   delta_data$lower[delta_data$delta == 0] <- 0
   
   return(delta_data)
+}
+
+single_codon <- function(df, region_lengths) {
+  df %>%
+    inner_join(region_lengths, by = "transcript") %>%
+    filter(Position > UTR5_len & Position <= (UTR5_len + CDS_len)) %>%
+    mutate(CDS_position = Position - UTR5_len) %>%
+    mutate(codon = ceiling(CDS_position/3)) %>%
+    group_by(transcript, condition, replicate, codon) %>%
+    summarise(single_codon_normalised_cpm = mean(normalised_CPM),
+              single_codon_cpm = mean(CPM)) %>%
+    ungroup() %>%
+    mutate(region = "CDS") -> CDS_codons
+  
+  return(CDS_codons)
 }
 
 #the following function will summarise (mean and median) across all transcripts within each sample for the given value.
@@ -654,9 +712,29 @@ plot_positional_delta <- function(df, SD = T) {
     ylim(ylims)+
     UTR3_theme+
     theme(axis.text.y = element_text(size = 18))+
-    {if(SD)geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, colour = NA)} -> UTR5_delta_plot
+    {if(SD)geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, colour = NA)} -> delta_plot
   
-  return(UTR5_delta_plot)
+  return(delta_plot)
+}
+
+plot_single_codon_delta <- function(df, SD = T) {
+  
+  #calculate axis limits
+  lower_delta_ylim <- min(c(df$delta, df$upper))
+  upper_delta_ylim <- max(c(df$delta,df$lower))
+  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  
+  df %>%
+    ggplot(aes(x = codon, y = delta))+
+    geom_col(fill = "grey")+
+    ylim(ylims)+
+    my_theme+
+    theme(axis.text = element_text(size = 18),
+          axis.title.x = element_text(size = 20))+
+    xlab("Codon")+
+    {if(SD)geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, colour = NA)} -> delta_plot
+  
+  return(delta_plot)
 }
 
 #filter data----
@@ -800,7 +878,7 @@ plot_GSEA_binned <- function(GSEA_set, pathway, subdir,
 }
 
 plot_single_transcripts <- function(gene, dir,
-                                    plot_binned = T, plot_single_nt = F, plot_positional = F,
+                                    plot_binned = T, plot_single_nt = F, plot_positional = F, plot_codons = F,
                                     SD = T, plot_replicates = T, plot_delta = T,
                                     control = control, treatment = treatment, paired_data = T,
                                     region_cutoffs = c(0,0,0)) {
@@ -885,6 +963,36 @@ plot_single_transcripts <- function(gene, dir,
       
       png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single nt delta.png")), width = 1000, height = 200)
       grid.arrange(single_nt_delta_plots[[1]], single_nt_delta_plots[[2]], single_nt_delta_plots[[3]], single_nt_delta_plots[[4]], nrow = 1)
+      dev.off()
+    }
+  }
+  
+  #codon level plots
+  if (plot_codons == T) {
+    single_codon_list <- lapply(filtered_counts_list, single_codon, region_lengths = region_lengths)
+    
+    summarised_codon_list <- lapply(single_codon_list, summarise_data, value = "single_codon_normalised_cpm", grouping = "codon")
+    
+    do.call("rbind", summarised_codon_list) %>%
+      group_by(grouping, condition, region) %>%
+      summarise(average_counts = mean(mean_counts),
+                sd_counts = sd(mean_counts)) %>%
+      ungroup() -> summarised_codon
+    
+    #plot
+    codon_line_plots <- plot_positional_lines(summarised_codon, SD=SD, control = control, treatment = treatment)
+    
+    png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single codon lines.png")), width = 1000, height = 200)
+    print(codon_line_plots)
+    dev.off()
+    
+    if (plot_delta == T) {
+      #calculate and plot delta
+      codon_delta_data <- calculate_single_codon_delta(single_codon_list, control = control, treatment = treatment, paired_data = paired_data)
+      single_codon_delta_plots <- plot_single_codon_delta(codon_delta_data, SD = SD)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single codon delta.png")), width = 1000, height = 200)
+      print(single_codon_delta_plots)
       dev.off()
     }
   }

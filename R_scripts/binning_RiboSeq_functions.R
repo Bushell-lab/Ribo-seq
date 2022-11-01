@@ -728,8 +728,10 @@ plot_single_codon_delta <- function(df, SD = T) {
     ggplot(aes(x = codon, y = delta))+
     geom_col(fill = "grey")+
     ylim(ylims)+
-    UTR3_theme+
-    theme(axis.text.y = element_text(size = 18))+
+    my_theme+
+    theme(axis.text = element_text(size = 18),
+          axis.title.x = element_text(size = 20))+
+    xlab("Codon")+
     {if(SD)geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, colour = NA)} -> delta_plot
   
   return(delta_plot)

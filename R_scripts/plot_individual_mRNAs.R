@@ -3,11 +3,11 @@ library(tidyverse)
 library(grid)
 library(gridExtra)
 
-#read in functions----
-source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Scripts/R/Functions/binning_RiboSeq_functions.R")
-
 #read in common variables
-source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Ribosome_profiling/Organoids/4AIn/Scripts/R_scripts/common_variables.R")
+source("common_variables.R")
+
+#read in functions----
+source("binning_RiboSeq_functions.R")
 
 #create themes----
 my_theme <- theme_bw()+

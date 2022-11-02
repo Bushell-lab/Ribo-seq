@@ -6,6 +6,7 @@ library(parallel)
 
 #read in common variables
 source("common_variables.R")
+lengths <- 25:35
 
 #functions
 #write a function that will read in a csv file for use with parLapply
@@ -40,10 +41,8 @@ data_list <- parLapply(cl, fyle_list, read_counts_csv) #reads in the data
 stopCluster(cl) #Stops cluster
 
 #combine data_list into one data frame
-all_data <- do.call("rbind", data_list)
-
-#extract sample and read length from fylenames
-all_data %>%
+#extract sample and read length from fyle
+do.call("rbind", data_list) %>%
   mutate(read_length = str_remove(fyle, ".+pc_L"),
          read_length = as.numeric(str_remove(read_length, "_Off0_.+")),
          sample = str_remove(fyle, ".+periodicity/"),
@@ -53,6 +52,7 @@ all_data %>%
 summary(all_data)
 
 #plot data----
+#individual samples
 for (sample in RPF_sample_names) {
   df <- all_data[all_data$sample == sample,]
   
@@ -68,6 +68,7 @@ for (sample in RPF_sample_names) {
            frame = factor(frame, levels = c("f2", "f1", "f0"), ordered = T)) %>%
     ggplot(aes(x = read_length, y = frame_perc, fill = frame))+
     geom_col()+
+    scale_x_continuous(breaks = seq(min(lengths), max(lengths),2))+
     ylab("% counts")+
     xlab("read length")+
     ggtitle(sample)+
@@ -101,3 +102,23 @@ for (sample in RPF_sample_names) {
   dev.off()
 }
 
+#all samples
+all_data %>%
+  group_by(read_length, sample) %>%
+  summarise(total_counts = sum(counts)) -> summed_counts
+
+all_data %>%
+  group_by(read_length, frame, sample) %>%
+  summarise(frame_counts = sum(counts)) %>%
+  inner_join(summed_counts, by = c("read_length", "sample")) %>%
+  mutate(frame_perc = (frame_counts / total_counts) * 100,
+         frame = factor(frame, levels = c("f2", "f1", "f0"), ordered = T)) %>%
+  ggplot(aes(x = factor(read_length), y = frame_perc, fill = frame))+
+  geom_boxplot(width = 0.5, outlier.shape=NA)+
+  ylab("% counts")+
+  xlab("read length")+
+  myTheme -> periodicity_col_plot
+
+png(filename = file.path(parent_dir, paste0("plots/periodicity/all_samples_periodicity.png")), width = 500, height = 300)
+print(periodicity_col_plot)
+dev.off()

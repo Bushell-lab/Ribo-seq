@@ -6,6 +6,7 @@ library(parallel)
 
 #read in common variables
 source("common_variables.R")
+lengths <- 25:35
 
 #functions
 #write a function that will read in a csv file for use with parLapply

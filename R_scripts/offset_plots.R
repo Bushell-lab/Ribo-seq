@@ -121,11 +121,11 @@ for (i in lengths) {
     ggtitle(paste("read length", i)) -> stop_site_plot_list[[i]]
 }
 png(filename = file.path(parent_dir, paste0("plots/offset/all_samples_start_site_offset.png")), width = 1000, height = 500)
-grid.arrange(start_site_plot_list[[29]], start_site_plot_list[[30]], start_site_plot_list[[31]],
-             start_site_plot_list[[32]], start_site_plot_list[[33]], start_site_plot_list[[34]], nrow = 2)
+grid.arrange(start_site_plot_list[[28]], start_site_plot_list[[29]], start_site_plot_list[[30]],
+             start_site_plot_list[[31]], start_site_plot_list[[32]], start_site_plot_list[[33]], nrow = 2)
 dev.off()
 
 png(filename = file.path(parent_dir, paste0("plots/offset/all_samples_stop_site_offset.png")), width = 1000, height = 500)
-grid.arrange(stop_site_plot_list[[29]], stop_site_plot_list[[30]], stop_site_plot_list[[31]],
-             stop_site_plot_list[[32]], stop_site_plot_list[[33]], stop_site_plot_list[[34]], nrow = 2)
+grid.arrange(stop_site_plot_list[[28]], stop_site_plot_list[[29]], stop_site_plot_list[[30]],
+             stop_site_plot_list[[31]], stop_site_plot_list[[32]], stop_site_plot_list[[33]], nrow = 2)
 dev.off()

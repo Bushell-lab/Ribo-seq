@@ -8,7 +8,8 @@ library(vsn)
 source("common_variables.R")
 
 #create a variable for what the treatment is----
-treatment <- "EFT226"
+control <- "WT"
+treatment <- "KO"
 
 #read in gene to transcript IDs map and rename and select ENSTM and ENSGM columns----
 #this is used by DESeq2 and needs to be in this structure
@@ -32,12 +33,11 @@ names(files) <- Total_sample_names
 #import data with txi
 txi <- tximport(files, type="rsem", tx2gene=tx2gene)
 
-#create a data frame with the condition/batch information----
+#create a data frame with the condition/replicate information----
 #you need to make sure this data frame is correct for your samples, the below creates one for a n=3 with EFT226 treatment.
 sample_info <- data.frame(row.names = Total_sample_names,
-                          condition = factor(c(rep("Ctrl", 3), rep(treatment, 3))),
-                          batch = factor(c(rep(1:3, 2))))
-
+                          condition = factor(c(rep(control, 3), rep(treatment, 3))),
+                          replicate = factor(c(1:3,1:3)))
 
 #print the data frame to visually check it has been made as expected
 sample_info
@@ -45,7 +45,7 @@ sample_info
 #make a DESeq data set from imported data----
 ddsTxi <- DESeqDataSetFromTximport(txi,
                                    colData = sample_info,
-                                   design = ~ condition + batch)
+                                   design = ~ condition + replicate)
 
 #pre-filter to remove genes with less than an average of 10 counts across all samples----
 keep <- rowMeans(counts(ddsTxi)) >= 10
@@ -53,19 +53,19 @@ table(keep)
 ddsTxi <- ddsTxi[keep,]
 
 #make sure levels are set appropriately so that Ctrl is "untreated"
-ddsTxi$condition <- relevel(ddsTxi$condition, ref = "Ctrl")
+ddsTxi$condition <- relevel(ddsTxi$condition, ref = control)
 
 #run DESeq on DESeq data set----
 dds <- DESeq(ddsTxi)
 
 #extract results for each comparison----
-res <- results(dds, contrast=c("condition", treatment, "Ctrl"))
+res <- results(dds, contrast=c("condition", treatment, control))
 
 #summarise results----
 summary(res)
 
 #apply LFC shrinkage for each comparison----
-lfc_shrink <- lfcShrink(dds, coef=paste0("condition_", treatment, "_vs_Ctrl"), type="apeglm")
+lfc_shrink <- lfcShrink(dds, coef=paste("condition", treatment, "vs", control, sep = "_"), type="apeglm")
 
 #write reslts to csv----
 as.data.frame(lfc_shrink[order(lfc_shrink$padj),]) %>%
@@ -90,12 +90,13 @@ as.data.frame(assay(rld)) %>%
 write_csv(normalised_counts, file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("Totals_", treatment, "_normalised_counts.csv")))
 
 #plot PCA----
-pcaData <- plotPCA(rld, intgroup=c("condition", "batch"), returnData=TRUE)
+pcaData <- plotPCA(rld, intgroup=c("condition", "replicate"), returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 
 png(filename = file.path(parent_dir, "plots/PCAs", paste0(treatment, "_Totals_PCA.png")), width = 400, height = 350)
-ggplot(pcaData, aes(PC1, PC2, color=condition, shape=batch)) +
+ggplot(pcaData, aes(PC1, PC2, color=condition, shape=replicate)) +
   geom_point(size=3) +
+  geom_text(aes(label=replicate), colour = 'black',size = 6, nudge_x = 2, vjust=1)+
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
   theme_bw()+
@@ -109,16 +110,17 @@ dev.off()
 
 #apply batch correct and re-plot heatmap and PCA----
 mat <- assay(rld)
-mat <- limma::removeBatchEffect(mat, rld$batch)
+mat <- limma::removeBatchEffect(mat, rld$replicate)
 assay(rld) <- mat
 
 #PCA
-pcaData <- plotPCA(rld, intgroup=c("condition", "batch"), returnData=TRUE)
+pcaData <- plotPCA(rld, intgroup=c("condition", "replicate"), returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 
 png(filename = file.path(parent_dir, "plots/PCAs", paste0(treatment, "_Totals_batch_corrected_PCA.png")), width = 400, height = 350)
-ggplot(pcaData, aes(PC1, PC2, color=condition, shape=batch)) +
+ggplot(pcaData, aes(PC1, PC2, color=condition, shape=replicate)) +
   geom_point(size=3) +
+  geom_text(aes(label=replicate), colour = 'black',size = 6, nudge_x = 2, vjust=1)+
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
   theme_bw()+

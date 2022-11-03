@@ -5,7 +5,7 @@ library(tidyverse)
 source("common_variables.R")
 
 #create a variable for what the treatment is----
-treatment <- "EFT226"
+treatment <- "KO"
 
 #themes----
 mytheme <- theme_classic()+

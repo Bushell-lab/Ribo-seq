@@ -9,9 +9,11 @@ source("common_variables_VM.R")
 min_counts <- 50
 
 #set the thresholds for region lengths
-UTR5_min_len <- 50
+UTR5_min_len <- 25
 CDS_min_len <- 300
-UTR3_min_len <- 50
+UTR3_min_len <- 0
+
+region_cutoffs <- c(UTR5_min_len, CDS_min_len, UTR3_min_len)
 
 #read in functions----
 source("binning_RiboSeq_functions.R")
@@ -95,7 +97,7 @@ sum_sample_counts <- function(df) {
 lapply(counts_list, sum_sample_counts)
 
 #bin all data----
-binned_list <- lapply(counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = c(50,300,50), bins = c(25,50,25))
+binned_list <- lapply(counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = region_cutoffs, bins = c(25,50,25))
 summary(binned_list[[1]])
 head(binned_list[[1]])
 
@@ -149,7 +151,7 @@ summary(counts_list[[1]])
 head(counts_list[[1]])
 
 #bin all data again having removed the outliers
-binned_list <- lapply(counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = c(50,300,50), bins = c(25,50,25))
+binned_list <- lapply(counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = region_cutoffs, bins = c(25,50,25))
 summary(binned_list[[1]])
 head(binned_list[[1]])
 

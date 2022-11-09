@@ -61,6 +61,11 @@ res <- results(dds, contrast=c("condition", treatment, control))
 #summarise results----
 summary(res)
 
+#write summary to a text file
+sink(file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("RPFs_", treatment, "_DEseq2_summary.txt")))
+summary(res)
+sink()
+
 #apply LFC shrinkage for each comparison----
 lfc_shrink <- lfcShrink(dds, coef=paste("condition", treatment, "vs", control, sep = "_"), type="apeglm")
 
@@ -79,8 +84,9 @@ meanSdPlot(assay(ntd))
 meanSdPlot(assay(vsd))
 meanSdPlot(assay(rld))
 
-#Regularized log transformation looks preferable for this data. Check for your own data and select the appropriate one
 #write out normalised counts data----
+#Regularized log transformation looks preferable for this data. Check for your own data and select the appropriate one
+#The aim is for the range of standard deviations to be similar across the range of abundances, i.e. for the red line to be flat
 as.data.frame(assay(rld)) %>%
   rownames_to_column("transcript") %>%
   inner_join(most_abundant_transcripts, by = "transcript") -> normalised_counts

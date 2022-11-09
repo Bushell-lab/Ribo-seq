@@ -8,8 +8,8 @@ library(viridis)
 source("common_variables.R")
 
 #set what you have called your control and treated samples. This can be a vector of strings if more than one treatment has been used.
-control <- "A1WT"
-treatment <- "A1KO"
+control <- "WT"
+treatment <- "KO"
 
 #read in functions----
 source("binning_RiboSeq_functions.R")
@@ -174,31 +174,31 @@ no_change_IDs <- DESeq2_data$transcript[is.na(DESeq2_data$RPFs_group)]
 
 #plot data
 plot_subset(IDs = RPFs_down_IDs, subset = "RPFs-down", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
             plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
             SD = T, paired_data = T)
 
 plot_subset(IDs = RPFs_up_IDs, subset = "RPFs-up", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
             plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
             SD = T, paired_data = T)
 
 plot_subset(IDs = TE_down_IDs, subset = "TE-down", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_cpm", single_nt_value = "single_nt_normalised_cpm",
             plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
             SD = T, paired_data = T)
 
 plot_subset(IDs = TE_up_IDs, subset = "TE-up", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_cpm", single_nt_value = "single_nt_normalised_cpm",
             plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
             SD = T, paired_data = T)
 
 plot_subset(IDs = no_change_IDs, subset = "no_change", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
             plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
             SD = T, paired_data = T)
@@ -227,7 +227,7 @@ hallmark_pathways <- hallmark_results[[3]]$pathway[hallmark_results[[3]]$padj < 
 
 lapply(hallmark_pathways, plot_GSEA_binned,
        GSEA_set = pathways.hallmark, sub_dir = "hallmark",
-       control = "A1WT", treatment = "A1KO",
+       control = control, treatment = treatment,
        human = F, conversion_table = Mouse2HumanTable,
        binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
        plot_binned = T, plot_single_nt = F, plot_positional = F, SD = T, plot_delta = T, paired_data = T)
@@ -241,7 +241,7 @@ kegg_pathways <- kegg_results[[3]]$pathway[kegg_results[[3]]$padj < 0.05]
 
 lapply(kegg_pathways, plot_GSEA_binned,
        GSEA_set = pathways.kegg, sub_dir = "kegg",
-       control = "A1WT", treatment = "A1KO",
+       control = control, treatment = treatment,
        human = F, conversion_table = Mouse2HumanTable,
        binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
        plot_binned = T, plot_single_nt = F, plot_positional = F, SD = T, plot_delta = T, paired_data = T)
@@ -255,7 +255,7 @@ cell_comp_pathways <- cell_comp_results[[3]]$pathway[cell_comp_results[[3]]$padj
 
 lapply(cell_comp_pathways, plot_GSEA_binned,
        GSEA_set = pathways.cell_comp, sub_dir = "cell_comp",
-       control = "A1WT", treatment = "A1KO",
+       control = control, treatment = treatment,
        human = F, conversion_table = Mouse2HumanTable,
        binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
        plot_binned = T, plot_single_nt = F, plot_positional = F, SD = T, plot_delta = T, paired_data = T)

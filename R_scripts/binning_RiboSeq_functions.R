@@ -1025,6 +1025,7 @@ plot_binned_heatmaps <- function(IDs, remove_IDs = NA, col_lims, control, treatm
     geom_vline(xintercept = 0, lty=2)+
     theme_classic()+
     theme(axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
           legend.title = element_blank())+
     xlab("Bin (relative to start codon)") -> binned_heatmap
   return(binned_heatmap)

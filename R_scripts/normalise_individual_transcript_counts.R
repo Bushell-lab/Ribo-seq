@@ -19,7 +19,6 @@ read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output/tpms.csv")) %>%
   inner_join(Total_sample_info, by = "sample") -> tpms
 
 #read in counts data----
-#read in csvs using parLapply (parallel version of lapply)
 counts_list <- list()
 for (sample in RPF_sample_names) {
   

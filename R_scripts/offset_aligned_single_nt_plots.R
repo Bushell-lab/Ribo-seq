@@ -126,7 +126,7 @@ for (sample in RPF_sample_names) {
           axis.text.y = element_blank(),
           axis.title.y = element_blank()) -> UTR3_start_plot
   
-  png(filename = file.path(parent_dir, "plots/offset_ailgned_single_nt_plots", paste(sample, "offset aligned single nt plot.png")), width = 1300, height = 300)
+  png(filename = file.path(parent_dir, "plots/offset_aligned_single_nt_plots", paste(sample, "offset aligned single nt plot.png")), width = 1300, height = 300)
   grid.arrange(UTR5_end_plot, CDS_start_plot, CDS_end_plot, UTR3_start_plot, nrow = 1, widths = c(1,2,2,1))
   dev.off()
 }
@@ -179,6 +179,6 @@ all_data[all_data$region == "UTR3" & all_data$nt > 0,] %>%
         axis.text.y = element_blank(),
         axis.title.y = element_blank()) -> UTR3_start_plot
 
-png(filename = file.path(parent_dir, "plots/offset_ailgned_single_nt_plots/all samples offset aligned single nt plot.png"), width = 1300, height = 300)
+png(filename = file.path(parent_dir, "plots/offset_aligned_single_nt_plots/all samples offset aligned single nt plot.png"), width = 1300, height = 300)
 grid.arrange(UTR5_end_plot, CDS_start_plot, CDS_end_plot, UTR3_start_plot, nrow = 1, widths = c(1,2,2,1))
 dev.off()

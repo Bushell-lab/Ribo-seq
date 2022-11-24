@@ -104,7 +104,7 @@ RPFs %>%
   mutate(TE_group = factor(case_when(TE_padj < TE_sig_padj & TE_log2FC < 0 ~ "TE down",
                                      TE_padj < TE_sig_padj & TE_log2FC > 0 ~ "TE up",
                                      TE_padj >= TE_non_sig_padj ~ "no change",
-                                     TE_padj >= TE_sig_padj & TE_padj <= TE_non_sig_padj ~ "NS"),
+                                     (TE_padj >= TE_sig_padj & TE_padj <= TE_non_sig_padj) | is.na(TE_padj) ~ "NS"),
                            levels = c("TE down", "no change", "TE up", "NS"), ordered = T),
          RPFs_group = factor(case_when(RPFs_padj < RPF_sig_padj & RPFs_log2FC < 0 & totals_padj >= RPF_non_sig_padj ~ "RPFs down",
                                   RPFs_padj < RPF_sig_padj & RPFs_log2FC > 0 & totals_padj >= RPF_non_sig_padj ~ "RPFs up",

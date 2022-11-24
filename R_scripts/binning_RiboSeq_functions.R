@@ -589,9 +589,15 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
 plot_binned_delta <- function(df, SD = T) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   #5'UTR
   df[df$region == "UTR5",] %>%
@@ -623,9 +629,15 @@ plot_binned_delta <- function(df, SD = T) {
 plot_single_nt_delta <- function(df, SD = T, plot_ends = F) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   #5'UTR
   df[df$region == "UTR5" & df$window > 0,] %>%
@@ -702,9 +714,15 @@ plot_single_nt_delta <- function(df, SD = T, plot_ends = F) {
 plot_positional_delta <- function(df, SD = T) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   df %>%
     ggplot(aes(x = bin, y = delta))+
@@ -720,9 +738,15 @@ plot_positional_delta <- function(df, SD = T) {
 plot_single_codon_delta <- function(df, SD = T) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   df %>%
     ggplot(aes(x = codon, y = delta))+
@@ -781,7 +805,7 @@ plot_subset <- function(IDs, subset, sub_dir,
     if (plot_delta == T) {
       #calculate and plot delta
       subset_binned_delta_data <- calculate_binned_delta(subset_binned_list, value = binned_value, control = control, treatment = treatment, paired_data = paired_data)
-      subset_binned_delta_plots <- plot_binned_delta(subset_binned_delta_data)
+      subset_binned_delta_plots <- plot_binned_delta(subset_binned_delta_data, SD = SD)
       
       png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, binned_value, "delta.png")), width = 1000, height = 200)
       grid.arrange(subset_binned_delta_plots[[1]], subset_binned_delta_plots[[2]], subset_binned_delta_plots[[3]], nrow = 1, widths = c(1,2,1))
@@ -822,7 +846,7 @@ plot_subset <- function(IDs, subset, sub_dir,
     if (plot_delta == T) {
       #calculate and plot delta
       subset_single_nt_delta_data <- calculate_single_nt_delta(subset_single_nt_list, value = single_nt_value, control = control, treatment = treatment, paired_data = paired_data)
-      subset_single_nt_delta_plots <- plot_single_nt_delta(subset_single_nt_delta_data)
+      subset_single_nt_delta_plots <- plot_single_nt_delta(subset_single_nt_delta_data, SD = SD)
       
       png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, single_nt_value, "delta.png")), width = 1300, height = 200)
       grid.arrange(subset_single_nt_delta_plots[[1]], subset_single_nt_delta_plots[[2]], subset_single_nt_delta_plots[[3]], subset_single_nt_delta_plots[[4]], nrow = 1, widths = c(1,2,2,1))
@@ -849,7 +873,7 @@ plot_subset <- function(IDs, subset, sub_dir,
     
     if (plot_delta == T) {
       subset_binned_positional_delta <- calculate_positional_delta(subset_positional_binned_list, control = control, treatment = treatment, paired_data = paired_data)
-      subset_positional_delta_plots <- plot_positional_delta(subset_binned_positional_delta)
+      subset_positional_delta_plots <- plot_positional_delta(subset_binned_positional_delta, SD = SD)
       
       png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, "binned positional delta.png")), width = 500, height = 200)
       print(subset_positional_delta_plots)
@@ -871,9 +895,9 @@ plot_GSEA_binned <- function(GSEA_set, pathway, subdir,
     pull(transcript) -> GSEA_transcript_IDs
   
   plot_subset(IDs = GSEA_transcript_IDs, subset = pathway, sub_dir= sub_dir,
-                            binned_value = binned_value, single_nt_value = single_nt_value, control = control, treatment = treatment,
-                            plot_binned = plot_binned, plot_single_nt = plot_single_nt, plot_positional = plot_positional, plot_delta = plot_delta,
-                            SD = SD, paired_data = paired_data)
+              binned_value = binned_value, single_nt_value = single_nt_value, control = control, treatment = treatment,
+              plot_binned = plot_binned, plot_single_nt = plot_single_nt, plot_positional = plot_positional, plot_delta = plot_delta,
+              SD = SD, paired_data = paired_data)
   
 }
 

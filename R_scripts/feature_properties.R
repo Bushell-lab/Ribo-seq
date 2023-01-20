@@ -50,7 +50,7 @@ merged_UTR5_data %>%
          TE_group != "NS") %>%
   ggplot(aes(x = TE_group, y = length, fill = TE_group))+
   geom_violin(alpha = 0.5)+
-  geom_boxplot(width = 0.2, outlier.shape=NA)+
+  geom_boxplot(width = 0.2, outlier.shape=NA,color="white")+
   scale_y_log10(breaks=c(10,100,1000),limits=c(10, 2000))+
   violin_theme+
   ylab("5\'UTR length (nt)") -> UTR5_length_TE_group_plot
@@ -79,7 +79,7 @@ merged_UTR5_data %>%
   mutate(GC_content = G_content + C_content) %>%
   ggplot(aes(x = TE_group, y = GC_content, fill = TE_group))+
   geom_violin(alpha = 0.5)+
-  geom_boxplot(width = 0.2, outlier.shape=NA)+
+  geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
   violin_theme+
   ylab("5\'UTR GC content (%)") -> UTR5_GC_TE_group_plot
 
@@ -115,7 +115,7 @@ merged_CDS_data %>%
          TE_group != "NS") %>%
   ggplot(aes(x = TE_group, y = length, fill = TE_group))+
   geom_violin(alpha = 0.5)+
-  geom_boxplot(width = 0.2, outlier.shape=NA)+
+  geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
   scale_y_log10(breaks=c(100,1000,10000),limits=c(100, 10000))+
   violin_theme+
   ylab("CDS length (nt)") -> CDS_length_TE_group_plot
@@ -144,7 +144,7 @@ merged_CDS_data %>%
   mutate(GC_content = G_content + C_content) %>%
   ggplot(aes(x = TE_group, y = GC_content, fill = TE_group))+
   geom_violin(alpha = 0.5)+
-  geom_boxplot(width = 0.2, outlier.shape=NA)+
+  geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
   violin_theme+
   ylab("CDS GC content (%)") -> CDS_GC_TE_group_plot
 
@@ -180,7 +180,7 @@ merged_UTR3_data %>%
          TE_group != "NS") %>%
   ggplot(aes(x = TE_group, y = length, fill = TE_group))+
   geom_violin(alpha = 0.5)+
-  geom_boxplot(width = 0.2, outlier.shape=NA)+
+  geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
   scale_y_log10(breaks=c(100,1000,10000),limits=c(10, 10000))+
   violin_theme+
   ylab("3\'UTR length (nt)") -> UTR3_length_TE_group_plot
@@ -209,7 +209,7 @@ merged_UTR3_data %>%
   mutate(GC_content = G_content + C_content) %>%
   ggplot(aes(x = TE_group, y = GC_content, fill = TE_group))+
   geom_violin(alpha = 0.5)+
-  geom_boxplot(width = 0.2, outlier.shape=NA)+
+  geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
   violin_theme+
   ylab("3\'UTR GC content (%)") -> UTR3_GC_TE_group_plot
 

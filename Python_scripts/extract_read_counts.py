@@ -16,7 +16,7 @@ def extract_cutadapt_counts(fylename):
     return (in_counts, out_counts)
     
 def extract_bbmap_counts(fylename,RNA_molecule):
-    '''takes a bbmap log and extracts mapped and umapped read counts'''
+    '''takes a bbmap log and extracts mapped and unmapped read counts'''
     logfyle=fylename + "_" + RNA_molecule + "_log.txt"
     with open(logfyle,'r') as f:
         for line in f:
@@ -26,6 +26,23 @@ def extract_bbmap_counts(fylename,RNA_molecule):
                 out_counts = line.split('\t')[2].strip()
     return (in_counts, out_counts)
     
+def extract_bowtie2_counts(fylename,RNA_molecule):
+    '''takes a bowtie2 log and extracts mapped and unmapped read counts'''
+    logfyle=fylename + "_" + RNA_molecule + "_log.txt"
+    with open(logfyle,'r') as f:
+        
+        LineCount = 0
+        for line in f:
+            if LineCount == 0:
+                in_counts = line.split(' ')[0]
+            if LineCount == 3:
+                unique_counts = line.strip().split(' ')[0]
+            if LineCount == 4:
+                multi_counts = line.strip().split(' ')[0]
+            LineCount +=1
+        out_counts = int(unique_counts) + int(multi_counts)
+    return (in_counts, str(out_counts))
+
 def extract_UMI_clipped_counts(fylename):
     '''takes a UMItools extracted UMI log files and extracts the read counts'''
     logfyle=fylename + "_extracted_UMIs.log"
@@ -33,7 +50,7 @@ def extract_UMI_clipped_counts(fylename):
         for line in f:
             if 'INFO Input Reads:' in line:
                 in_counts = line.split(':')[-1].strip()
-            if 'INFO regex matches read1:' in line:
+            if 'INFO Reads output:' in line:
                 out_counts = line.split(':')[-1].strip()
     return (in_counts, out_counts)
     
@@ -51,6 +68,7 @@ def extract_deduplication_counts(fylename):
 def main():
     parser = argparse.ArgumentParser(description='Takes a filename and extracts the read counts for each step of the library')
     parser.add_argument('infyle', type=str, help='filename to pull values from the log files')
+    parser.add_argument('lib_type', type=str, help='Define whether the reads are RPFs or Totals')
     parser.add_argument('-log_dir', type=str, default=None, help='directory containing log files')
     args = parser.parse_args()
     
@@ -58,29 +76,47 @@ def main():
     
     UMI_clipped_in, UMI_clipped_out = extract_UMI_clipped_counts(args.log_dir + '/' + args.infyle)
     
-    rRNA_in, rRNA_out = extract_bbmap_counts(args.log_dir + '/' + args.infyle, "rRNA")
-    tRNA_in, tRNA_out = extract_bbmap_counts(args.log_dir + '/' + args.infyle, "tRNA")
-    pc_in, pc_out = extract_bbmap_counts(args.log_dir + '/' + args.infyle, "pc")
+    if args.lib_type == "RPFs":
+        rRNA_in, rRNA_out = extract_bbmap_counts(args.log_dir + '/' + args.infyle, "rRNA")
+        tRNA_in, tRNA_out = extract_bbmap_counts(args.log_dir + '/' + args.infyle, "tRNA")
+        pc_in, pc_out = extract_bbmap_counts(args.log_dir + '/' + args.infyle, "pc")
+    
+    if args.lib_type == "Totals":
+        pc_in, pc_out = extract_bowtie2_counts(args.log_dir + '/' + args.infyle, "pc")
     
     deduplication_in, deduplication_out = extract_deduplication_counts(args.log_dir + '/' + args.infyle)
     
     #check everything adds up
     if int(cutadapt_out) != int(UMI_clipped_in):
         print("warning: cutadapt out does not equal UMI clipped in for sample: " + args.infyle)
-    if int(UMI_clipped_out) != int(rRNA_in):
-        print("warning: UMI clipped out does not equal rRNA in for sample: " + args.infyle)
-    if (int(rRNA_in) - int(rRNA_out)) != int(tRNA_in):
-        print("warning: non-rRNA reads does not equal tRNA in for sample: " + args.infyle)
-    if (int(tRNA_in) - int(tRNA_out)) != int(pc_in):
-        print("warning: non-rRNA_tRNA reads does not equal pc in for sample: " + args.infyle)
+    
+    if args.lib_type == "RPFs":
+        if int(UMI_clipped_out) != int(rRNA_in):
+            print("warning: UMI clipped out does not equal rRNA in for sample: " + args.infyle)
+        if (int(rRNA_in) - int(rRNA_out)) != int(tRNA_in):
+            print("warning: non-rRNA reads does not equal tRNA in for sample: " + args.infyle)
+        if (int(tRNA_in) - int(tRNA_out)) != int(pc_in):
+            print("warning: non-rRNA_tRNA reads does not equal pc in for sample: " + args.infyle)
+    
+    if args.lib_type == "Totals":
+        if int(UMI_clipped_out) != int(pc_in):
+            print("warning: UMI clipped out does not equal pc in for sample: " + args.infyle)
+    
     if int(pc_out) != int(deduplication_in):
         print("warning: pc reads does not input to depulication for sample: " + args.infyle)
     
     #write output
     outfyle = args.log_dir + '/' + args.infyle + "_read_counts.csv"
-    with open(outfyle,'w') as g:
-        g.write("cutadapt_in,cutadapt_out,UMI_clipped_in,UMI_clipped_out,rRNA_in,rRNA_out,tRNA_in,tRNA_out,pc_in,pc_out,deduplication_in,deduplication_out\n")
-        g.write((',').join((cutadapt_in,cutadapt_out,UMI_clipped_in,UMI_clipped_out,rRNA_in,rRNA_out,tRNA_in,tRNA_out,pc_in,pc_out,deduplication_in,deduplication_out)))
+    
+    if args.lib_type == "RPFs":
+        with open(outfyle,'w') as g:
+            g.write("cutadapt_in,cutadapt_out,UMI_clipped_in,UMI_clipped_out,rRNA_in,rRNA_out,tRNA_in,tRNA_out,pc_in,pc_out,deduplication_in,deduplication_out\n")
+            g.write((',').join((cutadapt_in,cutadapt_out,UMI_clipped_in,UMI_clipped_out,rRNA_in,rRNA_out,tRNA_in,tRNA_out,pc_in,pc_out,deduplication_in,deduplication_out)))
+    
+    if args.lib_type == "Totals":
+        with open(outfyle,'w') as g:
+            g.write("cutadapt_in,cutadapt_out,UMI_clipped_in,UMI_clipped_out,pc_in,pc_out,deduplication_in,deduplication_out\n")
+            g.write((',').join((cutadapt_in,cutadapt_out,UMI_clipped_in,UMI_clipped_out,pc_in,pc_out,deduplication_in,deduplication_out)))
 
 if __name__ == '__main__':
     main()

@@ -37,6 +37,12 @@ merged_UTR5_data %>%
   ggplot(aes(x = RPFs_group, y = length, fill = RPFs_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA)+
+  scale_x_discrete(labels = merged_UTR5_data %>%
+                   dplyr::filter(RPFs_group == "RPFs down" | RPFs_group == "RPFs up" | is.na(RPFs_group)) %>%
+                   group_by(RPFs_group) %>%
+                   summarize(num = n()) %>%
+                   mutate(lab = paste0(RPFs_group, "\n", num)) %>%
+                   pull(lab))+
   scale_y_log10(breaks=c(10,100,1000),limits=c(10, 2000))+
   violin_theme+
   ylab("5\'UTR length (nt)") -> UTR5_length_RPFs_group_plot
@@ -51,6 +57,12 @@ merged_UTR5_data %>%
   ggplot(aes(x = TE_group, y = length, fill = TE_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA,color="white")+
+  scale_x_discrete(labels = merged_UTR5_data %>%
+                     dplyr::filter(TE_group == "TE down" | TE_group == "no change" | TE_group == "TE up") %>%
+                     group_by(TE_group) %>%
+                     summarize(num = n()) %>%
+                     mutate(lab = paste0(TE_group, "\n", num)) %>%
+                     pull(lab))+
   scale_y_log10(breaks=c(10,100,1000),limits=c(10, 2000))+
   violin_theme+
   ylab("5\'UTR length (nt)") -> UTR5_length_TE_group_plot
@@ -66,6 +78,12 @@ merged_UTR5_data %>%
   ggplot(aes(x = RPFs_group, y = GC_content, fill = RPFs_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA)+
+  scale_x_discrete(labels = merged_UTR5_data %>%
+                   dplyr::filter(RPFs_group == "RPFs down" | RPFs_group == "RPFs up" | is.na(RPFs_group)) %>%
+                   group_by(RPFs_group) %>%
+                   summarize(num = n()) %>%
+                   mutate(lab = paste0(RPFs_group, "\n", num)) %>%
+                   pull(lab))+
   violin_theme+
   ylab("5\'UTR GC content (%)") -> UTR5_GC_RPFs_group_plot
 
@@ -80,6 +98,12 @@ merged_UTR5_data %>%
   ggplot(aes(x = TE_group, y = GC_content, fill = TE_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
+  scale_x_discrete(labels = merged_UTR5_data %>%
+                     dplyr::filter(TE_group == "TE down" | TE_group == "no change" | TE_group == "TE up") %>%
+                     group_by(TE_group) %>%
+                     summarize(num = n()) %>%
+                     mutate(lab = paste0(TE_group, "\n", num)) %>%
+                     pull(lab))+
   violin_theme+
   ylab("5\'UTR GC content (%)") -> UTR5_GC_TE_group_plot
 
@@ -102,6 +126,12 @@ merged_CDS_data %>%
   ggplot(aes(x = RPFs_group, y = length, fill = RPFs_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA)+
+  scale_x_discrete(labels = merged_CDS_data %>%
+                   dplyr::filter(RPFs_group == "RPFs down" | RPFs_group == "RPFs up" | is.na(RPFs_group)) %>%
+                   group_by(RPFs_group) %>%
+                   summarize(num = n()) %>%
+                   mutate(lab = paste0(RPFs_group, "\n", num)) %>%
+                   pull(lab))+
   scale_y_log10(breaks=c(100,1000,10000),limits=c(100, 10000))+
   violin_theme+
   ylab("CDS length (nt)") -> CDS_length_RPFs_group_plot
@@ -116,6 +146,12 @@ merged_CDS_data %>%
   ggplot(aes(x = TE_group, y = length, fill = TE_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
+  scale_x_discrete(labels = merged_CDS_data %>%
+                     dplyr::filter(TE_group == "TE down" | TE_group == "no change" | TE_group == "TE up") %>%
+                     group_by(TE_group) %>%
+                     summarize(num = n()) %>%
+                     mutate(lab = paste0(TE_group, "\n", num)) %>%
+                     pull(lab))+
   scale_y_log10(breaks=c(100,1000,10000),limits=c(100, 10000))+
   violin_theme+
   ylab("CDS length (nt)") -> CDS_length_TE_group_plot
@@ -131,6 +167,12 @@ merged_CDS_data %>%
   ggplot(aes(x = RPFs_group, y = GC_content, fill = RPFs_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA)+
+  scale_x_discrete(labels = merged_CDS_data %>%
+                   dplyr::filter(RPFs_group == "RPFs down" | RPFs_group == "RPFs up" | is.na(RPFs_group)) %>%
+                   group_by(RPFs_group) %>%
+                   summarize(num = n()) %>%
+                   mutate(lab = paste0(RPFs_group, "\n", num)) %>%
+                   pull(lab))+
   violin_theme+
   ylab("CDS GC content (%)") -> CDS_GC_RPFs_group_plot
 
@@ -145,6 +187,12 @@ merged_CDS_data %>%
   ggplot(aes(x = TE_group, y = GC_content, fill = TE_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
+  scale_x_discrete(labels = merged_CDS_data %>%
+                       dplyr::filter(TE_group == "TE down" | TE_group == "no change" | TE_group == "TE up") %>%
+                       group_by(TE_group) %>%
+                       summarize(num = n()) %>%
+                       mutate(lab = paste0(TE_group, "\n", num)) %>%
+                       pull(lab))+
   violin_theme+
   ylab("CDS GC content (%)") -> CDS_GC_TE_group_plot
 
@@ -167,6 +215,12 @@ merged_UTR3_data %>%
   ggplot(aes(x = RPFs_group, y = length, fill = RPFs_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA)+
+  scale_x_discrete(labels = merged_UTR3_data %>%
+                   dplyr::filter(RPFs_group == "RPFs down" | RPFs_group == "RPFs up" | is.na(RPFs_group)) %>%
+                   group_by(RPFs_group) %>%
+                   summarize(num = n()) %>%
+                   mutate(lab = paste0(RPFs_group, "\n", num)) %>%
+                   pull(lab))+
   scale_y_log10(breaks=c(100,1000,10000),limits=c(10, 10000))+
   violin_theme+
   ylab("3\'UTR length (nt)") -> UTR3_length_RPFs_group_plot
@@ -181,6 +235,12 @@ merged_UTR3_data %>%
   ggplot(aes(x = TE_group, y = length, fill = TE_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
+  scale_x_discrete(labels = merged_UTR3_data %>%
+                       dplyr::filter(TE_group == "TE down" | TE_group == "no change" | TE_group == "TE up") %>%
+                       group_by(TE_group) %>%
+                       summarize(num = n()) %>%
+                       mutate(lab = paste0(TE_group, "\n", num)) %>%
+                       pull(lab))+
   scale_y_log10(breaks=c(100,1000,10000),limits=c(10, 10000))+
   violin_theme+
   ylab("3\'UTR length (nt)") -> UTR3_length_TE_group_plot
@@ -195,6 +255,12 @@ merged_UTR3_data %>%
   mutate(GC_content = G_content + C_content) %>%
   ggplot(aes(x = RPFs_group, y = GC_content, fill = RPFs_group))+
   geom_violin(alpha = 0.5)+
+  scale_x_discrete(labels = merged_UTR3_data %>%
+                   dplyr::filter(RPFs_group == "RPFs down" | RPFs_group == "RPFs up" | is.na(RPFs_group)) %>%
+                   group_by(RPFs_group) %>%
+                   summarize(num = n()) %>%
+                   mutate(lab = paste0(RPFs_group, "\n", num)) %>%
+                   pull(lab))+
   geom_boxplot(width = 0.2, outlier.shape=NA)+
   violin_theme+
   ylab("3\'UTR GC content (%)") -> UTR3_GC_RPFs_group_plot
@@ -210,6 +276,12 @@ merged_UTR3_data %>%
   ggplot(aes(x = TE_group, y = GC_content, fill = TE_group))+
   geom_violin(alpha = 0.5)+
   geom_boxplot(width = 0.2, outlier.shape=NA, color="white")+
+  scale_x_discrete(labels = merged_UTR3_data %>%
+                       dplyr::filter(TE_group == "TE down" | TE_group == "no change" | TE_group == "TE up") %>%
+                       group_by(TE_group) %>%
+                       summarize(num = n()) %>%
+                       mutate(lab = paste0(TE_group, "\n", num)) %>%
+                       pull(lab))+
   violin_theme+
   ylab("3\'UTR GC content (%)") -> UTR3_GC_TE_group_plot
 

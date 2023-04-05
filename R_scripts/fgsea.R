@@ -81,6 +81,7 @@ plot_scatters <- function(df, gsea_set, pathway, dir) {
     mutate(group = factor(gene_sym %in% gene_names),
            alpha_score = case_when(group == T ~ 1,
                                    group == F ~ 0.1)) %>%
+    arrange(group) %>%
     ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = group, alpha = alpha_score))+
     geom_point()+
     scale_colour_manual(values=c("grey", "red"))+

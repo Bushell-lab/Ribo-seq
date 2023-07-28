@@ -148,10 +148,10 @@ MF_reducedTerms_down <- reduceSimMatrix(MF_simMatrix_down,
 write_csv(BP_reducedTerms_up, file = file.path(parent_dir, "Analysis/fgsea/bio_processes_reducedTerms_up.csv"))
 write_csv(BP_reducedTerms_down, file = file.path(parent_dir, "Analysis/fgsea/bio_processes_reducedTerms_down.csv"))
 
-write_csv(CC_reducedTerms_down, file = file.path(parent_dir, "Analysis/fgsea/cell_comp_reducedTerms_down.csv"))
+write_csv(CC_reducedTerms_up, file = file.path(parent_dir, "Analysis/fgsea/cell_comp_reducedTerms_up.csv"))
 write_csv(CC_reducedTerms_down, file = file.path(parent_dir, "Analysis/fgsea/cell_comp_reducedTerms_down.csv"))
 
-write_csv(MF_reducedTerms_down, file = file.path(parent_dir, "Analysis/fgsea/mol_funs_reducedTerms_down.csv"))
+write_csv(MF_reducedTerms_up, file = file.path(parent_dir, "Analysis/fgsea/mol_funs_reducedTerms_up.csv"))
 write_csv(MF_reducedTerms_down, file = file.path(parent_dir, "Analysis/fgsea/mol_funs_reducedTerms_down.csv"))
 
 #plot treemaps----

@@ -589,9 +589,15 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
 plot_binned_delta <- function(df, SD = T) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   #5'UTR
   df[df$region == "UTR5",] %>%
@@ -623,9 +629,15 @@ plot_binned_delta <- function(df, SD = T) {
 plot_single_nt_delta <- function(df, SD = T, plot_ends = F) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   #5'UTR
   df[df$region == "UTR5" & df$window > 0,] %>%
@@ -702,9 +714,15 @@ plot_single_nt_delta <- function(df, SD = T, plot_ends = F) {
 plot_positional_delta <- function(df, SD = T) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   df %>%
     ggplot(aes(x = bin, y = delta))+
@@ -720,9 +738,15 @@ plot_positional_delta <- function(df, SD = T) {
 plot_single_codon_delta <- function(df, SD = T) {
   
   #calculate axis limits
-  lower_delta_ylim <- min(c(df$delta, df$upper))
-  upper_delta_ylim <- max(c(df$delta,df$lower))
-  ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  if (SD == F) {
+    lower_delta_ylim <- min(c(df$delta))
+    upper_delta_ylim <- max(c(df$delta))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  } else {
+    lower_delta_ylim <- min(c(df$delta, df$upper))
+    upper_delta_ylim <- max(c(df$delta,df$lower))
+    ylims <- c(lower_delta_ylim, upper_delta_ylim)
+  }
   
   df %>%
     ggplot(aes(x = codon, y = delta))+
@@ -750,8 +774,8 @@ filter_transcripts <- function(df, transcript_IDs) {
 #plot subsets of data----
 plot_subset <- function(IDs, subset, sub_dir,
                         binned_value, single_nt_value, control = control, treatment = treatment,
-                        plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
-                        SD = T, paired_data = T) {
+                        plot_binned = T, plot_single_nt = F, plot_positional = F,
+                        plot_replicates = F, plot_delta = T, SD = T, paired_data = T) {
   
   if (!(dir.exists(file.path(parent_dir, "plots/binned_plots", sub_dir)))) {
     dir.create(file.path(parent_dir, "plots/binned_plots", sub_dir))
@@ -781,10 +805,18 @@ plot_subset <- function(IDs, subset, sub_dir,
     if (plot_delta == T) {
       #calculate and plot delta
       subset_binned_delta_data <- calculate_binned_delta(subset_binned_list, value = binned_value, control = control, treatment = treatment, paired_data = paired_data)
-      subset_binned_delta_plots <- plot_binned_delta(subset_binned_delta_data)
+      subset_binned_delta_plots <- plot_binned_delta(subset_binned_delta_data, SD = SD)
       
       png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, binned_value, "delta.png")), width = 1000, height = 200)
       grid.arrange(subset_binned_delta_plots[[1]], subset_binned_delta_plots[[2]], subset_binned_delta_plots[[3]], nrow = 1, widths = c(1,2,1))
+      dev.off()
+    }
+    
+    if (plot_replicates == T) {
+      subset_binned_line_plots_all_replicates <- plot_binned_all_replicates(summarised_subset_binned_list, control = control, treatment = treatment)
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, binned_value, "lines all replicates.png")), width = 1000, height = 200)
+      grid.arrange(subset_binned_line_plots_all_replicates[[1]], subset_binned_line_plots_all_replicates[[2]], subset_binned_line_plots_all_replicates[[3]], nrow = 1, widths = c(1,2,1.5))
       dev.off()
     }
   }
@@ -814,7 +846,7 @@ plot_subset <- function(IDs, subset, sub_dir,
     if (plot_delta == T) {
       #calculate and plot delta
       subset_single_nt_delta_data <- calculate_single_nt_delta(subset_single_nt_list, value = single_nt_value, control = control, treatment = treatment, paired_data = paired_data)
-      subset_single_nt_delta_plots <- plot_single_nt_delta(subset_single_nt_delta_data)
+      subset_single_nt_delta_plots <- plot_single_nt_delta(subset_single_nt_delta_data, SD = SD)
       
       png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, single_nt_value, "delta.png")), width = 1300, height = 200)
       grid.arrange(subset_single_nt_delta_plots[[1]], subset_single_nt_delta_plots[[2]], subset_single_nt_delta_plots[[3]], subset_single_nt_delta_plots[[4]], nrow = 1, widths = c(1,2,2,1))
@@ -841,7 +873,7 @@ plot_subset <- function(IDs, subset, sub_dir,
     
     if (plot_delta == T) {
       subset_binned_positional_delta <- calculate_positional_delta(subset_positional_binned_list, control = control, treatment = treatment, paired_data = paired_data)
-      subset_positional_delta_plots <- plot_positional_delta(subset_binned_positional_delta)
+      subset_positional_delta_plots <- plot_positional_delta(subset_binned_positional_delta, SD = SD)
       
       png(filename = file.path(parent_dir, "plots/binned_plots", sub_dir, paste(treatment, subset, "binned positional delta.png")), width = 500, height = 200)
       print(subset_positional_delta_plots)
@@ -852,28 +884,20 @@ plot_subset <- function(IDs, subset, sub_dir,
 
 
 plot_GSEA_binned <- function(GSEA_set, pathway, subdir,
-                             human = T, conversion_table = NULL,
                              binned_value = binned_value, single_nt_value = single_nt_value,
                              plot_binned = T, plot_single_nt = F, plot_positional = F,
                              sub_dir, control = control, treatment = treatment, paired_data = T, SD = T, plot_delta = T) {
   
   gene_list <- GSEA_set[[pathway]]
   
-  if (human == T) {
-    most_abundant_transcripts %>%
-      filter(gene_sym %in% gene_list) %>%
-      pull(transcript) -> GSEA_transcript_IDs
-  } else {
-    most_abundant_transcripts %>%
-      inner_join(conversion_table, by = "gene") %>%
-      filter(Human_gene_name %in% gene_list) %>%
-      pull(transcript) -> GSEA_transcript_IDs
-  }
+  most_abundant_transcripts %>%
+    filter(gene_sym %in% gene_list) %>%
+    pull(transcript) -> GSEA_transcript_IDs
   
   plot_subset(IDs = GSEA_transcript_IDs, subset = pathway, sub_dir= sub_dir,
-                            binned_value = binned_value, single_nt_value = single_nt_value, control = control, treatment = treatment,
-                            plot_binned = plot_binned, plot_single_nt = plot_single_nt, plot_positional = plot_positional, plot_delta = plot_delta,
-                            SD = SD, paired_data = paired_data)
+              binned_value = binned_value, single_nt_value = single_nt_value, control = control, treatment = treatment,
+              plot_binned = plot_binned, plot_single_nt = plot_single_nt, plot_positional = plot_positional, plot_delta = plot_delta,
+              SD = SD, paired_data = paired_data)
   
 }
 
@@ -998,35 +1022,34 @@ plot_single_transcripts <- function(gene, dir,
   }
 }
 
-plot_binned_heatmaps <- function(gene_names, remove_IDs, col_lims) {
-  
-  #get transcript IDs from gene list
-  transcripts <- most_abundant_transcripts$transcript[most_abundant_transcripts$gene_sym %in% gene_names]
+plot_binned_heatmaps <- function(IDs, remove_IDs = NA, col_lims, control, treatment, value) {
   
   #extract data from counts list
-  filtered_counts_list <- lapply(counts_list, filter_transcripts, transcript_IDs = transcripts)
-  
-  #bin data
-  single_transcript_binned_data_list <- lapply(filtered_counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = c(50,300,0))
-  single_transcript_binned_data <- do.call("rbind", single_transcript_binned_data_list)
+  subset_binned_list <- lapply(binned_list, filter_transcripts, transcript_IDs = IDs)
   
   #plot delta
-  single_transcript_binned_data %>%
-    inner_join(most_abundant_transcripts, by = "transcript") %>%
-    spread(key = condition, value = binned_counts) %>%
-    mutate(delta = EFT226 - Ctrl) %>%
-    group_by(gene_sym, bin, region) %>%
-    summarise(mean_delta = mean(delta)) %>%
-    filter(!(gene_sym %in% remove_IDs)) %>%
+  do.call("rbind", subset_binned_list) %>%
+    rename(value = value) %>%
+    select(transcript, bin, replicate, region, condition, value) %>%
+    filter(condition == control | condition == treatment) %>%
+    group_by(condition, transcript, bin, region) %>%
+    summarise(mean_value = mean(value)) %>%
+    ungroup() %>%
+    spread(key = condition, value = mean_value) %>%
+    rename(control = control,
+           treatment = treatment) %>%
+    mutate(delta = treatment - control) %>%
+    filter(!(transcript %in% remove_IDs)) %>%
     filter(region == "CDS" | region == "UTR5") %>%
     mutate(plot_bin = case_when(region == "CDS" ~ bin,
                                 region == "UTR5" ~ bin-25)) %>%
-    ggplot(aes(x = plot_bin, y = gene_sym, fill = mean_delta))+
+    ggplot(aes(x = plot_bin, y = transcript, fill = delta))+
     geom_tile()+
     scale_fill_viridis(limits = col_lims)+
     geom_vline(xintercept = 0, lty=2)+
     theme_classic()+
     theme(axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
           legend.title = element_blank())+
     xlab("Bin (relative to start codon)") -> binned_heatmap
   return(binned_heatmap)

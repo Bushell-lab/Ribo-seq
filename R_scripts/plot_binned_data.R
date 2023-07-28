@@ -8,8 +8,8 @@ library(viridis)
 source("common_variables.R")
 
 #set what you have called your control and treated samples. This can be a vector of strings if more than one treatment has been used.
-control <- "A1WT"
-treatment <- "A1KO"
+control <- "WT"
+treatment <- "KO"
 
 #read in functions----
 source("binning_RiboSeq_functions.R")
@@ -138,7 +138,7 @@ grid.arrange(single_nt_line_plots[[1]], single_nt_line_plots[[2]], single_nt_lin
 dev.off()
 
 #calculate and plot delta
-single_nt_delta_data <- calculate_single_nt_delta(single_nt_list, value = "single_nt_cpm", control = control, treatment = treatment, paired_data = T)
+single_nt_delta_data <- calculate_single_nt_delta(single_nt_list, value = "single_nt_cpm", control = control, treatment = treatment, paired_data = F)
 single_nt_delta_plots <- plot_single_nt_delta(single_nt_delta_data, SD = T)
 
 png(filename = file.path(parent_dir, "plots/binned_plots/all_transcripts/all transcripts single nt delta.png"), width = 1300, height = 200)
@@ -148,9 +148,9 @@ dev.off()
 #Dep vs Antidep vs Indep----
 #read in DESeq2 output
 read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output/merged_DESeq2.csv")) %>%
-  inner_join(most_abundant_transcripts, by = "gene") %>%
-  mutate(TE_group = factor(TE_group),
-         RPFs_group = factor(RPFs_group)) -> DESeq2_data
+  inner_join(most_abundant_transcripts, by = c("gene", "gene_sym")) %>%
+  mutate(RPFs_group = factor(RPFs_group),
+         TE_group = factor(TE_group)) -> DESeq2_data
 
 summary(DESeq2_data)
 
@@ -159,7 +159,9 @@ DESeq2_data %>%
   ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = RPFs_group))+
   geom_point()
 
+#plot to check groupings
 DESeq2_data %>%
+  filter(!(is.na(TE_group))) %>%
   ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = TE_group))+
   geom_point()
 
@@ -170,53 +172,56 @@ RPFs_up_IDs <- DESeq2_data$transcript[DESeq2_data$RPFs_group == "RPFs up" & !(is
 TE_down_IDs <- DESeq2_data$transcript[DESeq2_data$TE_group == "TE down" & !(is.na(DESeq2_data$TE_group))]
 TE_up_IDs <- DESeq2_data$transcript[DESeq2_data$TE_group == "TE up" & !(is.na(DESeq2_data$TE_group))]
 
-no_change_IDs <- DESeq2_data$transcript[is.na(DESeq2_data$RPFs_group)]
+no_change_IDs <- DESeq2_data$transcript[DESeq2_data$TE_group == "no change" & !(is.na(DESeq2_data$TE_group))]
 
-#plot data
+#plot binned
 plot_subset(IDs = RPFs_down_IDs, subset = "RPFs-down", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
-            plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
-            SD = T, paired_data = T)
+            plot_binned = T, plot_single_nt = F, plot_positional = F,
+            plot_replicates = T, plot_delta = T, SD = T, paired_data = F)
 
 plot_subset(IDs = RPFs_up_IDs, subset = "RPFs-up", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
-            plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
-            SD = T, paired_data = T)
+            plot_binned = T, plot_single_nt = F, plot_positional = F,
+            plot_replicates = T, plot_delta = T, SD = T, paired_data = F)
 
 plot_subset(IDs = TE_down_IDs, subset = "TE-down", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
-            binned_value = "binned_cpm", single_nt_value = "single_nt_normalised_cpm",
-            plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
-            SD = T, paired_data = T)
+            control = control, treatment = treatment,
+            binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
+            plot_binned = T, plot_single_nt = F, plot_positional = F,
+            plot_replicates = T, plot_delta = T, SD = T, paired_data = F)
 
 plot_subset(IDs = TE_up_IDs, subset = "TE-up", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
-            binned_value = "binned_cpm", single_nt_value = "single_nt_normalised_cpm",
-            plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
-            SD = T, paired_data = T)
+            control = control, treatment = treatment,
+            binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
+            plot_binned = T, plot_single_nt = F, plot_positional = F,
+            plot_replicates = T, plot_delta = T, SD = T, paired_data = F)
 
 plot_subset(IDs = no_change_IDs, subset = "no_change", sub_dir = "Dep",
-            control = "A1WT", treatment = "A1KO",
+            control = control, treatment = treatment,
             binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
-            plot_binned = T, plot_single_nt = F, plot_positional = F, plot_delta = T,
-            SD = T, paired_data = T)
+            plot_binned = T, plot_single_nt = F, plot_positional = F,
+            plot_replicates = T, plot_delta = T, SD = T, paired_data = F)
+
+#plot heatmaps
+TE_down_heatmap <- plot_binned_heatmaps(IDs = TE_down_IDs, col_lims = c(-0.02, 0.01), control = control, treatment = treatment, value = "binned_normalised_cpm")
+TE_up_heatmap <- plot_binned_heatmaps(IDs = TE_up_IDs, col_lims = c(-0.01, 0.02), control = control, treatment = treatment, value = "binned_normalised_cpm")
+
+png(filename = file.path(parent_dir, "plots/binned_plots/Dep", paste(treatment, "TE-down binned heatmap.png")), width = 1000, height = 1000)
+print(TE_down_heatmap)
+dev.off()
+
+png(filename = file.path(parent_dir, "plots/binned_plots/Dep", paste(treatment, "TE-up binned heatmap.png")), width = 1000, height = 1000)
+print(TE_up_heatmap)
+dev.off()
 
 #GSEA pathways----
 library(fgsea)
-#make a mouse to human gene conversion table (this is only applicable for mouse data as the gsea gene names are all human)
-read_tsv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/useful_tables/mouse_to_human_gene_IDs.tsv") %>%
-  dplyr::select(Gene_stable_ID_version, Human_gene_name) %>%
-  filter(!(is.na(Human_gene_name))) %>%
-  group_by(Gene_stable_ID_version) %>%
-  sample_n(size = 1) %>%
-  dplyr::rename(gene = Gene_stable_ID_version) -> Mouse2HumanTable
 
 #read in pathways
-pathways.hallmark <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/h.all.v7.1.symbols.gmt")
-pathways.cell_comp <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c5.cc.v7.1.symbols.gmt")
-pathways.kegg <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c2.cp.kegg.v7.1.symbols.gmt")
+source("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/read_mouse_GSEA_pathways.R")
 
 #hallmark
 #read in fgsea output
@@ -227,36 +232,10 @@ hallmark_pathways <- hallmark_results[[3]]$pathway[hallmark_results[[3]]$padj < 
 
 lapply(hallmark_pathways, plot_GSEA_binned,
        GSEA_set = pathways.hallmark, sub_dir = "hallmark",
-       control = "A1WT", treatment = "A1KO",
-       human = F, conversion_table = Mouse2HumanTable,
+       control = control, treatment = treatment,
        binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
-       plot_binned = T, plot_single_nt = F, plot_positional = F, SD = T, plot_delta = T, paired_data = T)
+       plot_binned = T, plot_single_nt = F, plot_positional = F,
+       plot_delta = T, SD = T, paired_data = F)
 
-#kegg
-#read in fgsea output
-load(file = file.path(parent_dir, "Analysis/fgsea/kegg_results.Rdata"))
 
-#extract transcript IDs
-kegg_pathways <- kegg_results[[3]]$pathway[kegg_results[[3]]$padj < 0.05]
-
-lapply(kegg_pathways, plot_GSEA_binned,
-       GSEA_set = pathways.kegg, sub_dir = "kegg",
-       control = "A1WT", treatment = "A1KO",
-       human = F, conversion_table = Mouse2HumanTable,
-       binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
-       plot_binned = T, plot_single_nt = F, plot_positional = F, SD = T, plot_delta = T, paired_data = T)
-
-#cell comp
-#read in fgsea output
-load(file = file.path(parent_dir, "Analysis/fgsea/cell_comp_results.Rdata"))
-
-#extract transcript IDs
-cell_comp_pathways <- cell_comp_results[[3]]$pathway[cell_comp_results[[3]]$padj < 0.001]
-
-lapply(cell_comp_pathways, plot_GSEA_binned,
-       GSEA_set = pathways.cell_comp, sub_dir = "cell_comp",
-       control = "A1WT", treatment = "A1KO",
-       human = F, conversion_table = Mouse2HumanTable,
-       binned_value = "binned_normalised_cpm", single_nt_value = "single_nt_normalised_cpm",
-       plot_binned = T, plot_single_nt = F, plot_positional = F, SD = T, plot_delta = T, paired_data = T)
 

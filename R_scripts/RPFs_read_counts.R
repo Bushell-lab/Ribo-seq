@@ -59,7 +59,7 @@ RPF_counts %>%
          sample = str_replace(sample, "_RPFs_", "\n")) %>%
   select(sample, rRNA_perc, pc_perc, tRNA_perc, unaligned_perc) %>%
   gather(key = alignment, value = percentage, rRNA_perc, pc_perc, tRNA_perc, unaligned_perc) %>%
-  mutate(alignment = factor(alignment, levels = c("unaligned_perc", "tRNA_perc", "pc_perc", "rRNA_perc"), labels = c("un-aligned", "tRNA", "pc", "rRNA"), ordered = T)) %>%
+  mutate(alignment = factor(alignment, levels = c("unaligned_perc", "tRNA_perc", "pc_perc", "rRNA_perc"), labels = c("other", "tRNA", "pc", "rRNA"), ordered = T)) %>%
   ggplot(aes(x = sample, y = percentage, fill = alignment))+
   geom_col()+
   xlab("sample")+

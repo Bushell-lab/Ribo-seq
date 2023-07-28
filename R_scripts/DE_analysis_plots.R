@@ -5,7 +5,7 @@ library(tidyverse)
 source("common_variables.R")
 
 #create a variable for what the treatment is----
-treatment <- "EFT226"
+treatment <- "KO"
 
 #themes----
 mytheme <- theme_classic()+
@@ -18,6 +18,7 @@ mytheme <- theme_classic()+
 #read in DESeq2 output----
 totals <- read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("Totals_", treatment, "_DEseq2_apeglm_LFC_shrinkage.csv")))
 RPFs <- read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("RPFs_", treatment, "_DEseq2_apeglm_LFC_shrinkage.csv")))
+TE <- read_csv((file = file.path(parent_dir, "Analysis/DESeq2_output", paste0("TE_", treatment, "_DEseq2.csv"))))
 
 #plot volcanos----
 RPFs %>%
@@ -82,23 +83,35 @@ print(totals_MA)
 dev.off()
 
 #merge RPF with totals data----
+#select apdj thresholds
+TE_sig_padj <- 0.1
+RPF_sig_padj <- 0.1
+
+TE_non_sig_padj <- 0.9
+RPF_non_sig_padj <- 0.5
+
+#merged data and make groups based on RPF/Total adjusted p-values or TE adjusted p-values
 RPFs %>%
-  select(gene, log2FoldChange, padj) %>%
+  select(gene, gene_sym, log2FoldChange, padj) %>%
   rename(RPFs_log2FC = log2FoldChange,
          RPFs_padj = padj) %>%
-  inner_join(totals[,c("gene", "log2FoldChange", "padj")], by = "gene") %>%
+  inner_join(totals[,c("gene", "log2FoldChange", "padj", "gene_sym")], by = c("gene", "gene_sym")) %>%
   rename(totals_log2FC = log2FoldChange,
          totals_padj = padj) %>%
-  mutate(TE = RPFs_log2FC - totals_log2FC,
-         TE_group = factor(case_when(TE < -0.5 ~ "TE down",
-                                     TE > 0.5 ~ "TE up",
-                                     TE < 0.1 & TE > -0.1 ~ "TE no change")),
-         RPFs_group = factor(case_when(RPFs_padj < 0.1 & RPFs_log2FC < 0 & totals_padj >= 0.1 ~ "RPFs down",
-                                  RPFs_padj < 0.1 & RPFs_log2FC > 0 & totals_padj >= 0.1 ~ "RPFs up",
-                                  RPFs_padj >= 0.1 & totals_padj < 0.1 & totals_log2FC < 0 ~"Totals down",
-                                  RPFs_padj >= 0.1 & totals_padj < 0.1 & totals_log2FC > 0 ~"Totals up",
-                                  RPFs_padj < 0.1 & totals_padj < 0.1 & RPFs_log2FC < 0 & totals_log2FC < 0 ~ "both down",
-                                  RPFs_padj < 0.1 & totals_padj < 0.1 & RPFs_log2FC > 0 & totals_log2FC > 0 ~ "both up"))) -> merged_data
+  inner_join(TE[,c("gene","log2FoldChange", "padj")], by = "gene") %>%
+  rename(TE_log2FC = log2FoldChange,
+         TE_padj = padj) %>%
+  mutate(TE_group = factor(case_when(TE_padj < TE_sig_padj & TE_log2FC < 0 ~ "TE down",
+                                     TE_padj < TE_sig_padj & TE_log2FC > 0 ~ "TE up",
+                                     TE_padj >= TE_non_sig_padj ~ "no change",
+                                     (TE_padj >= TE_sig_padj & TE_padj <= TE_non_sig_padj) | is.na(TE_padj) ~ "NS"),
+                           levels = c("TE down", "no change", "TE up", "NS"), ordered = T),
+         RPFs_group = factor(case_when(RPFs_padj < RPF_sig_padj & RPFs_log2FC < 0 & totals_padj >= RPF_non_sig_padj ~ "RPFs down",
+                                  RPFs_padj < RPF_sig_padj & RPFs_log2FC > 0 & totals_padj >= RPF_non_sig_padj ~ "RPFs up",
+                                  RPFs_padj >= RPF_non_sig_padj & totals_padj < RPF_sig_padj & totals_log2FC < 0 ~"Totals down",
+                                  RPFs_padj >= RPF_non_sig_padj & totals_padj < RPF_sig_padj & totals_log2FC > 0 ~"Totals up",
+                                  RPFs_padj < RPF_sig_padj & totals_padj < RPF_sig_padj & RPFs_log2FC < 0 & totals_log2FC < 0 ~ "both down",
+                                  RPFs_padj < RPF_sig_padj & totals_padj < RPF_sig_padj & RPFs_log2FC > 0 & totals_log2FC > 0 ~ "both up"))) -> merged_data
 summary(merged_data)
 
 
@@ -122,21 +135,23 @@ merged_data %>%
   geom_hline(yintercept = -1, lty=2)+
   geom_vline(xintercept = 0, lty=1)+
   geom_vline(xintercept = 1, lty=2)+
-  geom_vline(xintercept = -1, lty=2) -> TE_scatter_plot1
+  geom_vline(xintercept = -1, lty=2) -> RPF_groups_scatter_plot
 
-png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_TE_scatter1.png")), width = 500, height = 400)
-print(TE_scatter_plot1)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_RPF_groups_scatter.png")), width = 500, height = 400)
+print(RPF_groups_scatter_plot)
 dev.off()
 
 #write out group sizes
-write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups1.txt")), summary(merged_data$RPFs_group), col.names = F, quote = F)
+write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_RPF_groups_scatter.txt")), summary(merged_data$RPFs_group), col.names = F, quote = F)
 
 #based on TE
 merged_data %>%
-  mutate(alpha_score = case_when(is.na(TE_group) ~ 0.1,
-                                 !(is.na(TE_group)) ~ 1)) %>%
+  filter(!(is.na(TE_group))) %>%
+  mutate(alpha_score = case_when(TE_group =="TE down" | TE_group =="TE up" | TE_group == "no change" ~ 1,
+                                 TE_group =="NS" ~ 0.1)) %>%
   ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = TE_group, alpha = alpha_score))+
   geom_point()+
+  scale_colour_manual(values=c("red", "blue", "purple", "grey"))+
   scale_alpha(guide = "none")+
   mytheme+
   xlab("Total RNA log2FC")+
@@ -150,14 +165,14 @@ merged_data %>%
   geom_hline(yintercept = -1, lty=2)+
   geom_vline(xintercept = 0, lty=1)+
   geom_vline(xintercept = 1, lty=2)+
-  geom_vline(xintercept = -1, lty=2) -> TE_scatter_plot2
+  geom_vline(xintercept = -1, lty=2) -> TE_scatter_plot
 
-png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_TE_scatter2.png")), width = 500, height = 400)
-print(TE_scatter_plot2)
+png(filename = file.path(parent_dir, "plots/DE_analysis", paste(treatment, "_TE_scatter.png")), width = 500, height = 400)
+print(TE_scatter_plot)
 dev.off()
 
 #write out group sizes
-write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups2.txt")), summary(merged_data$TE_group), col.names = F, quote = F)
+write.table(file = file.path(parent_dir, "plots/DE_analysis", paste0(treatment, "_TE_scatter_groups.txt")), summary(merged_data$TE_group), col.names = F, quote = F)
 
 #write out csv
 write_csv(merged_data, file.path(parent_dir, "Analysis/DESeq2_output/merged_DESeq2.csv"))

@@ -12,7 +12,7 @@ For more information on conda, see [here](https://towardsdatascience.com/getting
 The RiboSeq environment is for processing RPFs and requires the following programs to be installed
 #### fastQC [manual](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 #### cutadapt [manual](https://cutadapt.readthedocs.io/en/stable/guide.html)
-#### cd-hit-dup [manual](https://github.com/weizhongli/cdhit/wiki/3.-User's-Guide#cdhitdup)
+#### UMItools [manual](https://umi-tools.readthedocs.io/en/latest/QUICK_START.html)
 #### bbmap [manual](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbmap-guide/)
 #### SAMtools (this has to be v1.9) [manual](http://www.htslib.org/doc/samtools.html)
 
@@ -26,7 +26,7 @@ conda create --name RiboSeq
 conda activate RiboSeq
 conda install -c bioconda fastqc
 conda install -c bioconda cutadapt
-conda install -c bioconda cd-hit-auxtools
+conda install -c bioconda umi_tools
 conda install -c bioconda bbmap
 conda install -c bioconda samtools=1.9
 conda install -c bioconda pysam
@@ -48,7 +48,7 @@ conda create --name RNAseq
 conda activate RNAseq
 conda install -c bioconda fastqc
 conda install -c bioconda cutadapt
-conda install -c bioconda cd-hit-auxtools
+conda install -c bioconda umi_tools
 conda install -c bioconda rsem
 conda install -c bioconda samtools=1.9 --force-reinstall
 conda install -c bioconda bowtie2

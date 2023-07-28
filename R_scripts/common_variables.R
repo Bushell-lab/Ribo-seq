@@ -12,6 +12,3 @@ RPF_sample_info <- data.frame(sample = RPF_sample_names,
 Total_sample_info <- data.frame(sample = Total_sample_names,
                              condition = c(rep("Ctrl", 3), rep("Treatment", 3)),
                              replicate = factor(rep(c("1", "2", "3"), 2)))
-
-#set read lengths used for library QC
-lengths <- 25:35

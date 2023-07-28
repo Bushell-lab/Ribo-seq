@@ -6,6 +6,7 @@ library(parallel)
 
 #read in common variables
 source("common_variables.R")
+lengths <- 25:35
 
 #functions
 #write a function that will read in a csv file for use with parLapply
@@ -38,10 +39,8 @@ data_list <- parLapply(cl, fyle_list, read_counts_csv) #reads in the data
 stopCluster(cl) #Stops cluster
 
 #combine data_list into one data frame
-all_data <- do.call("rbind", data_list)
-
-#extract sample, read length and splice position from fylenames
-all_data %>%
+#extract sample, read length and splice position from fyle
+do.call("rbind", data_list) %>%
   mutate(read_length = str_remove(fyle, ".+pc_L"),
          read_length = as.numeric(str_remove(read_length, "_Off0_.+")),
          sample = str_remove(fyle, ".+spliced_counts/"),
@@ -92,5 +91,41 @@ for (sample in RPF_sample_names) {
                stop_site_plot_list[[31]], stop_site_plot_list[[32]], stop_site_plot_list[[33]], nrow = 2)
   dev.off()
 }
+
+#all samples
+start_site_plot_list <- list()
+stop_site_plot_list <- list()
+
+for (i in lengths) {
+  start_site_data <- all_data[all_data$splice == "start_site" & all_data$read_length == i,]
+  stop_site_data <- all_data[all_data$splice == "stop_site" & all_data$read_length == i,]
   
+  start_site_data %>%
+    ggplot(aes(x = position, y = counts)) + 
+    geom_col()+
+    xlab("Position relative to start codon")+
+    ylab("Total counts")+
+    geom_vline(xintercept = -12, colour = "red", lty=2)+
+    scale_x_continuous(limits = c(-25, 25), breaks = c(-25, -12, 0, 25))+
+    myTheme+
+    ggtitle(paste("read length", i)) -> start_site_plot_list[[i]]
   
+  stop_site_data %>%
+    ggplot(aes(x = position, y = counts)) + 
+    geom_col()+
+    xlab("Position relative to stop codon")+
+    ylab("Total counts")+
+    geom_vline(xintercept = -18, colour = "red", lty=2)+
+    scale_x_continuous(limits = c(-25, 25), breaks = c(-25, -18, 0, 25))+
+    myTheme+
+    ggtitle(paste("read length", i)) -> stop_site_plot_list[[i]]
+}
+png(filename = file.path(parent_dir, paste0("plots/offset/all_samples_start_site_offset.png")), width = 1000, height = 500)
+grid.arrange(start_site_plot_list[[28]], start_site_plot_list[[29]], start_site_plot_list[[30]],
+             start_site_plot_list[[31]], start_site_plot_list[[32]], start_site_plot_list[[33]], nrow = 2)
+dev.off()
+
+png(filename = file.path(parent_dir, paste0("plots/offset/all_samples_stop_site_offset.png")), width = 1000, height = 500)
+grid.arrange(stop_site_plot_list[[28]], stop_site_plot_list[[29]], stop_site_plot_list[[30]],
+             stop_site_plot_list[[31]], stop_site_plot_list[[32]], stop_site_plot_list[[33]], nrow = 2)
+dev.off()

@@ -6,6 +6,10 @@ library(gridExtra)
 #read in common variables
 source("common_variables.R")
 
+#set what you have called your control and treated samples. This can be a vector of strings if more than one treatment has been used.
+control <- "WT"
+treatment <- "KO"
+
 #read in functions----
 source("binning_RiboSeq_functions.R")
 
@@ -35,7 +39,7 @@ UTR3_theme <- my_theme+
 #read in data----
 load(file = file.path(parent_dir, "Counts_files/R_objects/counts_list.Rdata"))
 
-most_abundant_transcripts <- read_csv(file = file.path(parent_dir, "Analysis/transcript_IDs/most_abundant_transcripts/most_abundant_transcripts_IDs.csv"))
+most_abundant_transcripts <- read_csv(file = file.path(parent_dir, "Analysis/most_abundant_transcripts/most_abundant_transcripts_IDs.csv"))
 region_lengths <- read_csv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/FASTAs/mouse/GENCODE/vM27/transcript_info/gencode.vM27.pc_transcripts_region_lengths.csv", col_names = c("transcript", "UTR5_len", "CDS_len", "UTR3_len"))
 
 #run on an individual genes----
@@ -51,7 +55,7 @@ region_lengths <- read_csv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinform
 plot_single_transcripts(gene = "Ctnnb1", dir = "candidate",
                         plot_binned = T, plot_single_nt = T, plot_codons = T,
                         SD = T, plot_replicates = T, plot_delta = T,
-                        control = "Ctrl", treatment = "EFT226", paired_data = T,
+                        control = control, treatment = treatment, paired_data = T,
                         region_cutoffs = c(0,0,0))
 
 #read in DEseq2 output----
@@ -78,11 +82,11 @@ DESeq2_df %>%
 lapply(RPFs_down_IDs, plot_single_transcripts, dir = "RPFs_down",
        plot_binned = T, plot_single_nt = F, plot_codons = F,
        SD = T, plot_replicates = F, plot_delta = F,
-       control = "Ctrl", treatment = "EFT226", paired_data = T,
+       control = control, treatment = treatment, paired_data = T,
        region_cutoffs = c(0,0,0))
 
 lapply(RPFs_up_IDs, plot_single_transcripts, dir = "RPFs_up",
        plot_binned = T, plot_single_nt = F, plot_codons = F,
        SD = T, plot_replicates = F, plot_delta = F,
-       control = "Ctrl", treatment = "EFT226", paired_data = T,
+       control = control, treatment = treatment, paired_data = T,
        region_cutoffs = c(0,0,0))

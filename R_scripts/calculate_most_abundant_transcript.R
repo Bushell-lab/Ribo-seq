@@ -1,5 +1,4 @@
 #load libraries
-library(DESeq2)
 library(tidyverse)
 library(tximport)
 

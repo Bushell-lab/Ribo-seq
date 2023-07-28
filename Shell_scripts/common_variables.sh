@@ -6,10 +6,15 @@
 RPF_filenames='RPF_1 RPF_2 RPF_3'
 Totals_filenames='Totals_1 Totals_2 Totals_3'
 
-###adaptor
+###set the sumber of threads available to use
+#It is recomended to use one or two less than what is available and also consider whether any else is being run at the same time
+#Some of the packages used do not support multi-threading and so the for loops run in parallel, so that all files are run at the same time. For this reason do not run on more files than the number of cores available to use
+threadN=16
+
+###adaptors
+#RPF adaptors
 #This is the sequence of the 3' adaptor that was used in the library prep. Common sequences are below, unhash the correct one if present, or if not enter it as a variable
 
-#RPF adaptors
 RPF_adaptor='TGGAATTCTCGGGTGCCAAGG' #this is the adaptor used in the nextflex small RNA library kit
 #RPF_adaptor='CTGTAGGCACCATCAAT' #this is the adaptor that seems to have been more commonly used in older ribosome-footprinting studies such as Wolfe 2014
 #RPF_adaptor='AGATCGGAAGAGCAC' #this is the one stated in the McGlincy and Ingolia 2017 methods paper
@@ -19,10 +24,13 @@ RPF_adaptor='TGGAATTCTCGGGTGCCAAGG' #this is the adaptor used in the nextflex sm
 Totals_adaptor='AGATCGGAAGAG' #this is the adaptor used in the LEXOGEN CORALL Total RNA-Seq Library Prep Kit
 
 ###paths
-
 parent_dir='/Path/to/data' #This is the path to the parent directory that contains all the data and where all the processed data will be saved
 
 #The following directories are where all the processed data will be saved. These all need to be created prior to starting the analysis
+
+#set the directory where the raw bcl data is. the directory that contains the raw sequencing data in bcl format. This is what you get from a sequencing run and needs to be demulitplexed to write the <.fastq> files.
+#If you have more than one bcl directory (you will get one for each sequencing run), then hash one out and write a new one below, each time you re-run the demultiplex.sh script script, so that this acts as a log for all the bcl directories associated with this project
+bcl_dir='Path/to/bcl/data'
 
 fastq_dir=${parent_dir}/fastq_files
 fastqc_dir=${parent_dir}/fastQC_files
@@ -33,7 +41,7 @@ counts_dir=${parent_dir}/Counts_files
 csv_counts_dir=${parent_dir}/Counts_files/csv_files
 csv_R_objects=${parent_dir}/Counts_files/R_objects
 
-
+STAR_dir=${parent_dir}/STAR
 rsem_dir=${parent_dir}/rsem
 
 #The following directories are where all the csv files that are used as input into R will be saved
@@ -48,6 +56,7 @@ codon_counts_dir=${analysis_dir}/codon_counts
 most_abundant_transcripts_dir=${analysis_dir}/most_abundant_transcripts
 DESeq2_dir=${analysis_dir}/DESeq2_output
 reads_summary_dir=${analysis_dir}/reads_summary
+fgsea_dir=${analysis_dir}/fgsea
 
 #The following directories are where all the plots generated in R will be saved
 plots_dir=${parent_dir}/plots
@@ -59,11 +68,13 @@ heatmaps_plots_dir=${plots_dir}/heatmaps
 DE_analysis_dir=${plots_dir}/DE_analysis
 PCA_dir=${plots_dir}/PCAs
 Interactive_scatters_dir=${plots_dir}/Interactive_scatters
-fgsea_dir=${plots_dir}/fgsea
+fgsea_plots_dir=${plots_dir}/fgsea
 fgsea_scatters_dir=${plots_dir}/fgsea/scatters
 fgsea_interactive_scatters_dir=${plots_dir}/fgsea/Interactive_scatters
 read_counts_summary_dir=${plots_dir}/read_counts_summary
 binned_plots_dir=${plots_dir}/binned_plots
+single_transcript_binned_plots_dir=${plots_dir}/binned_plots/single_transcripts
+normalisation_binned_plots_dir=${plots_dir}/binned_plots/normalisation
 
 
 #Fastas

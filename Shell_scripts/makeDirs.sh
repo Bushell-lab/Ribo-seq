@@ -11,6 +11,7 @@ mkdir $BAM_dir
 mkdir $log_dir
 mkdir $counts_dir
 mkdir $rsem_dir
+mkdir $STAR_dir
 
 mkdir $analysis_dir
 mkdir $region_counts_dir
@@ -24,6 +25,7 @@ mkdir $codon_counts_dir
 mkdir $DESeq2_dir
 mkdir $most_abundant_transcripts_dir
 mkdir $reads_summary_dir
+mkdir $fgsea_dir
 
 mkdir $plots_dir
 mkdir $summed_counts_plots_dir
@@ -33,9 +35,12 @@ mkdir $heatmaps_plots_dir
 mkdir $DE_analysis_dir
 mkdir $PCA_dir
 mkdir $Interactive_scatters_dir
-mkdir $fgsea_dir
+mkdir $fgsea_plots_dir
 mkdir $fgsea_scatters_dir
 mkdir $fgsea_interactive_scatters_dir
 mkdir $read_counts_summary_dir
 mkdir $binned_plots_dir
+mkdir $single_transcript_binned_plots_dir
+mkdir $normalisation_binned_plots_dir
+
 

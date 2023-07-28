@@ -3,9 +3,8 @@
 #read in variables
 source common_variables.sh
 
-#unzip files
 for filename in $RPF_filenames
 do
-gunzip $fastq_dir/${filename}.fastq.gz &
+extract_read_counts.py ${filename} RPFs -log_dir $log_dir &
 done
 wait

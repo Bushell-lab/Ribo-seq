@@ -27,9 +27,8 @@ source common_variables.sh
 #run cutadapt
 for filename in $Totals_filenames
 do
-cutadapt $fastq_dir/${filename}.fastq -a $Totals_adaptor --nextseq-trim=20 -m 30 -o $fastq_dir/${filename}_cutadapt.fastq 1> $log_dir/${filename}_cutadapt_log.txt &
+cutadapt $fastq_dir/${filename}.fastq -a $Totals_adaptor --nextseq-trim=20 -m 30 --cores=0 -o $fastq_dir/${filename}_cutadapt.fastq 1> $log_dir/${filename}_cutadapt_log.txt
 done
-wait
 
 #run fastqc on cutadapt output
 for filename in $Totals_filenames

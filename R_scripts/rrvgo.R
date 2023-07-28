@@ -179,3 +179,33 @@ png(filename = file.path(parent_dir, "plots/fgsea/rrvgo/mol_funs_down_treemap.pn
 treemap <- treemapPlot(MF_reducedTerms_down, size = "score") #size gives size of GO term, score is according to the score you define (pval)
 dev.off()
 
+#make bar charts----
+BP_reducedTerms_down %>%
+  group_by(parentTerm) %>%
+  summarise(score = mean(score)) %>%
+  ungroup() %>%
+  mutate(score = -score) -> BP_reducedTerms_down_summarised
+
+BP_reducedTerms_up %>%
+  group_by(parentTerm) %>%
+  summarise(score = mean(score)) %>%
+  ungroup() -> BP_reducedTerms_up_summarised
+
+BP_reducedTerms_down_summarised %>%
+  bind_rows(BP_reducedTerms_up_summarised) -> BP_reducedTerms_summarised
+
+BP_reducedTerms_summarised %>%
+  arrange(score) %>%
+  pull(parentTerm) -> order_BP_terms
+
+BP_reducedTerms_summarised%>%
+  ggplot(aes(x = factor(parentTerm, levels = order_BP_terms, ordered = T), y = score))+
+  geom_col()+
+  coord_flip()+
+  theme_classic()+
+  theme(axis.title = element_blank()) -> summarised_terms_plot
+
+png(filename = file.path(parent_dir, "plots/fgsea/rrvgo/bio_processes_summarised_terms_plot.png"), width = 450, height =350 )
+print(summarised_terms_plot)
+dev.off()
+

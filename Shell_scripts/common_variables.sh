@@ -80,14 +80,13 @@ normalisation_binned_plots_dir=${plots_dir}/binned_plots/normalisation
 #Fastas
 fasta_dir='/Path/to/FASTAs'
 
-rRNA_fasta=${fasta_dir}/rRNA/human_rRNA.fa
-tRNA_fasta=${fasta_dir}/tRNA/human_mature_tRNA.fa
-mito_fasta=${fasta_dir}/GENCODE/v38/filtered/gencode.v38.mito_transcripts.fa
-pc_fasta=${fasta_dir}/GENCODE/v38/filtered/gencode.v38.pc_transcripts_filtered.fa
-rsem_index=${fasta_dir}/GENCODE/v38/filtered/rsem_bowtie2_index/gencode.v38.pc_transcripts_filtered
-STAR_index=${fasta_dir}/GENCODE/v38/original/STAR_index
-STAR_GTF=${fasta_dir}/GENCODE/v38/original/gencode.v38.annotation.gtf
-most_abundant_fasta=$most_abundant_transcripts_dir/most_abundant_transcripts.fa #this needs to be created for each specific project
+rRNA_fasta=${fasta_dir}/rRNA/human_rRNA.fa #this needs to point to a fasta file containing rRNA sequences for the correct species
+tRNA_fasta=${fasta_dir}/tRNA/human_mature_tRNA.fa #this needs to point to a fasta file containing tRNA sequences for the correct species
+pc_fasta=${fasta_dir}/GENCODE/v38/filtered/gencode.v38.pc_transcripts_filtered.fa #this needs to point to a protein coding fasta. See GitHub README file for more information on what is most recommended
+rsem_index=${fasta_dir}/GENCODE/v38/filtered/rsem_bowtie2_index/gencode.v38.pc_transcripts_filtered #this needs to point to a index that has been generated for alignment, that is also compatible for RSEM usage. Bowtie2 is recommended for this
+STAR_index=${fasta_dir}/GENCODE/v38/original/STAR_index #This needs to point to a STAR genome index that needs to have been previously created
+STAR_GTF=${fasta_dir}/GENCODE/v38/original/gencode.v38.annotation.gtf #This needs to point to the GTF file used to create the STAR index
+most_abundant_fasta=$most_abundant_transcripts_dir/most_abundant_transcripts.fa #this needs to be created for each specific project (see GitHub README file for more information)
 
 ###fasta info
 #The below needs to point to a <.csv> file that contains the following information for all transcripts within the protein coding FASTA

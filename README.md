@@ -71,6 +71,8 @@ UMI-tools is then used to de-duplicate the resulting BAM file with the ***Totals
 ### Gene and isoform level quantification using RSEM
 RSEM calculates predicted counts and tpms for every gene (.genes output) and every transcript within every gene (.isoforms output). This can be used as input into DESeq2 to do differential expression analysis. It can also be used to caluculate the most abundant transcript per gene. This is carried out with the ***Totals_5_isoform_quantification.sh*** script, which takes the de-duplicated BAM file as input.
 
+**While it is strongly encouraged that the above scripts are used when using the pipeline for the first time or with some external data, the wrapper ***Totals_all.sh*** script combines all these into one script and can be used if the user is confident in doing so. Note that this script does not run fastQC on the intermediary files and does not have the same level of annotation as the above scripts.**
+
 ### Align reads to genome using STAR (optional)
 Aligning to the genome is also essential if you want to visualise the data with a genome browser such as IGV. We therefor also align the total RNA reads to a genome using STAR, using the ***Totals_3b_align_reads_genome.sh*** script and ***Totals_4b_deduplication_genome.sh*** scripts.
 
@@ -159,9 +161,7 @@ The offset plots should also allow you to determine what to use for the offset. 
 
 The ***RPFs_6d_extract_read_counts.sh*** and it's ***paired RPF_read_counts.R*** scripts extract and plot QC based on the number of reads at each stage of the pipeline and alignment rates.
 
-**Once you are happy that the data has been processed properly you can delete the intermediary files that are no longer required**
-
-**Do not delete the raw <.fastq> files**
+**While it is strongly encouraged that the above scripts are used when using the pipeline for the first time or with some external data, the wrapper ***RPFs_all.sh*** script combines all these into one script and can be used if the user is confident in doing so. Note that this script does not run fastQC on the intermediary files and does not have the same level of annotation as the above scripts.**
 
 ### Extract final counts
 Once you know what read lengths and offsets to use, you can use these values with the ***RPFs_7_Extract_final_counts.sh*** script to create a final <.counts> file that contains only the specified read lengths with the specified offsets applied.
@@ -182,6 +182,9 @@ In order to read in counts files into R, it is easier to have them written as cs
 ### Counting codon occupancy
 The ***RPFs_8d_count_codon_occupancy.sh*** uses the ***count_codon_occupancy.py*** to determine which codon was positioned at the A,P and E-site plus two codons either side, for every RPF read and sum them all together. The ***codon_occupancy.R*** script then takes this data and uses it to measure relative elongation rates for each codon based on the number of RPFs where that codon was at the A-site compared to the number of RPFs where that codon was at either of the 7 sites described above. This therefore accounts for differing mRNA abundances and initiation rates transcriptome-wide.
 
+**Once you are happy that the data has been processed properly you can delete the intermediary files that are no longer required**
+
+**Do not delete the raw <.fastq> files**
 
 # Common troubleshooting
 ### remove \r end lines

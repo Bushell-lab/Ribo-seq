@@ -11,7 +11,7 @@
 #read in variables
 source common_variables.sh
 
-#read deduplication
+#extract UMIs
 for filename in $Totals_filenames
 do
 umi_tools extract -I $fastq_dir/${filename}_cutadapt.fastq -S $fastq_dir/${filename}_UMI_clipped.fastq --bc-pattern=NNNNNNNNNNNN --log=$log_dir/${filename}_extracted_UMIs.log &

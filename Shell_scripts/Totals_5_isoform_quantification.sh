@@ -7,7 +7,7 @@
 #read in variables
 source common_variables.sh
 
-#Align to protein coding transcriptome
+#Run RSEM to quantify gene and isoform level expression
 for filename in $Totals_filenames
 do
 rsem-calculate-expression --strandedness forward --fragment-length-mean 300 --fragment-length-sd 100 --alignments $BAM_dir/${filename}_pc_deduplicated.bam $rsem_index $rsem_dir/${filename} &

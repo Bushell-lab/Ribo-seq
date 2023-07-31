@@ -199,11 +199,13 @@ BP_reducedTerms_summarised %>%
   pull(parentTerm) -> order_BP_terms
 
 BP_reducedTerms_summarised%>%
-  ggplot(aes(x = factor(parentTerm, levels = order_BP_terms, ordered = T), y = score))+
+  ggplot(aes(x = factor(parentTerm, levels = order_BP_terms, ordered = T), y = score, fill = score <0))+
   geom_col()+
+  scale_fill_manual(guide = none, breaks = c(TRUE,FALSE), values = c("red3", “green4”))+ #red = downregulated, green = upregulated
   coord_flip()+
   theme_classic()+
-  theme(axis.title = element_blank()) -> summarised_terms_plot
+  theme(axis.title = element_blank())+
+  ggtitle("Enriched Biological Processes", subtitle = "parent terms summarised") -> summarised_terms_plot
 
 png(filename = file.path(parent_dir, "plots/fgsea/rrvgo/bio_processes_summarised_terms_plot.png"), width = 450, height =350 )
 print(summarised_terms_plot)

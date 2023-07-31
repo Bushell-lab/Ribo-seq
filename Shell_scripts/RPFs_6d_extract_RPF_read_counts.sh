@@ -5,6 +5,7 @@
 #read in variables
 source common_variables.sh
 
+#Extract the read counts from the log files for each sample
 for filename in $RPF_filenames
 do
 extract_read_counts.py ${filename} RPFs -log_dir $log_dir &

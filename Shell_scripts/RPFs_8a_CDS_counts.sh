@@ -5,7 +5,6 @@ source common_variables.sh
 
 #run summing_CDS_counts.py script to count all reads for each CDS for use with DEseq2
 #the -remove_end_codons doesn't count any reads which correspond to A-site occupation within the first 20 or last 10 codons
-#use all alignments so that the most abundant transcript per gene (based on paired total RNA-seq data) can be selected downstream
 
 for filename in $RPF_filenames
 do

@@ -2,7 +2,7 @@
 library(tidyverse)
 
 #read in common variables
-source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Ribosome_profiling/SI_epithelial_extractions/AK_A1_A2KOs/A1KO/Scripts/R_scripts/common_variables.R")
+source("common_variables.R")
 
 #themes----
 violin_theme <- theme_bw()+

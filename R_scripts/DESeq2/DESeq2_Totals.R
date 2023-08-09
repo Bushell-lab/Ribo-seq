@@ -13,10 +13,9 @@ treatment <- "KO"
 
 #read in gene to transcript IDs map and rename and select ENSTM and ENSGM columns----
 #this is used by DESeq2 and needs to be in this structure
-tx2gene <- read_tsv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/FASTAs/mouse/GENCODE/vM27/transcript_info/gencode.vM27.pc_transcripts_gene_IDs.txt", col_names = F)
-tx2gene %>%
-  dplyr::rename(GENEID = X1,
-               TXNAME = X2) %>%
+read_tsv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/FASTAs/mouse/GENCODE/vM27/transcript_info/gencode.vM27.pc_transcripts_gene_IDs.txt", col_names = F) %>%
+dplyr::rename(GENEID = X1,
+              TXNAME = X2) %>%
   select(TXNAME, GENEID) -> tx2gene
 
 #read in the most abundant transcripts per gene csv file----

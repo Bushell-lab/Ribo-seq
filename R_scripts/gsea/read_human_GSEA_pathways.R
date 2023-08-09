@@ -1,0 +1,8 @@
+pathways.hallmark <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/h.all.v7.1.symbols.gmt")
+pathways.bio_processes <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c5.bp.v7.1.symbols.gmt")
+pathways.mol_funs <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c5.mf.v7.1.symbols.gmt")
+pathways.cell_comp <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c5.cc.v7.1.symbols.gmt")
+pathways.onco <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c6.all.v7.1.symbols.gmt")
+pathways.immune <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c7.all.v7.1.symbols.gmt")
+pathways.kegg <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c2.cp.kegg.v7.1.symbols.gmt")
+pathways.miRNA_targets <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/c3.mir.mirdb.v2022.1.Hs.symbols.gmt")

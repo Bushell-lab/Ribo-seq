@@ -1,9 +1,8 @@
-pathways.hallmark <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/mh.all.v2022.1.Mm.symbols.gmt")
-pathways.curated <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m2.all.v2022.1.Mm.symbols.gmt")
-pathways.miRNA_targets <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m3.mirdb.v2022.1.Mm.symbols.gmt")
-pathways.transcription_factors <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m3.gtrd.v2022.1.Mm.symbols.gmt")
-pathways.mol_funs <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m5.go.mf.v2022.1.Mm.symbols.gmt")
-pathways.bio_processes <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m5.go.bp.v2022.1.Mm.symbols.gmt")
-pathways.cell_comp <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m5.go.cc.v2022.1.Mm.symbols.gmt")
-pathways.tumour_phen_onto <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m5.mpt.v2022.1.Mm.symbols.gmt")
-pathways.cell_type_sig <- gmtPathways("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/m8.all.v2022.1.Mm.symbols.gmt")
+#set the path to the gsea gmt files (need to be downloaded first from https://www.gsea-msigdb.org/gsea/msigdb/mouse/collections.jsp)
+gsea_dir <- ""
+
+pathways.hallmark <- gmtPathways(file.path(gsea_dir, "mh.all.v2022.1.Mm.symbols.gmt"))
+pathways.bio_processes <- gmtPathways(file.path(gsea_dir, "m5.go.bp.v2022.1.Mm.symbols.gmt"))
+pathways.mol_funs <- gmtPathways(file.path(gsea_dir, "m5.go.mf.v2022.1.Mm.symbols.gmt"))
+pathways.cell_comp <- gmtPathways(file.path(gsea_dir, "m5.go.cc.v2022.1.Mm.symbols.gmt"))
+pathways.curated <- gmtPathways(file.path(gsea_dir, "m2.all.v2022.1.Mm.symbols.gmt"))

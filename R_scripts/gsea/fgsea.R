@@ -3,14 +3,16 @@
 #load libraries----
 library(tidyverse)
 library(fgsea)
-library(Glimma)
 
-#read in common variables----
+#read in and set common variables----
 source("common_variables.R")
 
-#create a variable for what the treatment is----
+#create a variable for what the treatment is
 control <- "WT"
 treatment <- "KO"
+
+#set the seed to ensure reproducible results
+set.seed(020588)
 
 #themes----
 mytheme <- theme_classic()+

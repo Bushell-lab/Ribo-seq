@@ -1,0 +1,81 @@
+#load libraries
+library(enrichR)
+library(tidyverse)
+
+#read in common variables----
+source("common_variables.R")
+treatment <- ""
+
+#set up connection with Enricher
+listEnrichrSites()
+setEnrichrSite("Enrichr") # Human/mouse genes
+dbs <- listEnrichrDbs()
+dbs_selected = c("GO_Biological_Process_2023","GO_Molecular_Function_2023","GO_Cellular_Component_2023","KEGG_2019_Mouse","MSigDB_Hallmark_2020","MSigDB_Oncogenic_Signatures","TRRUST_Transcription_Factors_2019","Reactome_2022","TargetScan_microRNA_2017")
+
+#creat theme
+mytheme <- theme_classic()+
+  theme(plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
+        axis.title = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 16))
+
+#read in gene lists----
+DESeq2_data <- read_csv(file.path(parent_dir, "Analysis/DESeq2_output", paste(treatment, "merged_DESeq2.csv", sep = "_")))
+
+TE_down <- DESeq2_data$gene_sym[DESeq2_data$TE_group == "TE down"]
+TE_up <- DESeq2_data$gene_sym[DESeq2_data$TE_group == "TE up"]
+
+#perform GO----
+TE_down_enriched <- enrichr(TE_down, dbs_selected)
+TE_up_enriched <- enrichr(TE_up, dbs_selected)
+
+#View lists----
+View(TE_down_enriched$GO_Biological_Process_2023[TE_down_enriched$GO_Biological_Process_2023$Adjusted.P.value < 0.1,])
+View(TE_up_enriched$GO_Biological_Process_2023[TE_up_enriched$GO_Biological_Process_2023$Adjusted.P.value < 0.1,])
+
+View(TE_down_enriched$GO_Molecular_Function_2023[TE_down_enriched$GO_Molecular_Function_2023$Adjusted.P.value < 0.1,])
+View(TE_up_enriched$GO_Molecular_Function_2023[TE_up_enriched$GO_Molecular_Function_2023$Adjusted.P.value < 0.1,])
+
+View(TE_down_enriched$GO_Cellular_Component_2023[TE_down_enriched$GO_Cellular_Component_2023$Adjusted.P.value < 0.1,])
+View(TE_up_enriched$GO_Cellular_Component_2023[TE_up_enriched$GO_Cellular_Component_2023$Adjusted.P.value < 0.1,])
+
+View(TE_down_enriched$KEGG_2019_Mouse[TE_down_enriched$KEGG_2019_Mouse$Adjusted.P.value < 0.1,])
+View(TE_up_enriched$KEGG_2019_Mouse[TE_up_enriched$KEGG_2019_Mouse$Adjusted.P.value < 0.1,])
+
+View(TE_down_enriched$MSigDB_Hallmark_2020[TE_down_enriched$MSigDB_Hallmark_2020$Adjusted.P.value < 0.1,])
+View(TE_up_enriched$MSigDB_Hallmark_2020[TE_up_enriched$MSigDB_Hallmark_2020$Adjusted.P.value < 0.1,])
+
+View(TE_down_enriched$Reactome_2022[TE_down_enriched$Reactome_2022$Adjusted.P.value < 0.1,])
+View(TE_up_enriched$Reactome_2022[TE_up_enriched$Reactome_2022$Adjusted.P.value < 0.1,])
+
+View(TE_down_enriched$MSigDB_Oncogenic_Signatures[TE_down_enriched$MSigDB_Oncogenic_Signatures$Adjusted.P.value < 0.1,])
+View(TE_up_enriched$MSigDB_Oncogenic_Signatures[TE_up_enriched$MSigDB_Oncogenic_Signatures$Adjusted.P.value < 0.1,])
+
+#save files
+bio_processes_down <- TE_down_enriched$GO_Biological_Process_2023
+bio_processes_up <- TE_up_enriched$GO_Biological_Process_2023
+
+save(file = file.path(parent_dir, "Analysis/GO", paste(treatment, "TE_down_bio_processes_results.Rdata", sep = "_")), bio_processes_down)
+save(file = file.path(parent_dir, "Analysis/GO", paste(treatment, "TE_up_bio_processes_results.Rdata", sep = "_")), bio_processes_up)
+
+#plot
+padj_threshold <- 0.1
+
+#hallmark
+TE_down_enriched$MSigDB_Hallmark_2020 %>%
+  mutate(Odds.Ratio = Odds.Ratio * -1) %>%
+  bind_rows(TE_up_enriched$MSigDB_Hallmark_2020) %>%
+  filter(Adjusted.P.value < padj_threshold) %>%
+  arrange(Odds.Ratio) %>%
+  mutate(Term=factor(Term, levels=Term)) %>%
+  ggplot(aes(x=Term, y=Odds.Ratio, fill = -log10(Adjusted.P.value)))+
+  geom_bar(stat="identity",show.legend = F)+
+  mytheme+
+  ylab("Odds ratio")+
+  coord_flip()+
+  ggtitle(paste(treatment, "Hallmark")) -> hallmark_plot
+
+png(filename = file.path(parent_dir, "plots/GO", paste(treatment, "Hallmark_enricher.png", sep = "_")), width = 500, height = 400)
+print(hallmark_plot)
+dev.off()

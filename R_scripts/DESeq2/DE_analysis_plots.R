@@ -124,13 +124,13 @@ summary(merged_data)
 merged_data %>%
   group_by(RPFs_group) %>%
   summarize(num = n()) %>%
-  mutate(lab = paste0(RPFs_group, " (n=", num, ") ")) -> labs
+  mutate(lab = paste0(RPFs_group, " (n=", num, ") ")) -> RPF_labs
 
 merged_data %>%
   mutate(alpha_score = case_when(RPFs_group == "NS" | RPFs_group == "no change" ~ 0.1,
                                  RPFs_group != "NS" & RPFs_group != "no change" ~ 1)) %>%
   arrange(desc(RPFs_group)) %>%
-  left_join(labs, by = "RPFs_group") %>%
+  left_join(RPF_labs, by = "RPFs_group") %>%
   ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = lab, alpha = alpha_score))+
   geom_point()+
   scale_alpha(guide = "none")+
@@ -154,14 +154,14 @@ dev.off()
 merged_data %>%
   group_by(TE_group) %>%
   summarize(num = n()) %>%
-  mutate(lab = paste0(TE_group, "\n(n=", num, ")\n")) -> labs
+  mutate(lab = paste0(TE_group, "\n(n=", num, ")\n")) -> TE_labs
 
 merged_data %>%
   filter(!(is.na(TE_group))) %>%
   arrange(desc(TE_group)) %>%
   mutate(alpha_score = case_when(TE_group =="TE down" | TE_group =="TE up" ~ 1,
                                  TE_group == "no change" | TE_group =="NS" ~ 0.1)) %>%
-  left_join(labs, by = "TE_group") %>%
+  left_join(TE_labs, by = "TE_group") %>%
   ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = lab, alpha = alpha_score))+
   geom_point()+
   scale_colour_manual(values=c("#2e4057", "grey", "#d1495b", "purple"))+

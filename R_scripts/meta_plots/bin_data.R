@@ -2,8 +2,7 @@
 library(tidyverse)
 
 #read in common variables----
-source("common_variables_VM.R")
-#source("common_variables.R")
+source("common_variables.R")
 
 #set the threshold for the average CDS counts a transcript has to have across all samples for it to be included
 min_counts <- 50

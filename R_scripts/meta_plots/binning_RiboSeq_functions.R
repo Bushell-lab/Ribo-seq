@@ -1,34 +1,66 @@
-#functions----
-#reads in csv files  (for use with parLapply)
-read_counts_csv <- function(k){
-  df <- read.csv(file = k, header = T)
-  df$transcript <- rep(gsub("_.+", "", k))
-  return(df)
-}
+#These functions are for use with the scripts within the meta_plots directory of the Bushell-lab/Riboseq Github repository----
 
-#Returns transcript ID (for use with parLapply)
-get_transcript_ID <- function(x) {
-  transcript <- str_replace(x, "_.+", "")
-  return(transcript)
-}
+#create themes----
+my_theme <- theme_bw()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.title = element_blank())
 
-normalise_data <- function(df, tpms) {
+UTR5_theme <- my_theme+
+  theme(legend.position="none",
+        axis.ticks.x = element_blank(),
+        axis.text.y = element_text(size = 20),
+        axis.text.x = element_blank(),
+        plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+
+CDS_theme <- my_theme+
+  theme(legend.position="none",
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+
+UTR3_theme <- my_theme+
+  theme(axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.text = element_text(size = 20),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+
+CDS_only_theme <- my_theme+
+  theme(axis.ticks.x = element_blank(),
+        axis.text.y = element_text(size = 18),
+        axis.text.x = element_blank(),
+        legend.text = element_text(size = 20),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 22, face = "bold", hjust = 0.5))
+
+#the following function normalises the data. It calculates Counts Per Million (CPM).
+#If Transcripts Per Million (TPM) values (from total RNA-seq data) are also supplied, it normalised the CPMs by these too
+normalise_data <- function(df, tpms = NULL) {
   
   df %>%
     group_by(condition, replicate) %>%
     summarise(total_counts = sum(Counts)) -> total_counts
   
-  df %>%
-    inner_join(total_counts, by = c("condition", "replicate")) %>%
-    inner_join(tpms, by = c("transcript", "condition", "replicate")) %>%
-    filter(tpm > 0) %>%
-    mutate(CPM = Counts / total_counts * 1000000, #calculates counts per million (CPM)
-           normalised_CPM = CPM / tpm) %>% #normalise to total RNA-seq transcripts per million (TPM)
-    select(-c("total_counts", "tpm")) -> normalised_df
+  if (is.null(tpms)) {
+    df %>%
+      inner_join(total_counts, by = c("condition", "replicate")) %>%
+      mutate(CPM = Counts / total_counts * 1000000) %>% #calculates counts per million (CPM)
+      select(-c("total_counts")) -> normalised_df
+  } else {
+    df %>%
+      inner_join(total_counts, by = c("condition", "replicate")) %>%
+      inner_join(tpms, by = c("transcript", "condition", "replicate")) %>%
+      filter(tpm > 0) %>%
+      mutate(CPM = Counts / total_counts * 1000000, #calculates counts per million (CPM)
+             normalised_CPM = CPM / tpm) %>% #normalise to total RNA-seq transcripts per million (TPM)
+      select(-c("total_counts", "tpm")) -> normalised_df
+  }
   
   return(normalised_df)
 }
 
+#The following function creates a new column denoting the bin
 calculate_bins <- function(x, n) {
   bins <- n
   cut_size <- 1 / bins
@@ -42,7 +74,7 @@ calculate_bins <- function(x, n) {
 
 #the following function will bin the data (df) within the 5'UTR, CDS and 3'UTR.
 #It needs a region lengths file
-#region cutoffs are the minimum sizes of the regions to include. It should be supplied as a numeric vector, referring to the minimum size for the 5'UTR, CDS and 3'UTR (in that order). Default is c(100,300,100)
+#region cutoffs are the minimum sizes of the regions to include. It should be supplied as a numeric vector, referring to the minimum size for the 5'UTR, CDS and 3'UTR (in that order). Default is c(50,300,50)
 #bins are the number of bins within each region. This should also be a numeric vector, referring to the number of bins for the 5'UTR, CDS and 3'UTR (in that order). Default is c(25,50,25)
 bin_data <- function(df, region_lengths, region_cutoffs = c(50,300,50), bins = c(25,50,25)) {
   
@@ -93,7 +125,7 @@ bin_data <- function(df, region_lengths, region_cutoffs = c(50,300,50), bins = c
 calculate_binned_delta <- function(alist, value, control = control, treatment = treatment, paired_data = T) {
   do.call("rbind", alist) %>%
     rename(value = value) %>%
-    select(transcript, bin, replicate, region, condition, value) %>%
+    select(all_of(transcript, bin, replicate, region, condition, value)) %>%
     filter(condition == control | condition == treatment) %>%
     spread(key = condition, value = value) %>%
     rename(control = control,
@@ -321,7 +353,7 @@ splice_single_nt <- function(df, region_lengths, codons = 50, UTR_nts = 48, regi
 calculate_single_nt_delta <- function(alist, value, control = control, treatment = treatment, paired_data = T) {
   do.call("rbind", alist) %>%
     rename(value = value) %>%
-    select(transcript, window, replicate, region, condition, value) %>%
+    select(all_of(transcript, window, replicate, region, condition, value)) %>%
     spread(key = condition, value = value) %>%
     group_by(window, replicate, region) %>%
     rename(control = control,
@@ -398,17 +430,30 @@ summarise_data <- function(df, value, grouping) {
 
 #plotting----
 #the following functions will plot the binned/positional/single_nt raw data as lines
-#Setting SD to True will add shaded areas to represent standard deviation
+#Setting SD to True (default is False) will add shaded areas to represent standard deviation
 #the value to be plotted needs to be called "average_counts" within the dataframe supplied (df)
+#conditions is an optional argument allowing either only specific conditions to be plotted or to specify the order of the conditions. This should be supplied as a vector, the order of which will be applied to the plot
+#colours is an optional argument allowing the colours of the lines to be set. If this is used, it is advised that the conditions argument is also used to specify the order.
+#Setting CDS_only to True (default is False) will return just one plot for the CDS. As default a list of 5'UTR, CDS and 3'UTR plots is returned.
+#title is an optional argument allowing the title to be applied
 
-plot_binned_lines <- function(df, SD = T, control = control, treatment = treatment) {
+plot_binned_lines <- function(df, SD = F, conditions = NULL, colours = NULL, CDS_only = F, title = NULL) {
   
-  #order condition
-  df$condition <- factor(df$condition, levels = c(control, treatment), ordered = T)
+  #order or filter conditions (if conditions argument used)
+  if (!is.null(conditions)) {
+    df %>%
+      filter(condition %in% conditions) %>%
+      mutate(condition = factor(condition, levels = conditions, ordered = T)) -> df
+  }
   
   #calculate axis limits
   if (SD == F) {
-    ylims <- c(0,max(df$average_counts))
+    if (CDS_only == F) {
+      ylims <- c(0,max(df$average_counts))
+    } else {
+      ylims <- c(0,max(df$average_counts[df$region == "CDS"]))
+    }
+    
   } else {
     ylims <- c(min(df$average_counts - df$sd_counts),
                max(df$average_counts + df$sd_counts))
@@ -419,66 +464,103 @@ plot_binned_lines <- function(df, SD = T, control = control, treatment = treatme
     ggplot(aes(x = grouping, y = average_counts, colour = condition))+
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
-    ylim(ylims)+
-    UTR5_theme -> UTR5_plot
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    UTR5_theme+
+    {if(!is.null(title))ggtitle("")}+
+    ylim(ylims) -> UTR5_plot
   
   #CDS
   df[df$region == "CDS",] %>%
     ggplot(aes(x = grouping, y = average_counts, colour = condition))+
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
-    ylim(ylims)+
-    CDS_theme -> CDS_plot
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(CDS_only == F)CDS_theme}+
+    {if(CDS_only)CDS_only_theme}+
+    {if(!is.null(title))ggtitle(title)}+
+    ylim(ylims) -> CDS_plot
   
   #3'UTR
   df[df$region == "UTR3",] %>%
     ggplot(aes(x = grouping, y = average_counts, colour = condition))+
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(!is.null(title))ggtitle("")}+
     ylim(ylims)+
     UTR3_theme -> UTR3_plot
   
-  return(list(UTR5_plot, CDS_plot, UTR3_plot))
+  if (CDS_only) {
+    return(CDS_plot) 
+  } else {
+    return(list(UTR5_plot, CDS_plot, UTR3_plot))
+  }
 }
 
-plot_binned_all_replicates <- function(alist, control = control, treatment = treatment) {
+plot_binned_all_replicates <- function(alist, conditions = NULL, colours = NULL, CDS_only = F, title = NULL) {
   
   df <- do.call("rbind", alist)
   
-  #order condition
-  df$condition <- factor(df$condition, levels = c(control, treatment), ordered = T)
+  #order or filter conditions (if conditions argument used)
+  if (!is.null(conditions)) {
+    df %>%
+      filter(condition %in% conditions) %>%
+      mutate(condition = factor(condition, levels = conditions, ordered = T)) -> df
+  }
   
   #calculate axis limits
-  ylims <- c(0,max(df$mean_counts))
+  if (CDS_only == F) {
+    ylims <- c(0,max(df$mean_counts))
+  } else {
+    ylims <- c(0,max(df$mean_counts[df$region == "CDS"]))
+  }
   
   #5'UTR
   df[df$region == "UTR5",] %>%
     ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = factor(replicate)))+
     geom_line(size = 1)+
-    ylim(ylims)+
-    UTR5_theme -> UTR5_plot
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    UTR5_theme+
+    {if(!is.null(title))ggtitle("")}+
+    ylim(ylims) -> UTR5_plot
   
   #CDS
   df[df$region == "CDS",] %>%
     ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = factor(replicate)))+
     geom_line(size = 1)+
-    ylim(ylims)+
-    CDS_theme -> CDS_plot
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(CDS_only == F)CDS_theme}+
+    {if(CDS_only)CDS_only_theme}+
+    {if(!is.null(title))ggtitle(title)}+
+    ylim(ylims) -> CDS_plot
   
   #3'UTR
   df[df$region == "UTR3",] %>%
     ggplot(aes(x = grouping, y = mean_counts, colour = condition, lty = factor(replicate)))+
     geom_line(size = 1)+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(title))ggtitle("")}+
     ylim(ylims)+
     UTR3_theme -> UTR3_plot
   
-  return(list(UTR5_plot, CDS_plot, UTR3_plot))
+  if (CDS_only) {
+    return(CDS_plot) 
+  } else {
+    return(list(UTR5_plot, CDS_plot, UTR3_plot))
+  }
 }
 
-plot_positional_lines <- function(df, SD = T, control = control, treatment = treatment) {
+plot_positional_lines <- function(df, SD = F, conditions = NULL, colours = NULL, title = NULL) {
   
-  #order condition
-  df$condition <- factor(df$condition, levels = c(control, treatment), ordered = T)
+  #order or filter conditions (if conditions argument used)
+  if (!is.null(conditions)) {
+    df %>%
+      filter(condition %in% conditions) %>%
+      mutate(condition = factor(condition, levels = conditions, ordered = T)) -> df
+  }
   
   #calculate axis limits
   if (SD == F) {
@@ -492,17 +574,23 @@ plot_positional_lines <- function(df, SD = T, control = control, treatment = tre
     ggplot(aes(x = grouping, y = average_counts, colour = condition))+
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
-    ylim(ylims)+
-    UTR3_theme+
-    theme(axis.text.y = element_text(size = 18)) -> positional_plot
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    CDS_only_theme+
+    {if(!is.null(title))ggtitle(title)}+
+    ylim(ylims) -> positional_plot
   
   return(positional_plot)
 }
 
-plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, treatment = treatment) {
+plot_single_nt_lines <- function(df, SD = F, conditions = NULL, colours = NULL, plot_ends = F, title = NULL) {
   
-  #order condition
-  df$condition <- factor(df$condition, levels = c(control, treatment), ordered = T)
+  #order or filter conditions (if conditions argument used)
+  if (!is.null(conditions)) {
+    df %>%
+      filter(condition %in% conditions) %>%
+      mutate(condition = factor(condition, levels = conditions, ordered = T)) -> df
+  }
   
   #calculate axis limits
   if (SD == F) {
@@ -518,6 +606,9 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
     ylim(ylims)+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(!is.null(title))ggtitle("")}+
     UTR5_theme+
     xlab("nt\n(relative to 5' end)")+
     theme(axis.text.x = element_text(size = 14),
@@ -528,6 +619,9 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
     ylim(ylims)+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(!is.null(title))ggtitle("")}+
     UTR5_theme+
     {if(plot_ends)CDS_theme}+
     xlab("nt\n(relative to start codon)")+
@@ -540,6 +634,9 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
     ylim(ylims)+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(!is.null(title))ggtitle(title)}+
     CDS_theme+
     xlab("nt\n(relative to start codon)")+
     theme(axis.text.x = element_text(size = 14),
@@ -550,6 +647,9 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
     ylim(ylims)+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(!is.null(title))ggtitle("")}+
     CDS_theme+
     xlab("nt\n(relative to stop codon)")+
     theme(axis.text.x = element_text(size = 14),
@@ -561,6 +661,9 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
     ylim(ylims)+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(!is.null(title))ggtitle("")}+
     UTR3_theme+
     {if(plot_ends)CDS_theme}+
     xlab("nt\n(relative to stop codon)")+
@@ -572,6 +675,9 @@ plot_single_nt_lines <- function(df, SD = T, plot_ends = F, control = control, t
     geom_line(size = 1)+
     {if(SD)geom_ribbon(aes(ymin = average_counts-sd_counts, ymax = average_counts+sd_counts, fill = condition), alpha = 0.3, colour = NA)}+
     ylim(ylims)+
+    {if(!is.null(colours))scale_colour_manual(values=colours)}+
+    {if(!is.null(colours))scale_fill_manual(values=colours)}+
+    {if(!is.null(title))ggtitle("")}+
     UTR3_theme+
     xlab("nt\n(relative to 3' end)")+
     theme(axis.text.x = element_text(size = 14),
@@ -903,9 +1009,10 @@ plot_GSEA_binned <- function(GSEA_set, pathway, subdir,
 
 plot_single_transcripts <- function(gene, dir,
                                     plot_binned = T, plot_single_nt = F, plot_positional = F, plot_codons = F,
-                                    SD = T, plot_replicates = T, plot_delta = T,
-                                    control = control, treatment = treatment, paired_data = T,
-                                    region_cutoffs = c(0,0,0)) {
+                                    SD = F, plot_replicates = T, plot_delta = T, CDS_only = F,
+                                    conditions = NULL, colours = NULL, title = NULL,
+                                    paired_data = T,
+                                    region_cutoffs = c(0,0,0), bins = c(25,50,25)) {
   
   if (!(dir.exists(file.path(parent_dir, "plots/binned_plots/single_transcripts", dir)))) {
     dir.create(file.path(parent_dir, "plots/binned_plots/single_transcripts", dir))
@@ -918,7 +1025,7 @@ plot_single_transcripts <- function(gene, dir,
   
   #bin data
   if (plot_binned == T) {
-    binned_list <- lapply(filtered_counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = region_cutoffs)
+    binned_list <- lapply(filtered_counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = region_cutoffs, bins = bins)
     
     summarised_binned_list <- lapply(binned_list, summarise_data, value = "binned_normalised_cpm", grouping = "bin")
     
@@ -932,21 +1039,33 @@ plot_single_transcripts <- function(gene, dir,
                   sd_counts = sd(mean_counts)) %>%
         ungroup() -> summarised_binned
       
-      binned_line_plots <- plot_binned_lines(df = summarised_binned, SD = SD, control = control, treatment = treatment)
+      binned_line_plots <- plot_binned_lines(df = summarised_binned, SD = SD, conditions = conditions, colours = colours, title = gene, CDS_only = CDS_only)
       
-      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines.png")), width = 1000, height = 200)
-      grid.arrange(binned_line_plots[[1]], binned_line_plots[[2]], binned_line_plots[[3]], nrow = 1, widths = c(1,2,1.5))
-      dev.off()
+      if (CDS_only) {
+        png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "CDS only binned lines.png")), width = 350, height = 200)
+        print(binned_line_plots)
+        dev.off()
+      } else {
+        png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines.png")), width = 1000, height = 200)
+        grid.arrange(binned_line_plots[[1]], binned_line_plots[[2]], binned_line_plots[[3]], nrow = 1, widths = c(1,2,1.5))
+        dev.off()
+      }
       
     } else {
       
       #plot individual replicates
       
-      binned_line_plots_all_replicates <- plot_binned_all_replicates(summarised_binned_list, control = control, treatment = treatment)
+      binned_line_plots_all_replicates <- plot_binned_all_replicates(summarised_binned_list, conditions = conditions, colours = colours, title = gene, CDS_only = CDS_only)
       
-      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines all replicates.png")), width = 1000, height = 200)
-      grid.arrange(binned_line_plots_all_replicates[[1]], binned_line_plots_all_replicates[[2]], binned_line_plots_all_replicates[[3]], nrow = 1, widths = c(1,2,1.5))
-      dev.off()
+      if (CDS_only) {
+        png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "CDS only binned lines all replicates.png")), width = 350, height = 200)
+        print(binned_line_plots_all_replicates)
+        dev.off()
+      } else {
+        png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "binned lines all replicates.png")), width = 1000, height = 200)
+        grid.arrange(binned_line_plots_all_replicates[[1]], binned_line_plots_all_replicates[[2]], binned_line_plots_all_replicates[[3]], nrow = 1, widths = c(1,2,1.5))
+        dev.off()
+      }
     }
     
     #plot delta
@@ -967,18 +1086,25 @@ plot_single_transcripts <- function(gene, dir,
     
     summarised_single_nt_list <- lapply(single_nt_list, summarise_data, value = "single_nt_normalised_cpm", grouping = "window")
     
-    do.call("rbind", summarised_single_nt_list) %>%
-      group_by(grouping, condition, region) %>%
-      summarise(average_counts = mean(mean_counts),
-                sd_counts = sd(mean_counts)) %>%
-      ungroup() -> summarised_single_nt
-    
-    #plot
-    single_nt_line_plots <- plot_single_nt_lines(summarised_single_nt, SD=SD, control = control, treatment = treatment)
-    
-    png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single nt lines.png")), width = 1000, height = 200)
-    grid.arrange(single_nt_line_plots[[1]], single_nt_line_plots[[2]], single_nt_line_plots[[3]], single_nt_line_plots[[4]], nrow = 1, widths = c(rep(1,3),1.2))
-    dev.off()
+    if (plot_replicates == F) {
+      #plot average across replicates
+      do.call("rbind", summarised_single_nt_list) %>%
+        group_by(grouping, condition, region) %>%
+        summarise(average_counts = mean(mean_counts),
+                  sd_counts = sd(mean_counts)) %>%
+        ungroup() -> summarised_single_nt
+      
+      #plot
+      single_nt_line_plots <- plot_single_nt_lines(summarised_single_nt, SD=SD, conditions = conditions, colours = colours, title = gene)
+      
+      
+      png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single nt lines.png")), width = 1000, height = 200)
+      grid.arrange(single_nt_line_plots[[1]], single_nt_line_plots[[2]], single_nt_line_plots[[3]], single_nt_line_plots[[4]], nrow = 1, widths = c(rep(1,3),1.2))
+      dev.off()
+    } else {
+      #need to add individual replicates function for single nt still
+    }
+      
     
     if (plot_delta == T) {
       #calculate and plot delta
@@ -1004,7 +1130,7 @@ plot_single_transcripts <- function(gene, dir,
       ungroup() -> summarised_codon
     
     #plot
-    codon_line_plots <- plot_positional_lines(summarised_codon, SD=SD, control = control, treatment = treatment)
+    codon_line_plots <- plot_positional_lines(summarised_codon, SD=SD, conditions = conditions, colours = colours, title = gene)
     
     png(filename = file.path(parent_dir, "plots/binned_plots/single_transcripts", dir, paste(treatment, gene, "single codon lines.png")), width = 1000, height = 200)
     print(codon_line_plots)
@@ -1030,7 +1156,7 @@ plot_binned_heatmaps <- function(IDs, remove_IDs = NA, col_lims, control, treatm
   #plot delta
   do.call("rbind", subset_binned_list) %>%
     rename(value = value) %>%
-    select(transcript, bin, replicate, region, condition, value) %>%
+    select(all_of(transcript, bin, replicate, region, condition, value)) %>%
     filter(condition == control | condition == treatment) %>%
     group_by(condition, transcript, bin, region) %>%
     summarise(mean_value = mean(value)) %>%
@@ -1069,7 +1195,7 @@ plot_single_nt_heatmaps <- function(gene_names, remove_IDs, col_lims) {
     inner_join(UTR5_lens, by = "transcript") %>%
     mutate(plot_position = Position - UTR5_len) %>%
     filter(plot_position <= 1000) %>%
-    select(gene_sym, condition, replicate, plot_position, normalised_CPM) %>%
+    select(all_of(gene_sym, condition, replicate, plot_position, normalised_CPM)) %>%
     spread(key = condition, value = normalised_CPM) %>%
     mutate(delta = EFT226 - Ctrl) %>%
     group_by(gene_sym, plot_position) %>%

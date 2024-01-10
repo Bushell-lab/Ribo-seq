@@ -1,0 +1,95 @@
+#load packages----
+library(tidyverse)
+
+#read in common variables----
+source("common_variables.R")
+
+#set the threshold for the average CDS counts a transcript has to have across all samples for it to be included
+min_counts <- 50
+
+#set the thresholds for region lengths
+UTR5_min_len <- 25
+CDS_min_len <- 300
+UTR3_min_len <- 0
+
+region_cutoffs <- c(UTR5_min_len, CDS_min_len, UTR3_min_len)
+
+#read in functions----
+source("binning_Sel-RiboSeq_functions.R")
+
+#read in data----
+region_lengths <- read_csv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/FASTAs/human/GENCODE/v38/transcript_info/gencode.v38.pc_transcripts_region_lengths.csv", col_names = c("transcript", "UTR5_len", "CDS_len", "UTR3_len"))
+
+#read in the CDS counts to use to filter the data
+#the following for loop reads in each final CDS counts file and renames the counts column by the sample name and saves each data frame to a list
+data_list <- list()
+for (sample in disome_60nt_sample_names) {
+  df <- read_csv(file = file.path(parent_dir, "Analysis/CDS_counts", paste0(sample, "_pc_final_counts_all_frames.csv")), col_names = T)
+  colnames(df) <- c("transcript", sample)
+  data_list[[sample]] <- df
+}
+
+#extract transcript IDs to keep----
+#merge all data within the above list using reduce
+#remove any transcripts with an NA in any sample (these will have had 0 counts)
+#remove any transcripts with a mean count (across all samples) less than the min_counts threshold
+#remove any transcripts with UTRs/CDSs shorter than thresholds defined above
+#extract the transcript IDs
+data_list %>%
+  reduce(full_join, by = "transcript") %>%
+  column_to_rownames("transcript") %>%
+  drop_na() %>%
+  filter(rowMeans(.) >= min_counts) %>%
+  rownames_to_column("transcript") %>%
+  inner_join(region_lengths, by = "transcript") %>%
+  filter(UTR5_len >= UTR5_min_len & CDS_len >= CDS_min_len & UTR3_len >= UTR3_min_len) %>%
+  pull(transcript) -> filtered_transcripts
+
+#read in counts data----
+#read in csvs using parLapply (parallel version of lapply)
+counts_list <- list()
+for (sample in disome_60nt_sample_names) {
+  
+  #extract the condition and replicate from the sample name (this may need to be edited depending on how your sample names are structured)
+  condition <- disome_60nt_sample_info$condition[disome_60nt_sample_info$sample == sample]
+  replicate <- disome_60nt_sample_info$replicate[disome_60nt_sample_info$sample == sample]
+  
+  #get all the csv file names from the directory and filter
+  read_csv(file = file.path(parent_dir, "Counts_files/csv_files", paste0(sample, "_pc_final_leading_counts.csv"))) %>%
+    filter(transcript %in% filtered_transcripts) %>%
+    mutate(condition = rep(condition),
+           replicate = rep(replicate)) %>%
+    normalise_data() -> counts_list[[sample]]
+}
+
+#return to parent directory
+setwd(parent_dir)
+
+#check counts list looks OK
+summary(counts_list[[1]])
+head(counts_list[[1]])
+
+#sanity check----
+#sum of all transcript CPMs within each sample should equal 1,000,000
+sum_sample_counts <- function(df) {
+  df %>%
+    summarise(summed_counts = sum(CPM)) -> df2
+  
+  return(df2)
+}
+
+lapply(counts_list, sum_sample_counts)
+
+#bin all data----
+binned_list <- lapply(counts_list, bin_data, region_lengths = region_lengths, region_cutoffs = region_cutoffs, bins = c(25,50,25))
+summary(binned_list[[1]])
+head(binned_list[[1]])
+
+#single nt----
+single_nt_list <- lapply(counts_list, splice_single_nt, region_lengths = region_lengths)
+summary(single_nt_list[[1]])
+head(single_nt_list[[1]])
+
+#save lists----
+save(file = file.path(parent_dir, "Counts_files/R_objects/disome_60nt_binned_list.Rdata"), binned_list)
+save(file = file.path(parent_dir, "Counts_files/R_objects/disome_60nt_single_nt_list.Rdata"), single_nt_list)

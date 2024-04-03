@@ -180,6 +180,7 @@ treemap <- treemapPlot(MF_reducedTerms_down, size = "score") #size gives size of
 dev.off()
 
 #make bar charts----
+#BP
 BP_reducedTerms_down %>%
   group_by(parentTerm) %>%
   summarise(score = mean(score)) %>%
@@ -199,15 +200,77 @@ BP_reducedTerms_summarised %>%
   pull(parentTerm) -> order_BP_terms
 
 BP_reducedTerms_summarised%>%
-  ggplot(aes(x = factor(parentTerm, levels = order_BP_terms, ordered = T), y = score, fill = score <0))+
+  ggplot(aes(x = factor(parentTerm, levels = order_BP_terms, ordered = T), y = score))+
   geom_col()+
-  scale_fill_manual(guide = none, breaks = c(TRUE,FALSE), values = c("red3", “green4”))+ #red = downregulated, green = upregulated
   coord_flip()+
   theme_classic()+
   theme(axis.title = element_blank())+
-  ggtitle("Enriched Biological Processes", subtitle = "parent terms summarised") -> summarised_terms_plot
+  ggtitle("Enriched Biological Processes", subtitle = "parent terms summarised") -> BP_summarised_terms_plot
 
 png(filename = file.path(parent_dir, "plots/fgsea/rrvgo/bio_processes_summarised_terms_plot.png"), width = 450, height =350 )
-print(summarised_terms_plot)
+print(BP_summarised_terms_plot)
 dev.off()
+
+#CC
+CC_reducedTerms_down %>%
+  group_by(parentTerm) %>%
+  summarise(score = mean(score)) %>%
+  ungroup() %>%
+  mutate(score = -score) -> CC_reducedTerms_down_summarised
+
+CC_reducedTerms_up %>%
+  group_by(parentTerm) %>%
+  summarise(score = mean(score)) %>%
+  ungroup() -> CC_reducedTerms_up_summarised
+
+CC_reducedTerms_down_summarised %>%
+  bind_rows(CC_reducedTerms_up_summarised) -> CC_reducedTerms_summarised
+
+CC_reducedTerms_summarised %>%
+  arrange(score) %>%
+  pull(parentTerm) -> order_CC_terms
+
+CC_reducedTerms_summarised%>%
+  ggplot(aes(x = factor(parentTerm, levels = order_CC_terms, ordered = T), y = score))+
+  geom_col()+
+  coord_flip()+
+  theme_classic()+
+  theme(axis.title = element_blank())+
+  ggtitle("Enriched Cellular Components", subtitle = "parent terms summarised") -> CC_summarised_terms_plot
+
+png(filename = file.path(parent_dir, "plots/fgsea/rrvgo/cell_comp_summarised_terms_plot.png"), width = 450, height =350 )
+print(CC_summarised_terms_plot)
+dev.off()
+
+#MF
+MF_reducedTerms_down %>%
+  group_by(parentTerm) %>%
+  summarise(score = mean(score)) %>%
+  ungroup() %>%
+  mutate(score = -score) -> MF_reducedTerms_down_summarised
+
+MF_reducedTerms_up %>%
+  group_by(parentTerm) %>%
+  summarise(score = mean(score)) %>%
+  ungroup() -> MF_reducedTerms_up_summarised
+
+MF_reducedTerms_down_summarised %>%
+  bind_rows(MF_reducedTerms_up_summarised) -> MF_reducedTerms_summarised
+
+MF_reducedTerms_summarised %>%
+  arrange(score) %>%
+  pull(parentTerm) -> order_MF_terms
+
+MF_reducedTerms_summarised%>%
+  ggplot(aes(x = factor(parentTerm, levels = order_MF_terms, ordered = T), y = score))+
+  geom_col()+
+  coord_flip()+
+  theme_classic()+
+  theme(axis.title = element_blank())+
+  ggtitle("Enriched Molecular Functions", subtitle = "parent terms summarised") -> MF_summarised_terms_plot
+
+png(filename = file.path(parent_dir, "plots/fgsea/rrvgo/mol_funs_summarised_terms_plot.png"), width = 450, height =350 )
+print(MF_summarised_terms_plot)
+dev.off()
+
 

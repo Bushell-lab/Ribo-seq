@@ -38,6 +38,28 @@ echo $PATH
 - **It is highly recommended that this data structure is followed as the scripts are designed to output the data in these locations and this makes it much easier for other people to understand what has been done and improves traceability. The filenames are also automatically generated within each script and should contain all important information. Again it is highly recommended that this is not altered for the same reasoning.**
 - Once the directories have been set up, the raw <.fastq> files need to be written to the fastq_files directory. If these already exist, then simply copy them across. If these need to be downloaded from GEO, then use the ***download_fastq_files.sh*** script to download these, ensuring they get written to the fastq_files directory. If this is your own data and you have the raw bcl sequencing folder, you will need to de-mulitplex and write the <.fastq> files. Use the ***demultiplex.sh*** script for this, which uses bcl2fastq (needs to be downloaded with conda), again writing the <.fastq> files to the fastq_files directory. These <.fastq> files will be the input into the ***RPFs_0_QC.sh*** and ***RPFs_1_adaptor_removal.sh*** scripts, so check that that extensiones match. It is fine if these files are <.gz> compressed as both fastQC and cutadapt can use compressed files as input, but again make sure that the shell scripts have the .gz extension included. 
 
+## FASTA file
+It is up to the user to decide what FASTA file to use for alignments.
+
+Protein coding FASTAs can be downloaded from the GENCODE website for mouse and human transcriptomes. It should be noted however that these possess a large number of transcripts that do not contain UTRs and have CDSs that are not equally divisible by 3, therefore are unlikely to be correctly annotated and/or undergo cap-dependent translation.
+
+The Filtering_GENCODE_FASTA.py script will
+- ensures the transcript has been manually annotated by HAVANA
+- ensure the transcript has both a 5' and 3'UTR
+- ensure the CDS is equally divisible by 3
+- ensure the CDS starts with an nUG start codon
+- ensure the CDS ends with a stop codon
+- remove any PAR_Y transcripts
+
+When this is run on the human v38 protein-coding FASTA, the filtered FASTA has 52,059 transcripts from 18,995 genes, whereas the original FASTA had 106,143 transcripts from 20,361 genes
+
+These FASTAs also have a lot of information within the header lines eg.
+>ENST00000641515.2|ENSG00000186092.7|OTTHUMG00000001094.4|OTTHUMT00000003223.4|OR4F5-201|OR4F5|2618|UTR5:1-60|CDS:61-1041|UTR3:1042-2618|
+
+The Reformatting_GENCODE_FASTA.py script extracts this extra information and saves it into csv files that are more easily read into R, while reformatting the FASTA to just contain the transcript ID. This makes downstream analysis simpler as only the transcript ID is carried forward following alignments.
+
+It is recoemmended to use a filtered and reformatted FASTA file by running the above python scripts on a downloaded FASTA file. Note these scripts will only work on FASTA files downloaded from GENCODE.
+
 ## Processing totals (standard RNA-seq)
 The RPFs will need to be aligned to a transcriptome that contains just one transcript per gene. The best way to deal with this issue is to select the most abundant transcript per gene. RSEM estimates relative expression of each isoform within each gene, which can therefore be used to select the most abundant transcript per gene. It can take a long time for RSEM to run (normally more than 24h), depending on the number of reads and the size of the transcriptome, so it is recommended that you start by processing the totals first.
 

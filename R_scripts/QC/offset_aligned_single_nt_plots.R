@@ -4,7 +4,7 @@ library(grid)
 library(gridExtra)
 
 #read in common variables----
-source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Ribosome_profiling/SI_epithelial_extractions/AK_A1_A2KOs/A2KO/Scripts/R_scripts/common_variables.R")
+source("common_variables.R")
 
 #read in data----
 region_lengths <- read_csv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/FASTAs/mouse/GENCODE/vM27/transcript_info/gencode.vM27.pc_transcripts_region_lengths.csv", col_names = c("transcript", "UTR5_len", "CDS_len", "UTR3_len"))

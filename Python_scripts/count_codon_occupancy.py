@@ -7,7 +7,7 @@ from Ribosome_profiling_functions import read_region_lengths
 from Ribosome_profiling_functions import read_in_fasta
 
 #Functions
-def splice_cds(in_dict, region_lengths_dict):
+def splice_cds(in_dict, region_lengths_dict, CDS_start_pos, CDS_end_pos):
     '''takes a dictionary and splices the CDS from the values'''
     out_dict = {}
     for k, v in in_dict.items():
@@ -15,7 +15,13 @@ def splice_cds(in_dict, region_lengths_dict):
         cds_len = region_lengths_dict[k][1]
         cds_end = UTR5_len + cds_len
         
-        out_dict[k] = v[UTR5_len:cds_end]
+        CDS = v[UTR5_len:cds_end]
+        
+        if CDS_end_pos == 0:
+            out_dict[k] = CDS[(CDS_start_pos * 3):]
+        else:
+            out_dict[k] = CDS[(CDS_start_pos * 3):(CDS_end_pos * 3)]
+        
     return out_dict
 
 def count_codons(counts_dict, seqs_dict, outfyle):
@@ -32,7 +38,7 @@ def count_codons(counts_dict, seqs_dict, outfyle):
     for transcript, counts in counts_dict.items():
         seq = seqs_dict[transcript]
         
-        for i in range(60, (len(counts) - (12 + 30)), 3): #this will create a range to iterate through each codon in the CDS. Starting at 60 removes the first 20 codons. Ending at -(12 + 30) removes the final 10 codons
+        for i in range(9, (len(counts) - 12), 3): #this will create a range to iterate through each codon in the CDS. This will only utilise reads that are in frame 0.
             RPF_seq = seq[(i - 9):(i + 12)] #this accounts for the previously applied offset, meaning that the each count refers to the codon in the P-site
             RPF_counts = int(counts[i])
             
@@ -71,9 +77,11 @@ def count_codons(counts_dict, seqs_dict, outfyle):
 
 def filter_dictonary(in_dict,filter_dict):
     '''Removes entries from a dictionary'''
-    for k in in_dict.keys():
-        if k not in filter_dict:
-            del in_dict[k]
+    out_dict = {}
+    for k,v in in_dict.items():
+        if k in filter_dict:
+            out_dict[k]=v
+    return out_dict
 
 def read_in_target_transcripts(txt_file):
     '''Read in an transcript ID file'''
@@ -82,14 +90,14 @@ def read_in_target_transcripts(txt_file):
         for line in f:
             transcript_dict[line.strip()] = None
     return transcript_dict
-    
-    
 
 def main():
     parser = argparse.ArgumentParser(description='This script will, for each codon, count the number of reads that correspond to that codon being at each position within the ribosome.\nThe <.counts> input must have already been offset so that the position of each count refers to the start of the P-site for that read')
     parser.add_argument('infyle', type=str, help='counts file to pull values from')
     parser.add_argument('fasta', type=str, help='FASTA file. Must be the same file that was used to align reads')
     parser.add_argument('region_lengths_fyle', type=str, help='region lengths file. Needs to be csv file in the following format; Transcript ID,5\'UTR length,CDS length,3\'UTR length')
+    parser.add_argument('CDS_start', type=int, help='Define the CDS start position (codons) to use. Recommended to use 20, which will remove the first 20 codons')
+    parser.add_argument('CDS_end', type=int, help='Define the CDS end position (codons) to use. A negative number will remove that number of codons from the 3\' end of the coding region (Recommended to use -10, which will remove the last 10 codons).\nA positive number will only include that many codons from the 5\' end (this must be higher than the value used for CDS_start')
     parser.add_argument('-transcripts', type=str, default=None, help='List of transcript IDs. Carry out analysis on these transcripts only, default is all transcripts')
     parser.add_argument('-in_dir', type=str, default=None, help='Change the input folder, default is current directory')
     parser.add_argument('-out_dir', type=str, default=None, help='Change the output folder, default is current directory')
@@ -104,7 +112,7 @@ def main():
     #filter transcripts by list if option selected
     if args.transcripts != None:
         restrict_dict = read_in_target_transcripts(args.transcripts)
-        filter_dictonary(counts, restrict_dict)
+        counts = filter_dictonary(counts, restrict_dict)
         
     #read in fasta
     seqs = read_in_fasta(args.fasta)
@@ -113,21 +121,26 @@ def main():
     region_lengths = read_region_lengths(args.region_lengths_fyle)
         
     #splice cds counts and seq
-    cds_seq = splice_cds(seqs, region_lengths)
-    cds_counts = splice_cds(counts, region_lengths)
+    cds_seq = splice_cds(seqs, region_lengths, args.CDS_start, args.CDS_end)
+    cds_counts = splice_cds(counts, region_lengths, args.CDS_start, args.CDS_end)
     
-    #count codons and write to file
+    #for k,v in cds_seq.items():
+    #    print(k)
+    #    print(v)
+    
+    #define output filename based on input filename and options used
     if args.out_dir == None:
         if args.transcripts == None:
-            fylename = args.infyle.replace('.counts', '_counts.csv')
+            fylename = args.infyle.replace('.counts', '_codon_counts_') + str(args.CDS_start) + "_" + str(args.CDS_end) + ".csv"
         else:
-            fylename = args.infyle.replace('.counts', '_counts_') + args.transcripts.replace('txt', 'csv')
+            fylename = args.infyle.replace('.counts', '_codon_counts_') +  str(args.CDS_start) + "_" + str(args.CDS_end) + "_" + args.transcripts.split('/')[-1].replace('txt', 'csv')
     else:
         if args.transcripts == None:
-            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_counts.csv')
+            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_codon_counts_') + str(args.CDS_start) + "_" + str(args.CDS_end) + ".csv"
         else:
-            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_counts_') + args.transcripts.split('/')[-1].replace('txt', 'csv')
-        
+            fylename = args.out_dir + '/' + args.infyle.replace('.counts', '_codon_counts_') +  str(args.CDS_start) + "_" + str(args.CDS_end) + "_" + args.transcripts.split('/')[-1].replace('txt', 'csv')
+    
+    #count codons and write to file    
     count_codons(cds_counts, cds_seq, fylename)
     
 if __name__ == '__main__':

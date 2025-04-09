@@ -59,10 +59,10 @@ Totals_counts %>%
   ylab("pc reads %")+
   ylim(c(0,100))+
   ggtitle("Totals")+
-  myTheme -> Totals_pc_plot
+  myTheme -> Totals_pc_alignment_plot
 
-png(filename = file.path(parent_dir, "plots/read_counts_summary/Totals_pc_counts.png"), width = 500, height = 300)
-print(Totals_pc_plot)
+png(filename = file.path(parent_dir, "plots/read_counts_summary/Totals_pc_alignments.png"), width = 500, height = 300)
+print(Totals_pc_alignment_plot)
 dev.off()
 
 #plot unique counts %----

@@ -90,6 +90,8 @@ RPF_sig_padj <- 0.1
 TE_non_sig_padj <- 0.9
 RPF_non_sig_padj <- 0.5
 
+log2FC_threshold <- 0.2
+
 #merged data and make groups based on RPF/Total adjusted p-values or TE adjusted p-values
 RPFs %>%
   select(gene, gene_sym, log2FoldChange, padj) %>%
@@ -112,11 +114,8 @@ RPFs %>%
                                        (totals_padj < RPF_sig_padj & totals_log2FC > log2FC_threshold) & (RPFs_padj >= RPF_non_sig_padj | RPFs_log2FC < -log2FC_threshold)  ~ "Totals up",
                                        RPFs_padj < RPF_sig_padj & totals_padj < RPF_sig_padj & RPFs_log2FC < -log2FC_threshold & totals_log2FC < -log2FC_threshold ~ "both down",
                                        RPFs_padj < RPF_sig_padj & totals_padj < RPF_sig_padj & RPFs_log2FC > log2FC_threshold & totals_log2FC > log2FC_threshold ~ "both up",
-                                       totals_padj >= RPF_non_sig_padj & RPFs_padj >= RPF_non_sig_padj ~ "no change")),
-         RPFs_group = factor(case_when(is.na(RPFs_group) ~ "NS",
-                                       !(is.na(RPFs_group)) ~ RPFs_group), levels = c("RPFs down", "RPFs up", "Totals down", "Totals up", "both down", "both up", "no change", "NS"), ordered = T)) -> merged_data
+                                       totals_padj >= RPF_non_sig_padj & RPFs_padj >= RPF_non_sig_padj ~ "no change"), levels = c("RPFs down", "RPFs up", "Totals down", "Totals up", "both down", "both up", "no change", "NS"), ordered = T)) -> merged_data
 summary(merged_data)
-
 
 #plot TE scatters----
 #based on RPFs/totals logFC
@@ -127,8 +126,9 @@ merged_data %>%
   mutate(lab = paste0(RPFs_group, " (n=", num, ") ")) -> RPF_labs
 
 merged_data %>%
-  mutate(alpha_score = case_when(RPFs_group == "NS" | RPFs_group == "no change" ~ 0.1,
+  mutate(alpha_score = case_when(is.na(RPFs_group) | RPFs_group == "no change" ~ 0.1,
                                  RPFs_group != "NS" & RPFs_group != "no change" ~ 1)) %>%
+  #summary()
   arrange(desc(RPFs_group)) %>%
   left_join(RPF_labs, by = "RPFs_group") %>%
   ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = lab, alpha = alpha_score))+
@@ -139,8 +139,8 @@ merged_data %>%
   xlab("Cytoplasmic RNA log2FC")+
   ylab("RPFs log2FC")+
   ggtitle(paste(treatment, "TE scatter"))+
-  xlim(c(-5,5))+
-  ylim(c(-5,5))+
+  xlim(c(-2.5,2.5))+
+  ylim(c(-2.5,2.5))+
   geom_abline(lty=1)+
   geom_hline(yintercept = 0, lty=1)+
   geom_vline(xintercept = 0, lty=1) -> RPF_groups_scatter_plot
@@ -160,7 +160,7 @@ merged_data %>%
   filter(!(is.na(TE_group))) %>%
   arrange(desc(TE_group)) %>%
   mutate(alpha_score = case_when(TE_group =="TE down" | TE_group =="TE up" ~ 1,
-                                 TE_group == "no change" | TE_group =="NS" ~ 0.1)) %>%
+                                 TE_group == "no change" | is.na(TE_group) ~ 0.1)) %>%
   left_join(TE_labs, by = "TE_group") %>%
   ggplot(aes(x = totals_log2FC, y = RPFs_log2FC, colour = lab, alpha = alpha_score))+
   geom_point()+
@@ -170,8 +170,8 @@ merged_data %>%
   xlab("Cytoplasmic RNA log2FC")+
   ylab("RPFs log2FC")+
   ggtitle(paste(treatment, "TE scatter"))+
-  xlim(c(-5,5))+
-  ylim(c(-5,5))+
+  xlim(c(-2.5,2.5))+
+  ylim(c(-2.5,2.5))+
   geom_abline(lty=1)+
   geom_hline(yintercept = 0, lty=1)+
   geom_hline(yintercept = 1, lty=2)+
@@ -185,5 +185,5 @@ print(TE_scatter_plot)
 dev.off()
 
 #write out csv
-write_csv(merged_data, file.path(parent_dir, "Analysis/DESeq2_output/merged_DESeq2.csv"))
+write_csv(merged_data, file.path(parent_dir, "Analysis/DESeq2_output", paste0(treatment, "_merged_DESeq2.csv")))
 

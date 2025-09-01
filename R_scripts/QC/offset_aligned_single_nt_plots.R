@@ -7,7 +7,8 @@ library(gridExtra)
 source("common_variables.R")
 
 #read in data----
-region_lengths <- read_csv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/FASTAs/mouse/GENCODE/vM27/transcript_info/gencode.vM27.pc_transcripts_region_lengths.csv", col_names = c("transcript", "UTR5_len", "CDS_len", "UTR3_len"))
+region_lengths_dir <- "path/to/file" # add the path to the file here
+region_lengths <- read_csv(file = file.path(region_lengths_dir, "gencode.v38.pc_transcripts_region_lengths.csv"), col_names = c("transcript", "UTR5_len", "CDS_len", "UTR3_len")) # this is for human transcriptome, will need to alter if using a different species
 
 #create themes----
 my_theme <- theme_bw()+

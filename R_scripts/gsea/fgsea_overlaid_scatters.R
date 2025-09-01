@@ -4,7 +4,7 @@ library(fgsea)
 library(ggrepel)
 
 #read in common variables
-source("\\\\data.beatson.gla.ac.uk/data/JWALDRON/Ribosome_profiling/SI_epithelial_extractions/AK_A1_A2KOs/paper/GEO_upload/test_run/Scripts/R_scripts/A1/A1_common_variables.R")
+source("common_variables.R")
 
 #create a variable for what the treatment is----
 treatment <- "A1KO"
@@ -134,4 +134,5 @@ if (!(dir.exists(file.path(parent_dir, "plots/fgsea/scatters/hallmark/annotated"
 png(filename = file.path(parent_dir, "plots/fgsea/scatters/hallmark/annotated", paste(treatment, pathway, "TE_scatter_plot.png", sep = "_")), width = 400, height = 400)
 print(annotated_scatter)
 dev.off()
+
 

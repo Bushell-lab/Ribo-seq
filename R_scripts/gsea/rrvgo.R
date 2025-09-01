@@ -16,7 +16,8 @@ padj_threshold <- 0.05
 
 #read in data----
 ##GO term IDs----
-GO_terms <- read.table("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/go_term_to_id.tsv", header = T)
+gsea_dir <- "path/to/dir"
+GO_terms <- read.table(file.path(gsea_dir, "go_term_to_id.tsv"), header = T)
 
 #subset GO_terms for the ontology
 GO_terms %>%

@@ -64,7 +64,8 @@ DESeq2_data %>%
 named_vectors <- list(RPFs = RPFs_named_vector, totals = totals_named_vector, TE = TE_named_vector)
 
 #read in pathways----
-source("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/read_mouse_GSEA_pathways.R") #This may need to be changed to human
+gsea_dir <- "path/to/dir"
+source(file.path(gsea_dir, "read_mouse_GSEA_pathways.R")) #This may need to be changed to human
 
 #hallmark----
 #carry out fgsea
@@ -181,3 +182,4 @@ dev.off()
 png(filename = file.path(parent_dir, "plots/fgsea/", paste(treatment, "TE_curated.png", sep = "_")), width = 1000, height = 1000)
 make_plot(fgsea_result = curated_results$TE, padj_threshold = padj, title = paste(treatment, "TE\nGSEA Curated gene sets"))
 dev.off()
+

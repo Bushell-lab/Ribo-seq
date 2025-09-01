@@ -6,7 +6,8 @@ library(tximport)
 source("common_variables.R")
 
 #read in transcript and gene IDs
-transcript_to_gene_ID <- read_csv(file = "\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/FASTAs/mouse/GENCODE/vM27/transcript_info/gencode.vM27.pc_transcripts_gene_IDs.csv", col_names = c("transcript", "gene", "gene_sym"))
+transcript_to_gene_ID_dir <- "path/to/file" # add the path here
+transcript_to_gene_ID <- read_csv(file = file.path(transcript_to_gene_ID_dir, "gencode.vM27.pc_transcripts_gene_IDs.csv"), col_names = c("transcript", "gene", "gene_sym"))
 
 #create a vector of rsem isoform file names
 rsem_dir <- file.path(parent_dir, 'rsem')
@@ -44,3 +45,4 @@ nrow(most_abundant_transcripts) == n_distinct(most_abundant_transcripts$gene)
 #write out as csv
 write_csv(file = file.path(parent_dir, "Analysis/most_abundant_transcripts/most_abundant_transcripts_IDs.csv"), most_abundant_transcripts)
 write.table(file = file.path(parent_dir, "Analysis/most_abundant_transcripts/most_abundant_transcripts.txt"), most_abundant_transcripts$transcript, row.names = F, col.names = F, quote = F)
+

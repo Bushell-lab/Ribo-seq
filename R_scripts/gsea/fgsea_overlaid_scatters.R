@@ -7,7 +7,7 @@ library(ggrepel)
 source("common_variables.R")
 
 #create a variable for what the treatment is----
-treatment <- "A1KO"
+treatment <- ""
 
 #themes----
 mytheme <- theme_classic()+
@@ -68,7 +68,8 @@ myP <- function(x) {
 DESeq2_data <- read_csv(file = file.path(parent_dir, "Analysis/DESeq2_output/merged_DESeq2.csv"))
 
 #read in pathways----
-source("\\\\data.beatson.gla.ac.uk/data/R11/bioinformatics_resources/GSEA/read_mouse_GSEA_pathways.R") #This may need to be changed to human
+gsea_dir <- "path/to/dir"
+source(file.path(gsea_dir, "read_mouse_GSEA_pathways.R")) #This may need to be changed to human
 
 #plot all sig pathways----
 ### The following part will plot overlaid scatters for all significant TE pathways for the hallmarks. It can be edited to do the same for either the RPFs or totals or for different pathways
@@ -134,5 +135,6 @@ if (!(dir.exists(file.path(parent_dir, "plots/fgsea/scatters/hallmark/annotated"
 png(filename = file.path(parent_dir, "plots/fgsea/scatters/hallmark/annotated", paste(treatment, pathway, "TE_scatter_plot.png", sep = "_")), width = 400, height = 400)
 print(annotated_scatter)
 dev.off()
+
 
 

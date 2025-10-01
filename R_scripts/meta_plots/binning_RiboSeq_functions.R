@@ -81,7 +81,7 @@ bin_data <- function(df, region_lengths, region_cutoffs = c(50,300,50), bins = c
   #filter the transcripts with UTRs/CDSs less than the defined thresholds
   df %>%
     inner_join(region_lengths, by = "transcript") %>%
-    filter(UTR5_len >= region_cutoffs[1] & CDS_len >= region_cutoffs[2] & UTR3_len >= region_cutoffs[3]) -> filtered_data
+    filter(UTR5_len >= region_cutoffs[1] & CDS_len >= region_cutoffs[2] & UTR5_len >= region_cutoffs[3]) -> filtered_data
   
   #bin data
   #5'UTR
@@ -89,7 +89,7 @@ bin_data <- function(df, region_lengths, region_cutoffs = c(50,300,50), bins = c
     filter(Position <= UTR5_len) %>%
     mutate(normalised_position = Position / UTR5_len,
            bin = calculate_bins(normalised_position, bins[1])) %>%
-    group_by(transcript, bin, condition, replicate) %>%
+    group_by(transcript, bin, condition, RPF_type, replicate) %>%
     summarise(binned_cpm = mean(CPM),
               binned_normalised_cpm = mean(normalised_CPM)) %>%
     ungroup() %>%
@@ -101,7 +101,7 @@ bin_data <- function(df, region_lengths, region_cutoffs = c(50,300,50), bins = c
     mutate(CDS_position = Position - UTR5_len,
            normalised_position = CDS_position / CDS_len,
            bin = calculate_bins(normalised_position, bins[2])) %>%
-    group_by(transcript, bin, condition, replicate) %>%
+    group_by(transcript, bin, condition, RPF_type, replicate) %>%
     summarise(binned_cpm = mean(CPM),
               binned_normalised_cpm = mean(normalised_CPM)) %>%
     ungroup() %>%
@@ -113,7 +113,7 @@ bin_data <- function(df, region_lengths, region_cutoffs = c(50,300,50), bins = c
     mutate(UTR3_position = Position - (UTR5_len + CDS_len),
            normalised_position = UTR3_position / UTR3_len,
            bin = calculate_bins(normalised_position, bins[3])) %>%
-    group_by(transcript, bin, condition, replicate) %>%
+    group_by(transcript, bin, condition, RPF_type, replicate) %>%
     summarise(binned_cpm = mean(CPM),
               binned_normalised_cpm = mean(normalised_CPM)) %>%
     ungroup() %>%
